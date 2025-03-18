@@ -1,10 +1,10 @@
+export default ThreeScene;
+
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { Scene1 } from "./scenes/scene1";
-import { TransitionManager } from "./transitionManager";
-import { Scene3 } from "./scenes/scene3";
-import { Scene2 } from "./scenes/scene2";
+import { TransitionManager } from "./TransitionManager";
 
 const ThreeScene = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -15,9 +15,9 @@ const ThreeScene = () => {
     if (mountRef.current.children.length > 0) return;
 
     // Create scenes
-    const scene1 = new Scene1();
-    const scene2 = new Scene2();
-    const scene3 = new Scene3();
+    const scene1 = new Scene1("scene1");
+    const scene2 = new Scene1("scene2");
+    const scene3 = new Scene1("scene3");
     const scenes = [scene1, scene2, scene3];
 
     // Store camera in scene userData for accessibility
@@ -31,7 +31,7 @@ const ThreeScene = () => {
       // Important: ensure the renderer preserves the drawing buffer
       preserveDrawingBuffer: true,
     });
-    renderer.setPixelRatio(1.5);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     mountRef.current.appendChild(renderer.domElement);
 
@@ -40,7 +40,7 @@ const ThreeScene = () => {
 
     // Load transition texture
     transitionManager
-      .loadTransitionTexture("./gradient.png")
+      .loadTransitionTexture("/path/to/your/transition-gradient.png")
       .then(() => console.log("Transition texture loaded"))
       .catch((err) => console.error("Failed to load transition texture:", err));
 
@@ -56,7 +56,7 @@ const ThreeScene = () => {
       requestAnimationFrame(animate);
 
       // Update active scene
-      eventEmitterInstance.trigger("tick", [deltaTime]);
+      eventEmitterInstance.trigger("tick", deltaTime);
 
       // Check if transition is active
       const transitionComplete = transitionManager.update(renderer, deltaTime);
@@ -84,13 +84,12 @@ const ThreeScene = () => {
 
     // Scene change handler
     const sceneChangeHandler = () => {
-      console.log("Scene change");
       const nextSceneIndex = (activeSceneIndex + 1) % scenes.length;
       const currentScene = scenes[activeSceneIndex].instance;
       const nextScene = scenes[nextSceneIndex].instance;
 
       // Start transition
-      transitionManager.startTransition(currentScene, nextScene, 2);
+      transitionManager.startTransition(currentScene, nextScene, 1.5);
     };
 
     // Listen for scene change events
@@ -98,17 +97,17 @@ const ThreeScene = () => {
 
     // Handle window resize
     const handleResize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
       scenes.forEach((scene) => {
-        scene.handleResize();
+        scene.handleResize(renderer);
       });
+      transitionManager.handleResize();
     };
     window.addEventListener("resize", handleResize);
 
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
-      // eventEmitterInstance.off("nextScene");
+      eventEmitterInstance.off("nextScene", sceneChangeHandler);
       transitionManager.dispose();
       renderer.dispose();
       mountRef.current?.removeChild(renderer.domElement);
@@ -122,8 +121,8 @@ const ThreeScene = () => {
         className="scene-info"
         style={{
           position: "absolute",
-          top: "1rem",
-          right: "1rem",
+          top: "20px",
+          left: "20px",
           color: "white",
           backgroundColor: "rgba(0,0,0,0.5)",
           padding: "10px",
