@@ -15,7 +15,7 @@ export class Character {
         this.position = { x: 0, y: 0, z: 0 };
         this.direction = { x: 0, y: 0, z: 0 };
         Controls.init();
-        eventEmitterInstance.on("tick", this.update);
+        eventEmitterInstance.on("tick", this.update.bind(this));
     }
 
     public moveForward(distance: number): void {
@@ -32,14 +32,20 @@ export class Character {
     }
 
     update(deltaTime) {
-        if (Controls.keys.forward) this.moveForward(-0.1);
-        if (Controls.keys.back) this.moveForward(0.1);
+        if (Controls.keys.forward) {
+            this.setDirection({ x: 0, y: 0, z: -1 });
+            this.moveForward(-0.1);
+        }
+        if (Controls.keys.back) {
+            this.setDirection({ x: 0, y: 0, z: 1 });
+            this.moveForward(-0.1);
+        }
         if (Controls.keys.left) {
-            this.setDirection({ x: -1, y: 0, z: 0 });
+            this.setDirection({ x: 1, y: 0, z: 0 });
             this.moveForward(0.1);
         }
         if (Controls.keys.right) {
-            this.setDirection({ x: 1, y: 0, z: 0 });
+            this.setDirection({ x: -1, y: 0, z: 0 });
             this.moveForward(0.1);
         }
     }

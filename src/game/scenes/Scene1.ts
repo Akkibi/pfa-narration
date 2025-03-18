@@ -7,12 +7,12 @@ export class Scene1 extends BaseScene {
         super();
 
         const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(10, 10),
+            new THREE.PlaneGeometry(10, 20),
             new THREE.MeshStandardMaterial({ color: "white" })
         );
 
-        ground.position.set(0, -1, -1);
-        // ground.rotation.x = -Math.PI / 2;
+        ground.position.set(0, -2, 8);
+        ground.rotation.x = -Math.PI / 2;
 
         this.instance.add(ground);
 

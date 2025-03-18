@@ -13,29 +13,40 @@ class BaseScene {
     constructor() {
         this.instance = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(
-            75,
+            50,
             window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.camera.position.z = 1.5;
-        this.instance.add(this.camera);
+        this.camera.position.z = -5;
+        this.camera.position.y = 3;
+
+
+        // this.camera.lookAt(0, 0, 1);
+
         this.character = new Character();
 
         this.playerMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
+            new THREE.BoxGeometry(0.5, 1, 0.5),
             new THREE.MeshStandardMaterial({ color: 0xff0000 })
         );
 
+        this.camera.lookAt(this.playerMesh.position);
+        this.playerMesh.add(this.camera);
+        // this.playerMesh.position.x = 1;
+
         this.instance.add(this.playerMesh);
-        this.init();
+
+        // Add AxesHelper
+        const axesHelper = new THREE.AxesHelper(5);
+        this.instance.add(axesHelper);
+
+        eventEmitterInstance.on("positionChanged", this.move.bind(this));
     }
 
-    init() {
-        eventEmitterInstance.on("positionChanged", (pos) => {
-            this.playerMesh.position.copy(pos);
-        });
-    }
+    move(pos) {
+        this.playerMesh.position.copy(pos);
+    };
 
     public handleResize = () => {
         this.camera.aspect = window.innerWidth / window.innerHeight;
