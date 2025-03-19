@@ -7,8 +7,8 @@ class BaseScene {
     public instance: THREE.Scene;
     public camera: THREE.PerspectiveCamera;
 
-    private playerMesh: THREE.Mesh;
-    private character: Character;
+    protected playerMesh: THREE.Mesh;
+    protected character: Character;
 
     constructor() {
         this.instance = new THREE.Scene();
@@ -19,7 +19,7 @@ class BaseScene {
             1000
         );
         this.camera.position.z = -5;
-        this.camera.position.y = 3;
+        this.camera.position.y = 1;
 
 
         // this.camera.lookAt(0, 0, 1);
@@ -27,7 +27,7 @@ class BaseScene {
         this.character = new Character();
 
         this.playerMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(0.5, 1, 0.5),
+            new THREE.BoxGeometry(this.character.vars.width, this.character.vars.height, this.character.vars.depth),
             new THREE.MeshStandardMaterial({ color: 0xff0000 })
         );
 

@@ -7,9 +7,16 @@ type Point = {
     z: number;
 };
 
+const CharacterVars = {
+    height: 1.8,
+    width: 0.5,
+    depth: 0.5,
+}
+
 export class Character {
     private position: Point;
     private direction: Point;
+    public vars = CharacterVars;
 
     constructor() {
         this.position = { x: 0, y: 0, z: 0 };
