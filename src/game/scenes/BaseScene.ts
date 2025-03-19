@@ -7,37 +7,48 @@ class BaseScene {
     public instance: THREE.Scene;
     public camera: THREE.PerspectiveCamera;
 
-    private playerMesh: THREE.Mesh;
-    private character: Character;
+    protected playerMesh: THREE.Mesh;
+    protected character: Character;
 
     constructor() {
         this.instance = new THREE.Scene()
         this.instance.background = new THREE.Color(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(
-            75,
+            50,
             window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.camera.position.z = 2;
-        this.instance.add(this.camera);
+        this.camera.position.z = -5;
+        this.camera.position.y = 1;
+
+
+        // this.camera.lookAt(0, 0, 1);
+
         this.character = new Character();
 
-        // this.playerMesh = new THREE.Mesh(
-        //     new THREE.BoxGeometry(1, 1, 1),
-        //     new THREE.MeshBasicMaterial({ color: 0xff0000 })
-        // );
+        this.playerMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(this.character.vars.width, this.character.vars.height, this.character.vars.depth),
+            new THREE.MeshStandardMaterial({ color: 0xff0000 })
+        );
 
-        // this.instance.add(this.playerMesh);
-        this.init();
+        this.camera.lookAt(this.playerMesh.position);
+        this.playerMesh.add(this.camera);
+        // this.playerMesh.position.x = 1;
+
+        this.instance.add(this.playerMesh);
+
+        // Add AxesHelper
+        const axesHelper = new THREE.AxesHelper(5);
+        this.instance.add(axesHelper);
+
+        eventEmitterInstance.on("positionChanged", this.move.bind(this));
     }
 
-    init() {
-        eventEmitterInstance.on("positionChanged", (pos) => {
-            this.playerMesh.position.copy(pos);
-        });
-    }
+    move(pos) {
+        this.playerMesh.position.copy(pos);
+    };
 
     public handleResize = () => {
         this.camera.aspect = window.innerWidth / window.innerHeight;
