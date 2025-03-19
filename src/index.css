@@ -21,9 +21,8 @@
     --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
     color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-
+    color: rgba(255, 255, 255, 1);
+    background-color: #000000;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;

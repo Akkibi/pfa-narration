@@ -80,11 +80,11 @@ const ThreeScene = () => {
                 const camera = scenes[activeSceneIndex].camera;
 
                 // Ensure the background color is applied correctly
-                if (currentScene.background) {
-                    renderer.setClearColor(
-                        currentScene.background as THREE.Color
-                    );
-                }
+                // if (currentScene.background) {
+                //     renderer.setClearColor(
+                //         currentScene.background as THREE.Color
+                //     );
+                // }
                 renderer.render(currentScene, camera);
             }
         };

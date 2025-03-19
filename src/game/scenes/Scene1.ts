@@ -11,7 +11,7 @@ export class Scene1 extends BaseScene {
 
         const ground = new THREE.Mesh(
             new THREE.PlaneGeometry(GROUND_WIDHT, GROUND_HEIGHT),
-            new THREE.MeshStandardMaterial({ color: "white" })
+            new THREE.MeshBasicMaterial({ color: "white" })
         );
 
         ground.position.set(GROUND_WIDHT / 2, - this.character.vars.height / 2, GROUND_HEIGHT / 2);

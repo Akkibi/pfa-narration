@@ -11,7 +11,9 @@ class BaseScene {
     protected character: Character;
 
     constructor() {
-        this.instance = new THREE.Scene();
+        this.instance = new THREE.Scene()
+        this.instance.background = new THREE.Color(0xffffff);
+
         this.camera = new THREE.PerspectiveCamera(
             50,
             window.innerWidth / window.innerHeight,

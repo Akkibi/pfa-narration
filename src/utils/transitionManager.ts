@@ -15,7 +15,14 @@ export class TransitionManager {
 
     constructor() {
         // Create orthographic camera for rendering the transition
-        this.transitionCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        this.transitionCamera = new THREE.OrthographicCamera(
+            -1,
+            1,
+            1,
+            -1,
+            0,
+            1,
+        );
 
         // Create scene for transition
         this.transitionScene = new THREE.Scene();
@@ -55,7 +62,7 @@ export class TransitionManager {
           gl_FragColor = mix(currentColor, nextColor, mixFactor);
         }
       `,
-            transparent: true,
+            transparent: false,
         });
 
         // Create a full-screen quad for rendering the transition
@@ -67,7 +74,8 @@ export class TransitionManager {
     public loadTransitionTexture(path: string): Promise<void> {
         return new Promise((resolve) => {
             new THREE.TextureLoader().load(path, (texture) => {
-                this.transitionMaterial.uniforms.transitionFactor.value = texture;
+                this.transitionMaterial.uniforms.transitionFactor.value =
+                    texture;
                 resolve();
             });
         });
