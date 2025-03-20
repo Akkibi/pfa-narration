@@ -6,8 +6,6 @@ import { eventEmitterInstance } from "../../utils/eventEmitter";
 class BaseScene {
     public instance: THREE.Scene;
     public camera: THREE.PerspectiveCamera;
-
-    protected playerMesh: THREE.Mesh;
     protected character: Character;
 
     constructor() {
@@ -21,23 +19,18 @@ class BaseScene {
             1000
         );
         this.camera.position.z = -5;
-        this.camera.position.y = 1;
+        this.camera.position.y = 5;
 
 
         // this.camera.lookAt(0, 0, 1);
 
         this.character = new Character();
 
-        this.playerMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(this.character.vars.width, this.character.vars.height, this.character.vars.depth),
-            new THREE.MeshStandardMaterial({ color: 0xff0000 })
-        );
+        this.camera.lookAt(this.character.instance.position);
+        this.character.instance.add(this.camera);
+        // this.character.instance.position.x = 1;
 
-        this.camera.lookAt(this.playerMesh.position);
-        this.playerMesh.add(this.camera);
-        // this.playerMesh.position.x = 1;
-
-        this.instance.add(this.playerMesh);
+        this.instance.add(this.character.instance);
 
         // Add AxesHelper
         const axesHelper = new THREE.AxesHelper(5);
@@ -46,8 +39,25 @@ class BaseScene {
         eventEmitterInstance.on("positionChanged", this.move.bind(this));
     }
 
-    move(pos) {
-        this.playerMesh.position.copy(pos);
+    move(pos: THREE.Vector3) {
+        console.log("Moving from", this.character.instance.position, "to", pos);
+
+        const raycaster = new THREE.Raycaster();
+        const down = new THREE.Vector3(0, -1, 0);
+        raycaster.set(this.character.instance.position, down);
+
+        const intersects = raycaster.intersectObjects(this.instance.children, true);
+
+        console.log(intersects);
+
+        if (intersects.length > 0) {
+            this.character.instance.position.copy(pos);
+            return true;
+        } else {
+            console.warn("Character is out of the map!");
+        }
+
+        return false;
     };
 
     public handleResize = () => {

@@ -21,7 +21,7 @@ const ThreeScene = () => {
             // Important: ensure the renderer preserves the drawing buffer
             preserveDrawingBuffer: true,
         });
-        renderer.setPixelRatio(1.5);
+        renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current.appendChild(renderer.domElement);
 
@@ -53,14 +53,17 @@ const ThreeScene = () => {
 
 
         // Animation loop
-        const animate = (time: number) => {
-            const deltaTime = (time - lastTime) * 0.001; // Convert to seconds
+        const animate = (time: number, tick: number) => {
+            if (lastTime === undefined) {
+                lastTime = time;
+            }
+
+            const deltaTime = (time - lastTime); // Convert to seconds
             lastTime = time;
 
-            requestAnimationFrame(animate);
-
+            requestAnimationFrame((time) => animate(time, tick + 1));
             // Update active scene
-            eventEmitterInstance.trigger("tick", [deltaTime]);
+            eventEmitterInstance.trigger("tick", [deltaTime, tick]);
 
             // Check if transition is active
             const transitionComplete = transitionManager.update(
@@ -90,7 +93,8 @@ const ThreeScene = () => {
         };
 
         // Start animation loop
-        animate(0);
+        animate(0, 0);
+
 
         // Scene change handler
         const sceneChangeHandler = () => {

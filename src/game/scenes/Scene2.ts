@@ -33,6 +33,7 @@ export class Scene2 extends BaseScene {
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);
                     this.gltfModel.scale.set(1, 1, 1);
+                    this.gltfModel.rotation.set(0, Math.PI, 0);
                 }
             },
             undefined,

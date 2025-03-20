@@ -11,7 +11,7 @@ export class Scene1 extends BaseScene {
 
         const ground = new THREE.Mesh(
             new THREE.PlaneGeometry(GROUND_WIDHT, GROUND_HEIGHT),
-            new THREE.MeshBasicMaterial({ color: "white" })
+            new THREE.MeshStandardMaterial({ color: "white" })
         );
 
         ground.position.set(GROUND_WIDHT / 2, - this.character.vars.height / 2, GROUND_HEIGHT / 2);
@@ -19,7 +19,7 @@ export class Scene1 extends BaseScene {
 
         this.instance.add(ground);
 
-        this.playerMesh.position.set(GROUND_WIDHT / 2, 0, 1);
+        this.character.instance.position.set(GROUND_WIDHT / 2, 0, 1);
 
         // Adding a light source since MeshStandardMaterial requires light
         const light = new THREE.DirectionalLight(0xffffff, 1);
