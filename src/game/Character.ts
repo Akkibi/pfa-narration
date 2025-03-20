@@ -24,36 +24,30 @@ export class Character {
         this.direction = new THREE.Vector3(0, 0, 0);
         this.speed = new THREE.Vector3(0, 0, 1);
         Controls.init();
-        eventEmitterInstance.on("tick", this.update.bind(this));
+        eventEmitterInstance.on("updatePhysics", this.update.bind(this));
     }
 
-    update(deltaTime: number, tick: number) {
+    update() {
         // Handle movement based on controls
         if (Controls.keys.forward) {
-            this.speed.z += 0.01 * deltaTime;
+            this.speed.z += 0.01;
         }
         if (Controls.keys.back) {
-            this.speed.z -= 0.01 * deltaTime;
+            this.speed.z -= 0.01;
         }
         if (Controls.keys.left) {
-            this.speed.x += 0.01 * deltaTime;
+            this.speed.x += 0.01;
         }
         if (Controls.keys.right) {
-            this.speed.x -= 0.01 * deltaTime;
+            this.speed.x -= 0.01;
         }
 
         // Update the position based on the current speed
-        this.updatePosition(deltaTime);
-
-        // Log the current position for debugging
-        console.log('this.position', this.position);
+        this.updatePosition();
     }
 
-    private updatePosition(deltaTime: number) {
-        console.log(deltaTime)
-        // Apply speed decay (e.g., friction or drag)
-        const decayFactor = Math.pow(0.9, deltaTime / 8); // Adjust this value to control how quickly the speed decays
-        this.speed.multiplyScalar(decayFactor);
+    private updatePosition() {
+        this.speed.multiplyScalar(0.9);
 
         // Update the position based on the speed and deltaTime
         this.position.x += this.speed.x;

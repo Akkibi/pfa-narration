@@ -5,6 +5,11 @@ import { TransitionManager } from "../utils/transitionManager";
 import { Scene1 } from "../game/scenes/Scene1";
 import { Scene2 } from "../game/scenes/Scene2";
 import { Scene3 } from "../game/scenes/Scene3";
+import Stats from "three/examples/jsm/libs/stats.module.js";
+
+const stats = new Stats();
+stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
 
 const ThreeScene = () => {
     const mountRef = useRef<HTMLDivElement>(null);
@@ -48,22 +53,31 @@ const ThreeScene = () => {
             );
 
         // Time tracking
-        let lastTime = 0;
+        let lastTime = Date.now();
+        let time = Date.now()
         let activeSceneIndex = 0;
+        const fps = 60;
+        // How many milliseconds should pass before the next frame
+        const interval = 1000 / fps;
 
 
         // Animation loop
-        const animate = (time: number, tick: number) => {
+        const animate = (tick: number) => {
+            time = Date.now()
+
+            const deltaTime = (time - lastTime);
+
             if (lastTime === undefined) {
                 lastTime = time;
             }
 
-            const deltaTime = (time - lastTime); // Convert to seconds
-            lastTime = time;
+            if (deltaTime >= interval) {
+                stats.begin();
+                eventEmitterInstance.trigger("updatePhysics");
+                lastTime = time;
+                stats.end();
+            }
 
-            requestAnimationFrame((time) => animate(time, tick + 1));
-            // Update active scene
-            eventEmitterInstance.trigger("tick", [deltaTime, tick]);
 
             // Check if transition is active
             const transitionComplete = transitionManager.update(
@@ -90,10 +104,12 @@ const ThreeScene = () => {
                 // }
                 renderer.render(currentScene, camera);
             }
+
+            requestAnimationFrame(() => animate(tick + 1));
         };
 
         // Start animation loop
-        animate(0, 0);
+        animate(0);
 
 
         // Scene change handler
