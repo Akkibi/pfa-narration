@@ -6,6 +6,8 @@ import { Scene1 } from "../game/scenes/Scene1";
 import { Scene2 } from "../game/scenes/Scene2";
 import { Scene3 } from "../game/scenes/Scene3";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 
 const stats = new Stats();
 stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -60,6 +62,8 @@ const ThreeScene = () => {
         // How many milliseconds should pass before the next frame
         const interval = 1000 / fps;
 
+        // const controls = new OrbitControls(scenes[activeSceneIndex].camera, renderer.domElement);
+        // controls.update();
 
         // Animation loop
         const animate = (tick: number) => {
@@ -73,7 +77,7 @@ const ThreeScene = () => {
 
             if (deltaTime >= interval) {
                 stats.begin();
-                eventEmitterInstance.trigger("updatePhysics");
+                eventEmitterInstance.trigger(`updateCharacterPhysics-${activeSceneIndex}`);
                 lastTime = time;
                 stats.end();
             }
@@ -101,8 +105,10 @@ const ThreeScene = () => {
                 //     renderer.setClearColor(
                 //         currentScene.background as THREE.Color
                 //     );
-                // }
-                renderer.render(currentScene, camera);
+                // }\
+                // controls.update();
+                renderer.render(currentScene, camera.instance);
+
             }
 
             requestAnimationFrame(() => animate(tick + 1));
@@ -130,7 +136,7 @@ const ThreeScene = () => {
         const handleResize = () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
             scenes.forEach((scene) => {
-                scene.handleResize();
+                scene.camera.handleResize();
             });
         };
         window.addEventListener("resize", handleResize);

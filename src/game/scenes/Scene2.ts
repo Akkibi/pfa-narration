@@ -6,7 +6,7 @@ export class Scene2 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
 
     constructor() {
-        super();
+        super(1);
 
         this.instance.background = new THREE.Color(0xffff00);
 
