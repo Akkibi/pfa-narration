@@ -4,7 +4,6 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 export class Scene2 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
-
     constructor() {
         super();
 
@@ -15,7 +14,8 @@ export class Scene2 extends BaseScene {
         light.intensity = 1;
         this.instance.add(light);
 
-
+        this.character.instance.userData = { name: "character02", sceneIndex: 1 };
+        this.character.addAxesHelper(this.axesHelper);
         this.loadGLTFModel();
     }
 
@@ -28,13 +28,33 @@ export class Scene2 extends BaseScene {
             (gltf: { scene: THREE.Group }) => {
                 this.gltfModel = gltf.scene; // Store the loaded model
                 this.instance.add(this.gltfModel); // Add the model to the scene
-
+                console.log(this.gltfModel)
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);
                     this.gltfModel.scale.set(1, 1, 1);
                     this.gltfModel.rotation.set(0, Math.PI, 0);
                 }
+            },
+            undefined,
+            (error) => {
+                console.error("An error occurred while loading the GLTF model:", error);
+            },
+        );
+        loader.load(
+            "./floor.glb",
+            (gltf: { scene: THREE.Group }) => {
+                // this.instance.add(this.floor); // Add the model to the scene
+                this.floor = gltf.scene.children[0] as THREE.Mesh;
+                this.floor.visible = false;
+                this.instance.add(this.floor);
+                // Optionally, adjust the model's position, rotation, or scale
+                if (this.floor) {
+                    this.floor.position.set(0, 0, 0);
+                    this.floor.scale.set(1, 1, 1);
+                    this.floor.rotation.set(0, Math.PI, 0);
+                }
+                this.character.addFloor(this.floor); // Store the loaded model
             },
             undefined,
             (error) => {
