@@ -6,7 +6,10 @@ import { eventEmitterInstance } from "../../utils/eventEmitter";
 class BaseScene {
     public instance: THREE.Scene;
     public camera: THREE.PerspectiveCamera;
+    protected floor: THREE.Mesh | null = null;
     protected character: Character;
+    protected axesHelper: THREE.AxesHelper;
+
 
     constructor() {
         this.instance = new THREE.Scene()
@@ -23,7 +26,7 @@ class BaseScene {
 
 
         // this.camera.lookAt(0, 0, 1);
-
+        // character
         this.character = new Character();
 
         this.camera.lookAt(this.character.instance.position);
@@ -33,8 +36,9 @@ class BaseScene {
         this.instance.add(this.character.instance);
 
         // Add AxesHelper
-        const axesHelper = new THREE.AxesHelper(5);
-        this.instance.add(axesHelper);
+        const axesHelper = new THREE.AxesHelper(1);
+        this.axesHelper = axesHelper;
+        this.instance.add(this.axesHelper);
 
         eventEmitterInstance.on("positionChanged", this.move.bind(this));
     }
@@ -45,18 +49,13 @@ class BaseScene {
         const raycaster = new THREE.Raycaster();
         const down = new THREE.Vector3(0, -1, 0);
         raycaster.set(this.character.instance.position, down);
-
         const intersects = raycaster.intersectObjects(this.instance.children, true);
-
-        console.log(intersects);
-
         if (intersects.length > 0) {
             this.character.instance.position.copy(pos);
             return true;
         } else {
             console.warn("Character is out of the map!");
         }
-
         return false;
     };
 
