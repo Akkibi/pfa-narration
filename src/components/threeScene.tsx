@@ -73,7 +73,7 @@ const ThreeScene = () => {
 
             if (deltaTime >= interval) {
                 stats.begin();
-                eventEmitterInstance.trigger("updatePhysics");
+                eventEmitterInstance.trigger(`updateCharacterPhysics-${activeSceneIndex + 1}`);
                 lastTime = time;
                 stats.end();
             }
@@ -102,7 +102,7 @@ const ThreeScene = () => {
                 //         currentScene.background as THREE.Color
                 //     );
                 // }
-                renderer.render(currentScene, camera);
+                renderer.render(currentScene, camera.instance);
             }
 
             requestAnimationFrame(() => animate(tick + 1));
@@ -130,7 +130,7 @@ const ThreeScene = () => {
         const handleResize = () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
             scenes.forEach((scene) => {
-                scene.handleResize();
+                scene.camera.handleResize();
             });
         };
         window.addEventListener("resize", handleResize);

@@ -1,19 +1,25 @@
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import Controls from "./Controls";
 import * as THREE from "three";
-import { gameState } from "./gameState";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 const CharacterVars = {
     height: 1,
     width: 0.5,
     depth: 0.5,
+    moveSpeed: 0.01,
+    turnSpeed: 0.05,  // Control how fast the character rotates
+    friction: 0.9     // Friction factor to slow down movement
 };
 
 export class Character {
-    public instance: THREE.Mesh;
+    public id: number;
+    private instance: THREE.Mesh;
     private floorPosition: number = 2;
     private speed: THREE.Vector2;
     private position: THREE.Vector2;
+    private rotation: THREE.Vector2;
+    // private targetRotation: number;
     private height: number;
     private heightSpeed: number;
     private gravity = 0.02;
@@ -24,7 +30,8 @@ export class Character {
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number
 
-    constructor() {
+    constructor(id: number) {
+        this.id = id;
         this.instance = new THREE.Mesh(
             new THREE.BoxGeometry(this.vars.width, this.vars.height, this.vars.depth),
             new THREE.MeshStandardMaterial({ color: 0xff0000 }),
@@ -33,11 +40,13 @@ export class Character {
         this.height = 2;
         this.heightSpeed = 0.1;
         this.raycaster = new THREE.Raycaster();
-        this.position = new THREE.Vector2(1, 1);
+        this.position = new THREE.Vector2(0, 1);
+        this.rotation = new THREE.Vector2(0, 0);
+        // this.targetRotation = 0;
         this.maxGapSize = 0.5;
+        // this.loadGLTFModel();
         Controls.init();
-        eventEmitterInstance.on("updatePhysics", this.update.bind(this));
-        // eventEmitterInstance.on("updatePhysics", () => { this.update() });
+        eventEmitterInstance.on(`updateCharacterPhysics-${this.id}`, this.update.bind(this));
     }
 
     public addFloor(floor: THREE.Mesh) {
@@ -47,23 +56,63 @@ export class Character {
         this.axesHelper = axesHelper;
     }
 
+    private loadGLTFModel(): void {
+        const loader = new GLTFLoader();
+
+        // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
+        loader.load(
+            "./character.glb",
+            (gltf: { scene: THREE.Group }) => {
+                const GLTFGroup = gltf.scene; // Store the loaded model
+                this.instance.add(GLTFGroup); // Add the model to the scene
+
+                // Optionally, adjust the model's position, rotation, or scale
+                if (this.instance) {
+                    // this.instance.position.set(0, 0, 0);
+                    this.instance.scale.set(0.2, 0.2, 0.2);
+                }
+            },
+            undefined,
+            (error) => {
+                console.error("An error occurred while loading the GLTF model:", error);
+            },
+        );
+    }
+
     private update() {
-        if (this.instance.userData.sceneIndex !== gameState.currentScene) return
+        // if (this.instance.userData.sceneIndex !== gameState.currentScene) return
+
+        console.log('update', Controls.keys)
+
+        // const moveDirection = new THREE.Vector3(0, 0, 0);
+
         if (Controls.keys.forward) {
-            this.speed.y += 0.01;
+            this.speed.y += this.vars.moveSpeed;
         }
         if (Controls.keys.back) {
-            this.speed.y -= 0.01;
+            this.speed.y -= this.vars.moveSpeed;
         }
         if (Controls.keys.left) {
-            this.speed.x += 0.01;
+            this.speed.x += this.vars.moveSpeed;
         }
         if (Controls.keys.right) {
-            this.speed.x -= 0.01;
+            this.speed.x -= this.vars.moveSpeed;
         }
         if (Controls.keys.space && this.isOnGround) {
             this.heightSpeed += 0.30;
         }
+
+        // console.log('Move Direction', moveDirection.length())
+
+        // if (moveDirection.length() > 0) {
+        //     // Calculate the target rotation based on movement direction
+        //     this.targetRotation = Math.atan2(moveDirection.x, moveDirection.z);
+
+        //     // Apply movement in the direction we're facing
+        //     const speed = moveDirection.length();
+        //     this.speed.x = Math.sin(this.targetRotation) * speed;
+        //     this.speed.y = Math.cos(this.targetRotation) * speed;
+        // }
 
         // Update the position based on the current speed
         this.instance.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
@@ -85,61 +134,11 @@ export class Character {
         this.speed.multiplyScalar(0.92);
     }
 
-    // private updatePositions() {
-    //     this.speed.multiplyScalar(0.92);
-    //     this.speed.y -= 0.02;
-    //     const currentPos = this.instance.position;;
-    //     const newPos: THREE.Vector3 = new THREE.Vector3(
-    //         this.position.x + this.speed.x,
-    //         this.position.y + this.speed.y,
-    //         this.position.z + this.speed.z,
-    //     );
-    //     const newReversePos: THREE.Vector3 = new THREE.Vector3(
-    //         this.position.x - this.speed.x,
-    //         this.position.y - this.speed.y,
-    //         this.position.z - this.speed.z,
-    //     );
-    //     if (this.raycastFrom(newPos) === null) {
-    //         // console.log("raycast", this.raycastFrom(newPos), newPos);
-    //     }
-    //     if (this.raycastFrom(newPos) !== null) {
-    //         this.position.copy(
-    //             new THREE.Vector3(newPos.x, this.position.y, newPos.z),
-    //         );
-    //         this.floorPosition = this.raycastFrom(newPos) ?? 0;
-    //     } else if (this.raycastFrom(new THREE.Vector3(newPos.x, 0, currentPos.z))) {
-    //         this.position.copy(new THREE.Vector3(newPos.x, 0, newReversePos.z));
-    //         this.speed.z *= -1;
-    //         this.floorPosition =
-    //             this.raycastFrom(
-    //                 new THREE.Vector3(newPos.x, this.position.y, currentPos.z),
-    //             ) ?? 0;
-    //     } else if (this.raycastFrom(new THREE.Vector3(currentPos.x, 0, newPos.z))) {
-    //         this.position.copy(
-    //             new THREE.Vector3(newReversePos.x, this.position.y, newPos.z),
-    //         );
-    //         this.speed.x *= -1;
-    //         this.floorPosition =
-    //             this.raycastFrom(new THREE.Vector3(currentPos.x, 0, newPos.z)) ?? 0;
-    //     }
-
-    //     this.position.y += this.speed.y;
-    //     this.position.y = Math.max(this.position.y, this.floorPosition);
-    //     if (this.floorPosition === this.position.y) {
-    //         this.speed.y = 0;
-    //         this.isOnGround = true;
-    //     } else {
-    //         this.isOnGround = false;
-    //     }
-    //     // Update the instance's position to match the calculated position
-    //     this.instance.position.copy(this.position);
-    // }
-
     private updatePosition() {
         if (this.speed.x > 0.0001 || this.speed.x < -0.0001 || this.speed.y > 0.0001 || this.speed.y < -0.0001) {
             // console.log(this.instance.name, this.position)
             const newPos: THREE.Vector2 = new THREE.Vector2().copy(this.checkPosRecursive(this.position, this.speed, 0));
-            this.position.copy(newPos);
+            this.setPosition(newPos)
         }
     }
 
@@ -185,5 +184,25 @@ export class Character {
             });
         }
         return posY;
+    }
+
+    public getInstance() {
+        return this.instance;
+    }
+
+    public setPosition(position: THREE.Vector2, rotation?: THREE.Euler) {
+        this.position.copy(position);
+        this.instance.position.copy(new THREE.Vector3(position.x, this.height, position.y));
+
+        if (rotation) {
+            this.rotation.copy(rotation);
+            this.instance.rotation.copy(rotation);
+        }
+
+        eventEmitterInstance.trigger(`characterPositionChanged-${this.id}`, [new THREE.Vector3(position.x, this.height, position.y)]);
+    }
+
+    public getPosition() {
+        return new THREE.Vector3(this.position.x, this.height, this.position.y);
     }
 }

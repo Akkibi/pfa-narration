@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 export class Scene2 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
     constructor() {
-        super();
+        super(2);
 
         this.instance.background = new THREE.Color(0xffff00);
 
@@ -14,7 +14,7 @@ export class Scene2 extends BaseScene {
         light.intensity = 1;
         this.instance.add(light);
 
-        this.character.instance.userData = { name: "character02", sceneIndex: 1 };
+        this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
         this.character.addAxesHelper(this.axesHelper);
         this.loadGLTFModel();
     }
