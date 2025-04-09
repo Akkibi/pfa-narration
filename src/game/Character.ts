@@ -17,9 +17,9 @@ export class Character {
     private instance: THREE.Group;
     private floorPosition: number = 2;
     private speed: THREE.Vector2;
-    private position: THREE.Vector2;
+    public position: THREE.Vector2;
     private rotation: THREE.Vector2;
-    // private targetRotation: number;
+    private targetRotation: number;
     private height: number;
     private heightSpeed: number;
     private gravity = 0.02;
@@ -32,17 +32,13 @@ export class Character {
 
     constructor(id: number) {
         this.id = id;
-        // this.instance = new THREE.Mesh(
-        //     new THREE.BoxGeometry(this.vars.width, this.vars.height, this.vars.depth),
-        //     new THREE.MeshStandardMaterial({ color: 0xff0000 }),
-        // );
         this.speed = new THREE.Vector2(0.1, 0.1);
         this.height = 2;
         this.heightSpeed = 0.1;
         this.raycaster = new THREE.Raycaster();
         this.position = new THREE.Vector2(0, 1);
         this.rotation = new THREE.Vector2(0, 0);
-        // this.targetRotation = 0;
+        this.targetRotation = 0;
         this.maxGapSize = 0.5;
         this.instance = new THREE.Group;
         this.loadGLTFModel();
@@ -80,12 +76,6 @@ export class Character {
     }
 
     private update() {
-        // if (this.instance.userData.sceneIndex !== gameState.currentScene) return
-
-        // console.log('update', Controls.keys)
-
-        // const moveDirection = new THREE.Vector3(0, 0, 0);
-
         if (Controls.keys.forward) {
             this.speed.y += this.vars.moveSpeed;
         }
@@ -102,17 +92,15 @@ export class Character {
             this.heightSpeed += 0.30;
         }
 
-        // console.log('Move Direction', moveDirection.length())
+        if (this.speed.length() > 0) {
+            // Calculate the target rotation based on movement direction
+            this.targetRotation = Math.atan2(this.speed.x, this.speed.y);
 
-        // if (moveDirection.length() > 0) {
-        //     // Calculate the target rotation based on movement direction
-        //     this.targetRotation = Math.atan2(moveDirection.x, moveDirection.z);
-
-        //     // Apply movement in the direction we're facing
-        //     const speed = moveDirection.length();
-        //     this.speed.x = Math.sin(this.targetRotation) * speed;
-        //     this.speed.y = Math.cos(this.targetRotation) * speed;
-        // }
+            // Apply movement in the direction we're facing
+            const speed = this.speed.length();
+            this.speed.x = Math.sin(this.targetRotation) * speed;
+            this.speed.y = Math.cos(this.targetRotation) * speed;
+        }
 
         // Update the position based on the current speed
         this.updateSpeed();
@@ -135,11 +123,30 @@ export class Character {
         this.speed.multiplyScalar(0.92);
     }
 
+    private updateRotation() {
+        const currentYRotation = this.rotation.y;
+
+        // Find the shortest path to the target angle
+        let angleDiff = this.targetRotation - currentYRotation;
+
+        // Normalize the angle difference to be between -PI and PI
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+        console.log('updateRotation', angleDiff)
+
+        // Gradually rotate toward the target
+        return new THREE.Euler(
+            0,
+            currentYRotation + angleDiff * this.vars.turnSpeed,
+            0
+        );
+    }
+
     private updatePosition() {
         if (this.speed.x > 0.0001 || this.speed.x < -0.0001 || this.speed.y > 0.0001 || this.speed.y < -0.0001) {
-            // console.log(this.instance.name, this.position)
             const newPos: THREE.Vector2 = new THREE.Vector2().copy(this.checkPosRecursive(this.position, this.speed, 0));
-            this.setPosition(newPos)
+            this.setPosition(newPos, this.updateRotation())
         }
     }
 
@@ -149,7 +156,6 @@ export class Character {
         const newSpeed: THREE.Vector2 = new THREE.Vector2(Math.cos(currentAngle) * currentSpeed, Math.sin(currentAngle) * currentSpeed);
         const newPos: THREE.Vector2 = new THREE.Vector2(position.x + newSpeed.x, position.y + newSpeed.y);
         const height: number | null = this.raycastFrom(newPos);
-        // console.log(position)
         if (height === null || this.checkBadDistance(height, this.height)) {
             const newAngle = angle > 0 ? (angle + 0.15) * -1 : (angle - 0.15) * -1;
             if (newAngle > Math.PI / 2) {
@@ -157,7 +163,6 @@ export class Character {
             }
             console.log(angle);
             return this.checkPosRecursive(position, speed, newAngle)
-            // return position;
         } else if (height !== null) {
             this.floorPosition = height;
             return newPos;
@@ -175,10 +180,8 @@ export class Character {
         const newPos = new THREE.Vector3(position.x, 100, position.y);
         this.raycaster.set(newPos, new THREE.Vector3(0, -1, 0));
         const intersects = this.raycaster.intersectObject(this.floor);
-        // console.log("intersects", this.floor);
         if (intersects.length > 0) {
             intersects.forEach((intersect) => {
-                // console.log(intersect.object.name);
                 if (intersect.object.name === "floor") {
                     posY = intersect.point.y;
                 }
