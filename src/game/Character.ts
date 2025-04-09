@@ -14,7 +14,7 @@ const CharacterVars = {
 
 export class Character {
     public id: number;
-    private instance: THREE.Mesh;
+    private instance: THREE.Group;
     private floorPosition: number = 2;
     private speed: THREE.Vector2;
     private position: THREE.Vector2;
@@ -32,10 +32,10 @@ export class Character {
 
     constructor(id: number) {
         this.id = id;
-        this.instance = new THREE.Mesh(
-            new THREE.BoxGeometry(this.vars.width, this.vars.height, this.vars.depth),
-            new THREE.MeshStandardMaterial({ color: 0xff0000 }),
-        );
+        // this.instance = new THREE.Mesh(
+        //     new THREE.BoxGeometry(this.vars.width, this.vars.height, this.vars.depth),
+        //     new THREE.MeshStandardMaterial({ color: 0xff0000 }),
+        // );
         this.speed = new THREE.Vector2(0.1, 0.1);
         this.height = 2;
         this.heightSpeed = 0.1;
@@ -44,7 +44,8 @@ export class Character {
         this.rotation = new THREE.Vector2(0, 0);
         // this.targetRotation = 0;
         this.maxGapSize = 0.5;
-        // this.loadGLTFModel();
+        this.instance = new THREE.Group;
+        this.loadGLTFModel();
         Controls.init();
         eventEmitterInstance.on(`updateCharacterPhysics-${this.id}`, this.update.bind(this));
     }
@@ -65,7 +66,6 @@ export class Character {
             (gltf: { scene: THREE.Group }) => {
                 const GLTFGroup = gltf.scene; // Store the loaded model
                 this.instance.add(GLTFGroup); // Add the model to the scene
-
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.instance) {
                     // this.instance.position.set(0, 0, 0);
@@ -82,7 +82,7 @@ export class Character {
     private update() {
         // if (this.instance.userData.sceneIndex !== gameState.currentScene) return
 
-        console.log('update', Controls.keys)
+        // console.log('update', Controls.keys)
 
         // const moveDirection = new THREE.Vector3(0, 0, 0);
 
@@ -115,9 +115,10 @@ export class Character {
         // }
 
         // Update the position based on the current speed
-        this.instance.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
         this.updateSpeed();
         this.updatePosition();
+
+        this.instance.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
         if (this.axesHelper) this.axesHelper.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
 
     }
@@ -179,7 +180,7 @@ export class Character {
             intersects.forEach((intersect) => {
                 // console.log(intersect.object.name);
                 if (intersect.object.name === "floor") {
-                    posY = intersect.point.y + 0.6;
+                    posY = intersect.point.y;
                 }
             });
         }
