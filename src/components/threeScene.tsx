@@ -8,7 +8,7 @@ import { Scene3 } from "../game/scenes/Scene3";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { gameState } from "../game/gameState";
 const stats = new Stats();
-stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 const ThreeScene = () => {
@@ -29,7 +29,6 @@ const ThreeScene = () => {
         renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current.appendChild(renderer.domElement);
-
         // Create scenes
         const scene1 = new Scene1();
         const scene2 = new Scene2();
@@ -73,37 +72,26 @@ const ThreeScene = () => {
 
             if (deltaTime >= interval) {
                 stats.begin();
-                eventEmitterInstance.trigger(`updateCharacterPhysics-${activeSceneIndex + 1}`);
+                eventEmitterInstance.trigger(`updateScene-${activeSceneIndex + 1}`);
                 lastTime = time;
+                const transitionComplete = transitionManager.update(
+                    renderer,
+                    deltaTime
+                );
+                // Check if transition is active
+                if (transitionComplete) {
+                    // Update active scene index after transition
+                    activeSceneIndex = (activeSceneIndex + 1) % scenes.length;
+                    setCurrentSceneIndex(activeSceneIndex);
+                }
+                if (!transitionManager.isTransitioning) {
+                    const currentScene = scenes[activeSceneIndex].instance;
+                    const camera = scenes[activeSceneIndex].camera;
+                    renderer.render(currentScene, camera.instance);
+                }
                 stats.end();
             }
 
-
-            // Check if transition is active
-            const transitionComplete = transitionManager.update(
-                renderer,
-                deltaTime
-            );
-
-            if (transitionComplete) {
-                // Update active scene index after transition
-                activeSceneIndex = (activeSceneIndex + 1) % scenes.length;
-                setCurrentSceneIndex(activeSceneIndex);
-            }
-
-            if (!transitionManager.isTransitioning) {
-                // Render current scene if not transitioning
-                const currentScene = scenes[activeSceneIndex].instance;
-                const camera = scenes[activeSceneIndex].camera;
-
-                // Ensure the background color is applied correctly
-                // if (currentScene.background) {
-                //     renderer.setClearColor(
-                //         currentScene.background as THREE.Color
-                //     );
-                // }
-                renderer.render(currentScene, camera.instance);
-            }
 
             requestAnimationFrame(() => animate(tick + 1));
         };
@@ -114,7 +102,6 @@ const ThreeScene = () => {
 
         // Scene change handler
         const sceneChangeHandler = () => {
-            console.log("Scene change");
             const nextSceneIndex = (activeSceneIndex + 1) % scenes.length;
             const currentScene = scenes[activeSceneIndex].instance;
             const nextScene = scenes[nextSceneIndex].instance;

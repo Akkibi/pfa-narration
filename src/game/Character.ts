@@ -1,4 +1,5 @@
 import { eventEmitterInstance } from "../utils/eventEmitter";
+import { lerp } from "../utils/lerp";
 import Controls from "./Controls";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
@@ -7,20 +8,23 @@ const CharacterVars = {
     height: 1,
     width: 0.5,
     depth: 0.5,
-    moveSpeed: 0.01,
-    turnSpeed: 0.05,  // Control how fast the character rotates
-    friction: 0.9     // Friction factor to slow down movement
+    moveSpeed: 0.005,
+    turnSpeed: 0.2,
+    friction: 0.92,
+    jumpSpeed: 0.25
 };
 
 export class Character {
+    private lerpAmount: number;
     public id: number;
     private instance: THREE.Group;
-    private floorPosition: number = 2;
+    public floorPosition: number = 2;
     private speed: THREE.Vector2;
     public position: THREE.Vector2;
+    public currentPosition: THREE.Vector3;
     private rotation: THREE.Vector2;
     private targetRotation: number;
-    private height: number;
+    public height: number;
     private heightSpeed: number;
     private gravity = 0.02;
     public vars = CharacterVars;
@@ -35,15 +39,22 @@ export class Character {
         this.speed = new THREE.Vector2(0.1, 0.1);
         this.height = 2;
         this.heightSpeed = 0.1;
+        this.lerpAmount = 0.4;
         this.raycaster = new THREE.Raycaster();
         this.position = new THREE.Vector2(0, 1);
+        this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
         this.targetRotation = 0;
         this.maxGapSize = 0.5;
         this.instance = new THREE.Group;
         this.loadGLTFModel();
         Controls.init();
-        eventEmitterInstance.on(`updateCharacterPhysics-${this.id}`, this.update.bind(this));
+        eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
+    }
+
+    private updateCharacterModelSmooth() {
+        this.currentPosition.set(lerp(this.currentPosition.x, this.position.x, this.lerpAmount), lerp(this.currentPosition.y, this.height, this.lerpAmount), lerp(this.currentPosition.z, this.position.y, this.lerpAmount));
+        this.instance.position.copy(this.currentPosition);
     }
 
     public addFloor(floor: THREE.Mesh) {
@@ -55,16 +66,13 @@ export class Character {
 
     private loadGLTFModel(): void {
         const loader = new GLTFLoader();
-
-        // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
         loader.load(
             "./character.glb",
             (gltf: { scene: THREE.Group }) => {
                 const GLTFGroup = gltf.scene; // Store the loaded model
+                GLTFGroup.position.z = -0.7;
                 this.instance.add(GLTFGroup); // Add the model to the scene
-                // Optionally, adjust the model's position, rotation, or scale
                 if (this.instance) {
-                    // this.instance.position.set(0, 0, 0);
                     this.instance.scale.set(0.2, 0.2, 0.2);
                 }
             },
@@ -76,20 +84,24 @@ export class Character {
     }
 
     private update() {
+        let moveSpeedFactor = this.vars.moveSpeed;
+        if (Controls.keys.run) {
+            moveSpeedFactor *= 2
+        }
         if (Controls.keys.forward) {
-            this.speed.y += this.vars.moveSpeed;
+            this.speed.y += moveSpeedFactor;
         }
         if (Controls.keys.back) {
-            this.speed.y -= this.vars.moveSpeed;
+            this.speed.y -= moveSpeedFactor;
         }
         if (Controls.keys.left) {
-            this.speed.x += this.vars.moveSpeed;
+            this.speed.x += moveSpeedFactor;
         }
         if (Controls.keys.right) {
-            this.speed.x -= this.vars.moveSpeed;
+            this.speed.x -= moveSpeedFactor;
         }
         if (Controls.keys.space && this.isOnGround) {
-            this.heightSpeed += 0.30;
+            this.heightSpeed += this.vars.jumpSpeed;
         }
 
         if (this.speed.length() > 0) {
@@ -105,9 +117,9 @@ export class Character {
         // Update the position based on the current speed
         this.updateSpeed();
         this.updatePosition();
-
-        this.instance.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
-        if (this.axesHelper) this.axesHelper.position.copy(new THREE.Vector3(this.position.x, this.height, this.position.y));
+        this.updateCharacterModelSmooth();
+        // this.instance.position.set(this.position.x, this.height, this.position.y);
+        // if (this.axesHelper) this.axesHelper.position.set(this.position.x + this.speed.x, this.height, this.position.y + this.speed.y);
 
     }
     private updateSpeed() {
@@ -120,7 +132,7 @@ export class Character {
         } else {
             this.isOnGround = false;
         }
-        this.speed.multiplyScalar(0.92);
+        this.speed.multiplyScalar(this.vars.friction);
     }
 
     private updateRotation() {
@@ -133,7 +145,7 @@ export class Character {
         while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
-        console.log('updateRotation', angleDiff)
+        // console.log('updateRotation', angleDiff)
 
         // Gradually rotate toward the target
         return new THREE.Euler(
@@ -144,7 +156,7 @@ export class Character {
     }
 
     private updatePosition() {
-        if (this.speed.x > 0.0001 || this.speed.x < -0.0001 || this.speed.y > 0.0001 || this.speed.y < -0.0001) {
+        if (this.speed.x > 0.0001 || this.speed.x < -0.0001 || this.speed.y > 0.0001 || this.speed.y < -0.0001 || Math.abs(this.heightSpeed) > 0.0001) {
             const newPos: THREE.Vector2 = new THREE.Vector2().copy(this.checkPosRecursive(this.position, this.speed, 0));
             this.setPosition(newPos, this.updateRotation())
         }
@@ -161,8 +173,8 @@ export class Character {
             if (newAngle > Math.PI / 2) {
                 return position;
             }
-            console.log(angle);
-            return this.checkPosRecursive(position, speed, newAngle)
+            // console.log(angle);
+            return this.checkPosRecursive(position, new THREE.Vector2(speed.x * this.vars.friction, speed.y * this.vars.friction), newAngle)
         } else if (height !== null) {
             this.floorPosition = height;
             return newPos;
@@ -196,7 +208,7 @@ export class Character {
 
     public setPosition(position: THREE.Vector2, rotation?: THREE.Euler) {
         this.position.copy(position);
-        this.instance.position.copy(new THREE.Vector3(position.x, this.height, position.y));
+        this.instance.position.set(position.x, this.height, position.y);
 
         if (rotation) {
             this.rotation.copy(rotation);
