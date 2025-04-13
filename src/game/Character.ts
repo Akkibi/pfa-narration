@@ -70,10 +70,10 @@ export class Character {
             "./character.glb",
             (gltf: { scene: THREE.Group }) => {
                 const GLTFGroup = gltf.scene; // Store the loaded model
-                GLTFGroup.position.z = -0.7;
+                GLTFGroup.position.z = -0.2;
                 this.instance.add(GLTFGroup); // Add the model to the scene
                 if (this.instance) {
-                    this.instance.scale.set(0.2, 0.2, 0.2);
+                    this.instance.scale.set(0.3, 0.3, 0.3);
                 }
             },
             undefined,
@@ -119,7 +119,10 @@ export class Character {
         this.updatePosition();
         this.updateCharacterModelSmooth();
         // this.instance.position.set(this.position.x, this.height, this.position.y);
-        // if (this.axesHelper) this.axesHelper.position.set(this.position.x + this.speed.x, this.height, this.position.y + this.speed.y);
+        if (this.axesHelper) {
+            this.axesHelper.position.set(this.position.x, this.height + 1, this.position.y)
+            this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y)
+        };
 
     }
     private updateSpeed() {
