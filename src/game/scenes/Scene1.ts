@@ -7,10 +7,10 @@ export class Scene1 extends BaseScene {
     constructor() {
         super(1);
 
-        this.instance.background = new THREE.Color(0xffff00);
+        this.instance.background = new THREE.Color(0x00ffff);
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
+        light.position.set(-1, 1, -0.5);
         light.intensity = 1;
         this.instance.add(light);
 
