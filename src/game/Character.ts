@@ -3,6 +3,7 @@ import { lerp } from "../utils/lerp";
 import Controls from "./Controls";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { Floor } from "./floor";
 
 const CharacterVars = {
     height: 1,
@@ -28,19 +29,18 @@ export class Character {
     private heightSpeed: number;
     private gravity = 0.02;
     public vars = CharacterVars;
-    private raycaster: THREE.Raycaster;
-    private floor: THREE.Mesh | null = null;
+    private floor: Floor;
     private isOnGround: boolean = true;
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number
 
-    constructor(id: number) {
+    constructor(id: number, floor: Floor) {
+        this.floor = floor
         this.id = id;
         this.speed = new THREE.Vector2(0.1, 0.1);
         this.height = 2;
         this.heightSpeed = 0.1;
         this.lerpAmount = 0.4;
-        this.raycaster = new THREE.Raycaster();
         this.position = new THREE.Vector2(0, 1);
         this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
@@ -57,9 +57,6 @@ export class Character {
         this.instance.position.copy(this.currentPosition);
     }
 
-    public addFloor(floor: THREE.Mesh) {
-        this.floor = floor;
-    }
     public addAxesHelper(axesHelper: THREE.AxesHelper) {
         this.axesHelper = axesHelper;
     }
@@ -102,6 +99,7 @@ export class Character {
         }
         if (Controls.keys.space && this.isOnGround) {
             this.heightSpeed += this.vars.jumpSpeed;
+            this.jumpParticles()
         }
 
         if (this.speed.length() > 0) {
@@ -158,10 +156,35 @@ export class Character {
         );
     }
 
+    private checkMinSpeed(min: number) {
+        return this.speed.x > min || this.speed.x < -min || this.speed.y > min || this.speed.y < -min || Math.abs(this.heightSpeed) > min
+    }
+
     private updatePosition() {
-        if (this.speed.x > 0.0001 || this.speed.x < -0.0001 || this.speed.y > 0.0001 || this.speed.y < -0.0001 || Math.abs(this.heightSpeed) > 0.0001) {
+        if (this.checkMinSpeed(0.0001)) {
             const newPos: THREE.Vector2 = new THREE.Vector2().copy(this.checkPosRecursive(this.position, this.speed, 0));
             this.setPosition(newPos, this.updateRotation())
+            this.updatePositionParticles()
+        }
+        // if (this.checkMinSpeed(0.05)) {
+        // }
+    }
+
+    private jumpParticles() {
+        for (let i = 0; i <= 20; i++) {
+            const speedRandomizer = new THREE.Vector3().set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, (Math.random()) * 0.1)
+            const particlePosition = new THREE.Vector3().set(this.position.x, this.height - 0.1, this.position.y)
+            eventEmitterInstance.trigger("trigger-particle", [particlePosition, speedRandomizer, this.id])
+        }
+    }
+
+    private updatePositionParticles() {
+        const currentSpeed = Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3 + 0.01;
+        if (this.isOnGround && Math.random() * 0.15 < currentSpeed) {
+            const speedRandomizer = new THREE.Vector2().set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1)
+            const particlePosition = new THREE.Vector3().set(this.position.x, this.height - 0.1, this.position.y)
+            const particleVelocity = new THREE.Vector3().set(this.speed.x * -0.2 + speedRandomizer.x, currentSpeed, this.speed.y * -0.2 + speedRandomizer.y);
+            eventEmitterInstance.trigger("trigger-particle", [particlePosition, particleVelocity, this.id])
         }
     }
 
@@ -170,7 +193,7 @@ export class Character {
         const currentSpeed = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
         const newSpeed: THREE.Vector2 = new THREE.Vector2(Math.cos(currentAngle) * currentSpeed, Math.sin(currentAngle) * currentSpeed);
         const newPos: THREE.Vector2 = new THREE.Vector2(position.x + newSpeed.x, position.y + newSpeed.y);
-        const height: number | null = this.raycastFrom(newPos);
+        const height: number | null = this.floor.raycastFrom(newPos);
         if (height === null || this.checkBadDistance(height, this.height)) {
             const newAngle = angle > 0 ? (angle + 0.15) * -1 : (angle - 0.15) * -1;
             if (newAngle > Math.PI / 2) {
@@ -187,22 +210,6 @@ export class Character {
 
     private checkBadDistance(newPos: number, currentPos: number) {
         return newPos - currentPos > this.maxGapSize;
-    }
-
-    private raycastFrom(position: THREE.Vector2): number | null {
-        if (this.floor === null) { return null };
-        let posY = null;
-        const newPos = new THREE.Vector3(position.x, 100, position.y);
-        this.raycaster.set(newPos, new THREE.Vector3(0, -1, 0));
-        const intersects = this.raycaster.intersectObject(this.floor);
-        if (intersects.length > 0) {
-            intersects.forEach((intersect) => {
-                if (intersect.object.name === "floor") {
-                    posY = intersect.point.y;
-                }
-            });
-        }
-        return posY;
     }
 
     public getInstance() {

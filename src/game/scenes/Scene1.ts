@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { Floor } from "../floor";
 
 export class Scene1 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
     constructor() {
         super(1);
-
         this.instance.background = new THREE.Color(0x00ffff);
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -45,16 +45,16 @@ export class Scene1 extends BaseScene {
             "./floor.glb",
             (gltf: { scene: THREE.Group }) => {
                 // this.instance.add(this.floor); // Add the model to the scene
-                this.floor = gltf.scene.children[0] as THREE.Mesh;
-                this.floor.visible = false;
-                this.instance.add(this.floor);
+                const floor = gltf.scene.children[0] as THREE.Mesh;
+                floor.visible = false;
+                this.instance.add(floor);
                 // Optionally, adjust the model's position, rotation, or scale
-                if (this.floor) {
-                    this.floor.position.set(0, 0, 0);
-                    this.floor.scale.set(1, 1, 1);
-                    this.floor.rotation.set(0, Math.PI, 0);
+                if (floor) {
+                    floor.position.set(0, 0, 0);
+                    floor.scale.set(1, 1, 1);
+                    floor.rotation.set(0, Math.PI, 0);
                 }
-                this.character.addFloor(this.floor); // Store the loaded model
+                this.floor.addFloor(floor);
             },
             undefined,
             (error) => {
