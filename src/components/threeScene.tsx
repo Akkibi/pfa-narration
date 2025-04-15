@@ -11,9 +11,14 @@ const stats = new Stats();
 stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
+interface SceneListType {
+    [key: string]: Scene1 | Scene2 | Scene3
+}
+
 const ThreeScene = () => {
     const mountRef = useRef<HTMLDivElement>(null);
-    const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
+    const [currentSceneIndex, setCurrentSceneIndex] = useState(1);
+    console.log("currentSceneIndex", currentSceneIndex)
     gameState.currentScene = currentSceneIndex;
     useEffect(() => {
         if (!mountRef.current) return;
@@ -30,15 +35,11 @@ const ThreeScene = () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current.appendChild(renderer.domElement);
         // Create scenes
-        const scene1 = new Scene1();
-        const scene2 = new Scene2();
-        const scene3 = new Scene3();
-        const scenes = [scene1, scene2, scene3];
-
-        // Store camera in scene userData for accessibility
-        scenes.forEach((scene) => {
-            scene.instance.userData.camera = scene.camera;
-        });
+        const scenes: SceneListType = {
+            1: new Scene1(),
+            2: new Scene2(),
+            3: new Scene3(),
+        }
 
         // Create transition manager
         const transitionManager = new TransitionManager();
@@ -54,7 +55,6 @@ const ThreeScene = () => {
         // Time tracking
         let lastTime = Date.now();
         let time = Date.now()
-        let activeSceneIndex = 0;
         const fps = 60;
         // How many milliseconds should pass before the next frame
         const interval = 1000 / fps;
@@ -72,23 +72,9 @@ const ThreeScene = () => {
 
             if (deltaTime >= interval) {
                 stats.begin();
-                eventEmitterInstance.trigger(`updateScene-${activeSceneIndex + 1}`);
+                eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`);
+                renderer.render((scenes[`${gameState.currentScene ?? 1}`]).instance, scenes[`${gameState.currentScene ?? 1}`].camera.camera);
                 lastTime = time;
-                const transitionComplete = transitionManager.update(
-                    renderer,
-                    deltaTime
-                );
-                // Check if transition is active
-                if (transitionComplete) {
-                    // Update active scene index after transition
-                    activeSceneIndex = (activeSceneIndex + 1) % scenes.length;
-                    setCurrentSceneIndex(activeSceneIndex);
-                }
-                if (!transitionManager.isTransitioning) {
-                    const currentScene = scenes[activeSceneIndex].instance;
-                    const camera = scenes[activeSceneIndex].camera;
-                    renderer.render(currentScene, camera.instance);
-                }
                 stats.end();
             }
 
@@ -99,32 +85,27 @@ const ThreeScene = () => {
         // Start animation loop
         animate(0);
 
-
-        // Scene change handler
-        const sceneChangeHandler = () => {
-            const nextSceneIndex = (activeSceneIndex + 1) % scenes.length;
-            const currentScene = scenes[activeSceneIndex].instance;
-            const nextScene = scenes[nextSceneIndex].instance;
-
-            // Start transition
-            transitionManager.startTransition(currentScene, nextScene, 2);
-        };
+        const sceneChangeHandler = (sceneId: number, from: number) => {
+            setCurrentSceneIndex(sceneId)
+            console.log("changeSceneIndex", currentSceneIndex, sceneId)
+        }
 
         // Listen for scene change events
-        eventEmitterInstance.on("nextScene", sceneChangeHandler);
+        eventEmitterInstance.on("scene-change", sceneChangeHandler);
 
         // Handle window resize
         const handleResize = () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
-            scenes.forEach((scene) => {
-                scene.camera.handleResize();
-            });
+            for (const [key, value] of Object.entries(scenes)) {
+                value.camera.handleResize();
+            }
         };
         window.addEventListener("resize", handleResize);
 
         // Cleanup
         return () => {
             window.removeEventListener("resize", handleResize);
+            window.location.reload();
             // eventEmitterInstance.off("nextScene");
             transitionManager.dispose();
             renderer.dispose();
@@ -147,7 +128,7 @@ const ThreeScene = () => {
                     borderRadius: "4px",
                 }}
             >
-                Current Scene: {currentSceneIndex + 1}
+                Current Scene: {currentSceneIndex}
             </div>
         </div>
     );

@@ -18,15 +18,15 @@ const CharacterVars = {
 export class Character {
     private lerpAmount: number;
     public id: number;
-    private instance: THREE.Group;
+    public instance: THREE.Group;
     public floorPosition: number = 2;
-    private speed: THREE.Vector2;
+    public speed: THREE.Vector2;
     public position: THREE.Vector2;
     public currentPosition: THREE.Vector3;
     private rotation: THREE.Vector2;
     private targetRotation: number;
     public height: number;
-    private heightSpeed: number;
+    public heightSpeed: number;
     private gravity = 0.02;
     public vars = CharacterVars;
     private floor: Floor;

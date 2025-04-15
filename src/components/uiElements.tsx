@@ -12,7 +12,7 @@ const UiElements = () => {
                 className="btn-test"
                 onClick={() => {
                     console.log("button clicked");
-                    eventEmitterInstance.trigger("nextScene");
+                    eventEmitterInstance.trigger("scene-change", [2]);
                 }}
                 ref={testButtonRef}
             >
