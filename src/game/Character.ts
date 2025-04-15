@@ -12,13 +12,13 @@ const CharacterVars = {
     moveSpeed: 0.005,
     turnSpeed: 0.2,
     friction: 0.92,
-    jumpSpeed: 0.25
+    jumpSpeed: 0.25,
 };
 
 export class Character {
     private lerpAmount: number;
-    public id: number;
     private instance: THREE.Group;
+    public id: number;
     public floorPosition: number = 2;
     private speed: THREE.Vector2;
     private lastSpeed: THREE.Vector2;

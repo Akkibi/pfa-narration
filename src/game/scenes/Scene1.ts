@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { Floor } from "../floor";
+import { InteractiveObject } from "../InteractiveObject";
+import { InteractiveObjects } from "../../data/interactive_objects";
 
 export class Scene1 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
@@ -13,6 +14,10 @@ export class Scene1 extends BaseScene {
         light.position.set(-1, 1, -0.5);
         light.intensity = 1;
         this.instance.add(light);
+
+        const object_1 = new InteractiveObject(InteractiveObjects[0], 1);
+        this.instance.add(object_1.instance);
+
 
         this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
         this.character.addAxesHelper(this.axesHelper);
