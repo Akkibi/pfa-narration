@@ -21,6 +21,7 @@ export class Character {
     private instance: THREE.Group;
     public floorPosition: number = 2;
     private speed: THREE.Vector2;
+    private lastSpeed: THREE.Vector2;
     public position: THREE.Vector2;
     public currentPosition: THREE.Vector3;
     private rotation: THREE.Vector2;
@@ -32,7 +33,7 @@ export class Character {
     private floor: Floor;
     private isOnGround: boolean = true;
     private axesHelper: THREE.AxesHelper | null = null;
-    private maxGapSize: number
+    private maxGapSize: number;
 
     constructor(id: number, floor: Floor) {
         this.floor = floor
@@ -47,6 +48,7 @@ export class Character {
         this.targetRotation = 0;
         this.maxGapSize = 0.5;
         this.instance = new THREE.Group;
+        this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y)
         this.loadGLTFModel();
         Controls.init();
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
@@ -66,6 +68,7 @@ export class Character {
         loader.load(
             "./character.glb",
             (gltf: { scene: THREE.Group }) => {
+                console.log("GLTF", gltf.scene)
                 const GLTFGroup = gltf.scene; // Store the loaded model
                 GLTFGroup.position.z = -0.2;
                 this.instance.add(GLTFGroup); // Add the model to the scene
@@ -80,7 +83,37 @@ export class Character {
         );
     }
 
+    private moveCape() {
+        const bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
+
+        for (let i = 0; i <= 4; i++) {
+            const bone = this.instance.getObjectByName(`head-${i}`);
+            if (bone) bones.push(bone);
+        }
+
+        bones.map((b, i) => {
+
+            // Difference between last speed and new speed to decide the direction to rotate the bones 
+            const speedDif = new THREE.Vector2().subVectors(this.lastSpeed, this.speed);
+
+            // Multiply to increase effect amplitude
+            speedDif.multiplyScalar(17)
+
+            // Add speed to increase the angle when advanci
+            const newBoneAngle = (speedDif.x - (this.speed.x / 2)) * i * Math.sin(this.rotation.y) + (speedDif.y - (this.speed.x / 2)) * i * Math.cos(this.rotation.y);
+
+            // TO DO: Try to implement the Damped Spring Oscillations: https://phrogz.net/damped-spring-oscillations-in-javascript
+
+            // newVelocity = oldVelocity * (1 - damping);
+            // newVelocity -= (oldPosition - restValue) * springTension;
+            // newPosition = oldPosition + newVelocity;
+
+            b.rotation.z = lerp(b.rotation.z, newBoneAngle, 0.1);
+        })
+    }
+
     private update() {
+
         let moveSpeedFactor = this.vars.moveSpeed;
         if (Controls.keys.run) {
             moveSpeedFactor *= 2
@@ -110,6 +143,8 @@ export class Character {
             const speed = this.speed.length();
             this.speed.x = Math.sin(this.targetRotation) * speed;
             this.speed.y = Math.cos(this.targetRotation) * speed;
+
+            this.moveCape();
         }
 
         // Update the position based on the current speed
@@ -124,6 +159,8 @@ export class Character {
 
     }
     private updateSpeed() {
+        // Save speed before applying friction
+        this.lastSpeed.copy(this.speed);
         this.heightSpeed -= this.gravity;
         this.height += this.heightSpeed;
         this.height = Math.max(this.height, this.floorPosition);
@@ -146,8 +183,6 @@ export class Character {
         while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
-        // console.log('updateRotation', angleDiff)
-
         // Gradually rotate toward the target
         return new THREE.Euler(
             0,
@@ -166,8 +201,6 @@ export class Character {
             this.setPosition(newPos, this.updateRotation())
             this.updatePositionParticles()
         }
-        // if (this.checkMinSpeed(0.05)) {
-        // }
     }
 
     private jumpParticles() {
@@ -182,7 +215,7 @@ export class Character {
         const currentSpeed = Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3 + 0.01;
         if (this.isOnGround && Math.random() * 0.15 < currentSpeed) {
             const speedRandomizer = new THREE.Vector2().set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1)
-            const particlePosition = new THREE.Vector3().set(this.position.x, this.height - 0.1, this.position.y)
+            const particlePosition = new THREE.Vector3().set(this.position.x - (this.speed.x * 5), this.height - 0.1, this.position.y - (this.speed.y * 5))
             const particleVelocity = new THREE.Vector3().set(this.speed.x * -0.2 + speedRandomizer.x, currentSpeed, this.speed.y * -0.2 + speedRandomizer.y);
             eventEmitterInstance.trigger("trigger-particle", [particlePosition, particleVelocity, this.id])
         }
