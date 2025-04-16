@@ -27,3 +27,15 @@
     height: 100%;
     overflow: hidden;
 }
+
+.object-interact {
+    color: white;
+    text-align: center;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

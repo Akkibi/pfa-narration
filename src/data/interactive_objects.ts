@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 export type InteractiveObjectType = {
+    id: number;
     name: string;
     position: THREE.Vector3;
     rotation: THREE.Euler;
@@ -11,6 +12,7 @@ export type InteractiveObjectType = {
 
 export const InteractiveObjects: InteractiveObjectType[] = [
     {
+        id: 1,
         name: 'object_1',
         position: new THREE.Vector3(-1, -0.8, 6),
         rotation: new THREE.Euler(0, Math.PI * 0.8, 0),

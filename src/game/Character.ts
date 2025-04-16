@@ -35,6 +35,7 @@ export class Character {
     private isOnGround: boolean = true;
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number;
+    private isObjectActive: boolean;
 
     constructor(id: number, floor: Floor) {
         this.floor = floor
@@ -49,7 +50,9 @@ export class Character {
         this.targetRotation = 0;
         this.maxGapSize = 0.5;
         this.instance = new THREE.Group;
-        this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y)
+        this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
+        this.isObjectActive = false;
+
         this.loadGLTFModel();
         Controls.init();
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
@@ -114,6 +117,9 @@ export class Character {
     }
 
     private update() {
+
+        if (this.isObjectActive === true)
+            return;
 
         let moveSpeedFactor = this.vars.moveSpeed;
         if (Controls.keys.run) {

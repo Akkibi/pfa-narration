@@ -15,7 +15,7 @@ export class Scene1 extends BaseScene {
         light.intensity = 1;
         this.instance.add(light);
 
-        const object_1 = new InteractiveObject(InteractiveObjects[0], 1);
+        const object_1 = new InteractiveObject(InteractiveObjects[0], this);
         this.instance.add(object_1.instance);
 
 
