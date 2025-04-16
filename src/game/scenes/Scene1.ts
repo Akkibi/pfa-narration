@@ -21,6 +21,20 @@ export class Scene1 extends BaseScene {
 
         this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
         this.character.addAxesHelper(this.axesHelper);
+
+        this.generateSpawns([{
+            position: new THREE.Vector3(3, -0.99, 1),
+            userData: {
+                to: 2
+            }
+        }, {
+            position: new THREE.Vector3(2, -0.99, 1),
+            userData: {
+                from: 2
+            }
+        }
+        ]);
+
         this.loadGLTFModel();
     }
 

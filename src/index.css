@@ -72,4 +72,6 @@ h6 {
     padding: unset;
     margin: unset;
     font-family: inherit;
+    user-select: none;
+    pointer-events: none;
 }
