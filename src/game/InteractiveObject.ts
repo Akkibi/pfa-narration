@@ -7,6 +7,7 @@ import Controls from "./Controls";
 
 export class InteractiveObject {
     private id: number;
+    public loaded: boolean;
     public instance: THREE.Mesh;
     public activeInstance: THREE.Mesh;
     public position: THREE.Vector3;
@@ -20,6 +21,7 @@ export class InteractiveObject {
 
     constructor(object: InteractiveObjectType, scene: BaseScene) {
         this.id = object.id;
+        this.loaded = false;
         this.baseObject = object;
         this.instance = new THREE.Mesh;
         this.activeInstance = new THREE.Mesh;
@@ -36,34 +38,48 @@ export class InteractiveObject {
         this.instance.scale.copy(object.scale);
         this.instance.material = this.material;
 
-        const instance = this.loadGLTFModel(object.gltf_src);
-        if (instance)
-            this.instance.add(instance);
+        this.loadObject(this.baseObject.gltf_src, this.instance);
 
         Controls.init();
 
-        eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
+        // Listeners
+        // eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.isCharacterInInteractiveArea.bind(this));
+        window.addEventListener('keypress', () => !this.is_shown ? this.showObject() : this.hideObject())
     }
 
-    private loadGLTFModel(src: string): THREE.Mesh | undefined {
-        const loader = new GLTFLoader();
-        loader.load(
-            `./${src}`,
-            (gltf: { scene: THREE.Group }) => {
-                console.log("GLTF", gltf.scene)
-                const GLTFMesh = gltf.scene.children[0] as THREE.Mesh; // Store the loaded model
-                GLTFMesh.material = this.material;
+    private async loadObject(gltf_src: string, instance: THREE.Mesh) {
+        console.log('loadObject')
+        try {
+            const mesh = await this.loadGLTFModel(gltf_src);
 
-                return GLTFMesh;
-            },
-            undefined,
-            (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
-            },
-        );
+            instance.add(mesh);
 
-        return undefined;
+            this.loaded = true;
+        } catch (error) {
+            console.error("Failed to load model:", error);
+        }
+    }
+
+    private loadGLTFModel(src: string): Promise<THREE.Mesh> {
+        return new Promise((resolve, reject) => {
+            const loader = new GLTFLoader();
+
+            loader.load(
+                `./${src}`,
+                (gltf: { scene: THREE.Group }) => {
+                    const GLTFMesh = gltf.scene.children[0] as THREE.Mesh;
+                    GLTFMesh.material = this.material;
+
+                    resolve(GLTFMesh)
+                },
+                undefined,
+                (error) => {
+                    console.error("An error occurred while loading the GLTF model:", error);
+                    reject(error)
+                },
+            );
+        })
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
@@ -74,41 +90,41 @@ export class InteractiveObject {
         else {
             eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
             this.is_active = false;
-            this.material.color = new THREE.Color('black');
-            this.instance.material = this.material;
-            this.instance.position.y = -0.8;
         }
     }
 
     private showObject() {
-        const instance = this.loadGLTFModel(this.baseObject.gltf_src);
-        if (instance) {
-            this.activeInstance = instance;
+        console.log('showObject')
 
-            this.activeInstance.material = this.material;
-            this.activeInstance.position.x = this.scene.camera.camera.position.x - 0.5;
-            this.activeInstance.position.y = this.scene.camera.camera.position.y - 1.3;
-            this.activeInstance.position.z = this.scene.camera.camera.position.z + 6.5;
-        }
+        this.loadObject(this.baseObject.gltf_src, this.activeInstance);
+        // Prevent character from moving when the object is active
+        eventEmitterInstance.trigger(`toggleInteractiveObject`, [true]);
+
+        this.activeInstance.material = this.material;
+        this.activeInstance.position.x = this.scene.camera.camera.position.x - 0.5;
+        this.activeInstance.position.y = this.scene.camera.camera.position.y - 1.3;
+        this.activeInstance.position.z = this.scene.camera.camera.position.z + 6.5;
+
+        this.is_shown = true;
     }
 
     private hideObject() {
-        // this.activeInstance.position 
+        console.log('hideObject')
+        eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
+        this.is_shown = false;
+
+        this.activeInstance.position.x = this.scene.camera.camera.position.x - 0.5;
+        this.activeInstance.position.y = this.scene.camera.camera.position.y - 1.3;
+        this.activeInstance.position.z = this.scene.camera.camera.position.z + 6.5;
     }
 
-    private update() {
+    // private update() {
 
-        if (this.is_active && Controls.keys.e) {
-            console.log('e')
-            // eventEmitterInstance.trigger(`toggleInteractiveObject`, [true]);
-            this.showObject()
-        }
-
-        if (this.is_shown) {
-            eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
-        }
-
-
-
-    }
+    //     if (this.is_active && Controls.keys.e && !this.is_shown) {
+    //         this.showObject()
+    //     }
+    //     else if (this.is_shown && Controls.keys.e) {
+    //         this.hideObject();
+    //     }
+    // }
 }

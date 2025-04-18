@@ -19,6 +19,7 @@ export class Character {
     private lerpAmount: number;
     private instance: THREE.Group;
     public id: number;
+    public loaded: boolean;
     public floorPosition: number = 2;
     public speed: THREE.Vector2;
     private lastSpeed: THREE.Vector2;
@@ -40,6 +41,7 @@ export class Character {
     constructor(id: number, floor: Floor) {
         this.floor = floor
         this.id = id;
+        this.loaded = false;
         this.speed = new THREE.Vector2(0.1, 0.1);
         this.height = 2;
         this.heightSpeed = 0.1;
@@ -53,9 +55,14 @@ export class Character {
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         this.isObjectActive = false;
 
-        this.loadGLTFModel();
+        this.loadObject('./character.glb');
+
+        this.instance.position.z = -0.2;
+        this.instance.scale.set(0.3, 0.3, 0.3);
+
         Controls.init();
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
+        eventEmitterInstance.on(`toggleInteractiveObject`, (status: boolean) => this.isObjectActive = status)
     }
 
     private updateCharacterModelSmooth() {
@@ -67,24 +74,37 @@ export class Character {
         this.axesHelper = axesHelper;
     }
 
-    private loadGLTFModel(): void {
-        const loader = new GLTFLoader();
-        loader.load(
-            "./character.glb",
-            (gltf: { scene: THREE.Group }) => {
-                console.log("GLTF", gltf.scene)
-                const GLTFGroup = gltf.scene; // Store the loaded model
-                GLTFGroup.position.z = -0.2;
-                this.instance.add(GLTFGroup); // Add the model to the scene
-                if (this.instance) {
-                    this.instance.scale.set(0.3, 0.3, 0.3);
-                }
-            },
-            undefined,
-            (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
-            },
-        );
+    private async loadObject(gltf_src: string) {
+        try {
+            const group = await this.loadGLTFModel(gltf_src);
+
+            this.instance.add(group);
+
+            this.loaded = true;
+        } catch (error) {
+            console.error("Failed to load model:", error);
+        }
+    }
+
+    private loadGLTFModel(src: string): Promise<THREE.Group> {
+        return new Promise((resolve, reject) => {
+            const loader = new GLTFLoader();
+
+            loader.load(
+                `./${src}`,
+                (gltf: { scene: THREE.Group }) => {
+                    const GLTFGroup = gltf.scene as THREE.Group;
+                    // GLTFMesh.material = this.material;
+
+                    resolve(GLTFGroup)
+                },
+                undefined,
+                (error) => {
+                    console.error("An error occurred while loading the GLTF model:", error);
+                    reject(error)
+                },
+            );
+        })
     }
 
     private moveCape() {
