@@ -1,5 +1,5 @@
 const Controls = {
-    keys: { forward: false, back: false, left: false, right: false, space: false, run: false },
+    keys: { forward: false, back: false, left: false, right: false, space: false, run: false, e: false },
 
     init() {
         window.addEventListener("keydown", (e) => this.handleKey(e, true));
@@ -47,6 +47,9 @@ const Controls = {
             case "Space":
                 this.keys.space = pressed;
                 console.log(`Space: ${pressed}`);
+                break;
+            case "KeyE":
+                this.keys.e = pressed;
                 break;
         }
     },
