@@ -37,6 +37,7 @@ export class Character {
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number;
     private isObjectActive: boolean;
+    private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
     constructor(id: number, floor: Floor) {
         this.floor = floor
@@ -50,7 +51,7 @@ export class Character {
         this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
         this.targetRotation = 0;
-        this.maxGapSize = 0.5;
+        this.maxGapSize = 0.25;
         this.instance = new THREE.Group;
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         this.isObjectActive = false;
@@ -58,8 +59,9 @@ export class Character {
         this.loadObject('./character.glb');
 
         this.instance.position.z = -0.2;
-        this.instance.scale.set(0.3, 0.3, 0.3);
-
+        this.instance.scale.set(0.2, 0.2, 0.2);
+        console.log("this.instance", this.instance)
+        console.log("this.bones", this.bones)
         Controls.init();
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`toggleInteractiveObject`, (status: boolean) => this.isObjectActive = status)
@@ -78,9 +80,11 @@ export class Character {
         try {
             const group = await this.loadGLTFModel(gltf_src);
 
-            this.instance.add(group);
+            this.instance.add(group)
 
             this.loaded = true;
+
+            this.storeBones()
         } catch (error) {
             console.error("Failed to load model:", error);
         }
@@ -107,24 +111,28 @@ export class Character {
         })
     }
 
-    private moveCape() {
+    private storeBones() {
         const bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
         for (let i = 0; i <= 4; i++) {
-            const bone = this.instance.getObjectByName(`head-${i}`);
+            const bone = this.instance.getObjectByName(`head-${i}_1`);
             if (bone) bones.push(bone);
         }
+        this.bones = bones;
+    }
 
-        bones.map((b, i) => {
+    private moveCape() {
 
-            // Difference between last speed and new speed to decide the direction to rotate the bones 
+        this.bones.map((b, i) => {
+
+            // Difference between last speed and new speed to decide the direction to rotate the bones
             const speedDif = new THREE.Vector2().subVectors(this.lastSpeed, this.speed);
 
             // Multiply to increase effect amplitude
             speedDif.multiplyScalar(17)
 
             // Add speed to increase the angle when advanci
-            const newBoneAngle = (speedDif.x - (this.speed.x / 2)) * i * Math.sin(this.rotation.y) + (speedDif.y - (this.speed.x / 2)) * i * Math.cos(this.rotation.y);
+            const newBoneAngle = (speedDif.x - (this.speed.x / 2)) * i * Math.sin(this.rotation.y) + (speedDif.y - (this.speed.y / 2)) * i * Math.cos(this.rotation.y);
 
             // TO DO: Try to implement the Damped Spring Oscillations: https://phrogz.net/damped-spring-oscillations-in-javascript
 
@@ -180,7 +188,7 @@ export class Character {
         this.updateCharacterModelSmooth();
         // this.instance.position.set(this.position.x, this.height, this.position.y);
         if (this.axesHelper) {
-            this.axesHelper.position.set(this.position.x, this.height + 1, this.position.y)
+            this.axesHelper.position.set(this.position.x, this.height + 1.2, this.position.y)
             this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y)
         };
 

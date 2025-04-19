@@ -45,7 +45,7 @@ export class InteractiveObject {
         // Listeners
         // eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.isCharacterInInteractiveArea.bind(this));
-        window.addEventListener('keypress', () => !this.is_shown ? this.showObject() : this.hideObject())
+        // window.addEventListener('keypress', () => !this.is_shown ? this.showObject() : this.hideObject())s
     }
 
     private async loadObject(gltf_src: string, instance: THREE.Mesh) {

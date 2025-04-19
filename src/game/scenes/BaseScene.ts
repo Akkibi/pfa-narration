@@ -5,7 +5,7 @@ import { ParticleSystem } from "../particles";
 import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { gameState } from "../gameState";
-
+import checkDistance from "../../utils/utils";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -71,17 +71,12 @@ export default class BaseScene {
         // console.log("trigger scene", this.spawnArray)
         if (this.id !== gameState.currentScene) return
         this.spawnArray?.forEach((spawn) => {
-            if (spawn.userData.to !== undefined && this.checkDistance(position, spawn.position) < 0.25) {
+            if (spawn.userData.to !== undefined && checkDistance(position, spawn.position) < 0.25) {
                 console.log(spawn.userData.to)
                 eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id])
             }
         })
 
-    }
-
-    private checkDistance(vector1: THREE.Vector3, vector2: THREE.Vector3): number {
-        const difference = new THREE.Vector3().subVectors(vector1, vector2)
-        return Math.sqrt(difference.x * difference.x + difference.z * difference.z);
     }
 
     protected generateSpawns(spawns: spawnData[]) {

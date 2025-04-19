@@ -43,7 +43,7 @@ export class Scene1 extends BaseScene {
 
         // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
         loader.load(
-            "./pfa.glb",
+            "./scene1/scene.glb",
             (gltf: { scene: THREE.Group }) => {
                 this.gltfModel = gltf.scene; // Store the loaded model
                 this.instance.add(this.gltfModel); // Add the model to the scene
@@ -61,7 +61,7 @@ export class Scene1 extends BaseScene {
             },
         );
         loader.load(
-            "./floor.glb",
+            "./scene1/floor.glb",
             (gltf: { scene: THREE.Group }) => {
                 // this.instance.add(this.floor); // Add the model to the scene
                 const floor = gltf.scene.children[0] as THREE.Mesh;
