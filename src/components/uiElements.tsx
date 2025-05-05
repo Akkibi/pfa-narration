@@ -7,9 +7,13 @@ const UiElements = () => {
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);
 
     useEffect(() => {
-        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
-            setIsObjectActive(status)})
-    }, [])
+        eventEmitterInstance.on(
+            "showInteractiveObjectControls",
+            (status: boolean) => {
+                setIsObjectActive(status);
+            },
+        );
+    }, []);
 
     return (
         <div className="scene ui-elements">
@@ -22,11 +26,11 @@ const UiElements = () => {
                 }}
                 ref={testButtonRef}
             >
-                button test
+        button test
             </button>
             {isObjectActive && (
                 <div className="object-interact">
-                    Press <img src="/images/keys/E.png" alt="E"/> to interact
+          Press <img src="/images/keys/E.png" alt="E" /> to interact
                 </div>
             )}
         </div>

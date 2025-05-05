@@ -4,6 +4,8 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObjectType } from "../data/interactive_objects";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
+import checkDistance from "../utils/utils";
+
 
 export class InteractiveObject {
     private id: number;
@@ -43,7 +45,7 @@ export class InteractiveObject {
         Controls.init();
 
         // Listeners
-        // eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
+        eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.isCharacterInInteractiveArea.bind(this));
         // window.addEventListener('keypress', () => !this.is_shown ? this.showObject() : this.hideObject())s
     }
@@ -83,14 +85,11 @@ export class InteractiveObject {
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
-        if (pos.x > (this.position.x - 1) && pos.x < (this.position.x + 1) && pos.z > (this.position.z - 1) && pos.z < (this.position.z + 1)) {
-            eventEmitterInstance.trigger(`showInteractiveObjectControls`, [true]);
-            this.is_active = true;
-        }
-        else {
-            eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
-            this.is_active = false;
-        }
+        const distance = checkDistance(pos, this.position);
+        console.log(distance < 0.5)
+        eventEmitterInstance.trigger(`showInteractiveObjectControls`, [distance < 0.5]);
+        // eventEmitterInstance.trigger(`toggleInteractiveObject`, [distance < 0.5]);
+        this.is_active = distance < 0.5;
     }
 
     private showObject() {
@@ -113,18 +112,19 @@ export class InteractiveObject {
         eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
         this.is_shown = false;
 
+        this.activeInstance.material = new THREE.MeshBasicMaterial({ color : "blue"});
         this.activeInstance.position.x = this.scene.camera.camera.position.x - 0.5;
         this.activeInstance.position.y = this.scene.camera.camera.position.y - 1.3;
         this.activeInstance.position.z = this.scene.camera.camera.position.z + 6.5;
     }
 
-    // private update() {
+    private update() {
 
-    //     if (this.is_active && Controls.keys.e && !this.is_shown) {
-    //         this.showObject()
-    //     }
-    //     else if (this.is_shown && Controls.keys.e) {
-    //         this.hideObject();
-    //     }
-    // }
+        if (this.is_active && Controls.keys.interaction && !this.is_shown) {
+            this.showObject()
+        }
+        else if (this.is_shown && Controls.keys.interaction) {
+            this.hideObject();
+        }
+    }
 }
