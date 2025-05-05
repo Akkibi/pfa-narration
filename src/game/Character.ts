@@ -60,9 +60,7 @@ export class Character {
 
         this.instance.position.z = -0.2;
         this.instance.scale.set(0.2, 0.2, 0.2);
-        console.log("this.instance", this.instance)
-        console.log("this.bones", this.bones)
-        Controls.init();
+
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`toggleInteractiveObject`, (status: boolean) => this.isObjectActive = status)
     }
