@@ -19,7 +19,7 @@ export class Camera {
         );
         this.currentPosition = new THREE.Vector3(0, 0, 0);
         this.camera.position.set(0, 2, -5);
-        this.camera.lookAt(0, 1, 0)
+        this.camera.lookAt(0, 1, 0);
         this.instance.add(this.camera);
         this.lerpAmount = 0.05;
         this.character = character;
