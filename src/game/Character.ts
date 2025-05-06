@@ -36,7 +36,7 @@ export class Character {
     private isOnGround: boolean = true;
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number;
-    private isObjectActive: boolean;
+    private isGameFreeze: boolean;
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
     constructor(id: number, floor: Floor) {
@@ -54,7 +54,7 @@ export class Character {
         this.maxGapSize = 0.25;
         this.instance = new THREE.Group;
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
-        this.isObjectActive = false;
+        this.isGameFreeze = false;
 
         this.loadObject('./character.glb');
 
@@ -62,7 +62,7 @@ export class Character {
         this.instance.scale.set(0.2, 0.2, 0.2);
 
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
-        eventEmitterInstance.on(`toggleInteractiveObject`, (status: boolean) => this.isObjectActive = status)
+        eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => this.isGameFreeze = status)
     }
 
     private updateCharacterModelSmooth() {
@@ -144,7 +144,7 @@ export class Character {
 
     private update() {
 
-        if (this.isObjectActive === true)
+        if (this.isGameFreeze === true)
             return;
 
         let moveSpeedFactor = this.vars.moveSpeed;
