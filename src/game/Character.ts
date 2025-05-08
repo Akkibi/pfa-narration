@@ -40,7 +40,7 @@ export class Character {
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
     constructor(id: number, floor: Floor) {
-        this.floor = floor
+        this.floor = floor;
         this.id = id;
         this.loaded = false;
         this.speed = new THREE.Vector2(0.1, 0.1);
@@ -52,21 +52,25 @@ export class Character {
         this.rotation = new THREE.Vector2(0, 0);
         this.targetRotation = 0;
         this.maxGapSize = 0.25;
-        this.instance = new THREE.Group;
+        this.instance = new THREE.Group();
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         this.isGameFreeze = false;
 
-        this.loadObject('./character.glb');
+        this.loadObject("./character.glb");
 
         this.instance.position.z = -0.2;
         this.instance.scale.set(0.2, 0.2, 0.2);
 
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
-        eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => this.isGameFreeze = status)
+        eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => (this.isGameFreeze = status));
     }
 
     private updateCharacterModelSmooth() {
-        this.currentPosition.set(lerp(this.currentPosition.x, this.position.x, this.lerpAmount), lerp(this.currentPosition.y, this.height, this.lerpAmount), lerp(this.currentPosition.z, this.position.y, this.lerpAmount));
+        this.currentPosition.set(
+            lerp(this.currentPosition.x, this.position.x, this.lerpAmount),
+            lerp(this.currentPosition.y, this.height, this.lerpAmount),
+            lerp(this.currentPosition.z, this.position.y, this.lerpAmount),
+        );
         this.instance.position.copy(this.currentPosition);
     }
 
@@ -78,11 +82,11 @@ export class Character {
         try {
             const group = await this.loadGLTFModel(gltf_src);
 
-            this.instance.add(group)
+            this.instance.add(group);
 
             this.loaded = true;
 
-            this.storeBones()
+            this.storeBones();
         } catch (error) {
             console.error("Failed to load model:", error);
         }
@@ -98,39 +102,39 @@ export class Character {
                     const GLTFGroup = gltf.scene as THREE.Group;
                     // GLTFMesh.material = this.material;
 
-                    resolve(GLTFGroup)
+                    resolve(GLTFGroup);
                 },
                 undefined,
                 (error) => {
                     console.error("An error occurred while loading the GLTF model:", error);
-                    reject(error)
+                    reject(error);
                 },
             );
-        })
+        });
     }
 
     private storeBones() {
         const bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
-
+        console.log("bones", bones);
         for (let i = 0; i <= 4; i++) {
-            const bone = this.instance.getObjectByName(`head-${i}_1`);
+            const bone = this.instance.getObjectByName(`head-${i}`);
             if (bone) bones.push(bone);
         }
         this.bones = bones;
     }
 
     private moveCape() {
-
         this.bones.map((b, i) => {
-
             // Difference between last speed and new speed to decide the direction to rotate the bones
             const speedDif = new THREE.Vector2().subVectors(this.lastSpeed, this.speed);
 
             // Multiply to increase effect amplitude
-            speedDif.multiplyScalar(17)
+            speedDif.multiplyScalar(17);
 
             // Add speed to increase the angle when advanci
-            const newBoneAngle = (speedDif.x - (this.speed.x / 2)) * i * Math.sin(this.rotation.y) + (speedDif.y - (this.speed.y / 2)) * i * Math.cos(this.rotation.y);
+            const newBoneAngle =
+                (speedDif.x - this.speed.x / 2) * i * Math.sin(this.rotation.y) +
+                (speedDif.y - this.speed.y / 2) * i * Math.cos(this.rotation.y);
 
             // TO DO: Try to implement the Damped Spring Oscillations: https://phrogz.net/damped-spring-oscillations-in-javascript
 
@@ -139,17 +143,15 @@ export class Character {
             // newPosition = oldPosition + newVelocity;
 
             b.rotation.z = lerp(b.rotation.z, newBoneAngle, 0.1);
-        })
+        });
     }
 
     private update() {
-
-        if (this.isGameFreeze === true)
-            return;
+        if (this.isGameFreeze === true) return;
 
         let moveSpeedFactor = this.vars.moveSpeed;
         if (Controls.keys.run) {
-            moveSpeedFactor *= 2
+            moveSpeedFactor *= 2;
         }
         if (Controls.keys.forward) {
             this.speed.y += moveSpeedFactor;
@@ -165,7 +167,7 @@ export class Character {
         }
         if (Controls.keys.space && this.isOnGround) {
             this.heightSpeed += this.vars.jumpSpeed;
-            this.jumpParticles()
+            this.jumpParticles();
         }
 
         if (this.speed.length() > 0) {
@@ -186,10 +188,9 @@ export class Character {
         this.updateCharacterModelSmooth();
         // this.instance.position.set(this.position.x, this.height, this.position.y);
         if (this.axesHelper) {
-            this.axesHelper.position.set(this.position.x, this.height + 1.2, this.position.y)
-            this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y)
-        };
-
+            this.axesHelper.position.set(this.position.x, this.height + 1.2, this.position.y);
+            this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y);
+        }
     }
     private updateSpeed() {
         // Save speed before applying friction
@@ -217,48 +218,90 @@ export class Character {
         while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
         // Gradually rotate toward the target
-        return new THREE.Euler(
-            0,
-            currentYRotation + angleDiff * this.vars.turnSpeed,
-            0
-        );
+        return new THREE.Euler(0, currentYRotation + angleDiff * this.vars.turnSpeed, 0);
     }
 
     private checkMinSpeed(min: number) {
-        return this.speed.x > min || this.speed.x < -min || this.speed.y > min || this.speed.y < -min || Math.abs(this.heightSpeed) > min
+        return (
+            this.speed.x > min ||
+            this.speed.x < -min ||
+            this.speed.y > min ||
+            this.speed.y < -min ||
+            Math.abs(this.heightSpeed) > min
+        );
     }
 
     private updatePosition() {
         if (this.checkMinSpeed(0.0001)) {
-            const newPos: THREE.Vector2 = new THREE.Vector2().copy(this.checkPosRecursive(this.position, this.speed, 0));
-            this.setPosition(newPos, this.updateRotation())
-            this.updatePositionParticles()
+            const newPos: THREE.Vector2 = new THREE.Vector2().copy(
+                this.checkPosRecursive(this.position, this.speed, 0),
+            );
+            this.setPosition(newPos, this.updateRotation());
+            this.updatePositionParticles();
         }
     }
 
     private jumpParticles() {
         for (let i = 0; i <= 20; i++) {
-            const speedRandomizer = new THREE.Vector3().set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, (Math.random()) * 0.1)
-            const particlePosition = new THREE.Vector3().set(this.position.x, this.height - 0.1, this.position.y)
-            eventEmitterInstance.trigger("trigger-particle", [particlePosition, speedRandomizer, this.id])
+            const speedRandomizer = new THREE.Vector3().set(
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1,
+                Math.random() * 0.1,
+            );
+            const particlePosition = new THREE.Vector3().set(
+                this.position.x,
+                this.height - 0.1,
+                this.position.y,
+            );
+            eventEmitterInstance.trigger("trigger-particle", [
+                particlePosition,
+                speedRandomizer,
+                this.id,
+            ]);
         }
     }
 
     private updatePositionParticles() {
-        const currentSpeed = Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3 + 0.01;
+        const currentSpeed =
+            Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3 + 0.01;
         if (this.isOnGround && Math.random() * 0.15 < currentSpeed) {
-            const speedRandomizer = new THREE.Vector2().set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1)
-            const particlePosition = new THREE.Vector3().set(this.position.x - (this.speed.x * 5), this.height - 0.1, this.position.y - (this.speed.y * 5))
-            const particleVelocity = new THREE.Vector3().set(this.speed.x * -0.2 + speedRandomizer.x, currentSpeed, this.speed.y * -0.2 + speedRandomizer.y);
-            eventEmitterInstance.trigger("trigger-particle", [particlePosition, particleVelocity, this.id])
+            const speedRandomizer = new THREE.Vector2().set(
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1,
+            );
+            const particlePosition = new THREE.Vector3().set(
+                this.position.x - this.speed.x * 5,
+                this.height - 0.1,
+                this.position.y - this.speed.y * 5,
+            );
+            const particleVelocity = new THREE.Vector3().set(
+                this.speed.x * -0.2 + speedRandomizer.x,
+                currentSpeed,
+                this.speed.y * -0.2 + speedRandomizer.y,
+            );
+            eventEmitterInstance.trigger("trigger-particle", [
+                particlePosition,
+                particleVelocity,
+                this.id,
+            ]);
         }
     }
 
-    private checkPosRecursive(position: THREE.Vector2, speed: THREE.Vector2, angle: number): THREE.Vector2 {
+    private checkPosRecursive(
+        position: THREE.Vector2,
+        speed: THREE.Vector2,
+        angle: number,
+    ): THREE.Vector2 {
         const currentAngle = Math.atan2(speed.y, speed.x) + angle;
         const currentSpeed = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
-        const newSpeed: THREE.Vector2 = new THREE.Vector2(Math.cos(currentAngle) * currentSpeed, Math.sin(currentAngle) * currentSpeed);
-        const newPos: THREE.Vector2 = new THREE.Vector2(position.x + newSpeed.x, position.y + newSpeed.y);
+        const newSpeed: THREE.Vector2 = new THREE.Vector2(
+            Math.cos(currentAngle) * currentSpeed,
+            Math.sin(currentAngle) * currentSpeed,
+        );
+        const newPos: THREE.Vector2 = new THREE.Vector2(
+            position.x + newSpeed.x,
+            position.y + newSpeed.y,
+        );
         const height: number | null = this.floor.raycastFrom(newPos);
         if (height === null || this.checkBadDistance(height, this.height)) {
             const newAngle = angle > 0 ? (angle + 0.15) * -1 : (angle - 0.15) * -1;
@@ -266,12 +309,16 @@ export class Character {
                 return position;
             }
             // console.log(angle);
-            return this.checkPosRecursive(position, new THREE.Vector2(speed.x * this.vars.friction, speed.y * this.vars.friction), newAngle)
+            return this.checkPosRecursive(
+                position,
+                new THREE.Vector2(speed.x * this.vars.friction, speed.y * this.vars.friction),
+                newAngle,
+            );
         } else if (height !== null) {
             this.floorPosition = height;
             return newPos;
         }
-        return position
+        return position;
     }
 
     private checkBadDistance(newPos: number, currentPos: number) {
@@ -291,7 +338,9 @@ export class Character {
             this.instance.rotation.copy(rotation);
         }
 
-        eventEmitterInstance.trigger(`characterPositionChanged-${this.id}`, [new THREE.Vector3(position.x, this.height, position.y)]);
+        eventEmitterInstance.trigger(`characterPositionChanged-${this.id}`, [
+            new THREE.Vector3(position.x, this.height, position.y),
+        ]);
     }
 
     public getPosition() {

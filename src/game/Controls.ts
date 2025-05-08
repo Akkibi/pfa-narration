@@ -1,11 +1,20 @@
+import { eventEmitterInstance } from "../utils/eventEmitter";
+
 const Controls = {
-    keys: { forward: false, back: false, left: false, right: false, space: false, run: false, interaction: false },
+    keys: {
+        forward: false,
+        back: false,
+        left: false,
+        right: false,
+        space: false,
+        run: false,
+        interaction: false,
+    },
 
     init() {
         console.log("Controls initialized");
         window.addEventListener("keydown", (e) => this.handleKeyUpDown(e, true));
         window.addEventListener("keyup", (e) => this.handleKeyUpDown(e, false));
-        window.addEventListener('keypress', (e) => this.handleKeyPress(e));
     },
 
     handleKeyUpDown(event: KeyboardEvent, pressed: boolean) {
@@ -50,18 +59,14 @@ const Controls = {
                 this.keys.space = pressed;
                 console.log(`Space: ${pressed}`);
                 break;
-        }
-    },
-
-    handleKeyPress(event: KeyboardEvent) {
-        console.log(event.code);
-        switch (event.code) {
             case "KeyE":
-                this.keys.interaction = !this.keys.interaction;
+                if (pressed === true) {
+                    eventEmitterInstance.trigger("userInterractButtonPressed");
+                    console.log(`KeyE: ${pressed}`);
+                }
                 break;
         }
-    }
-
+    },
 };
 
 Controls.init();

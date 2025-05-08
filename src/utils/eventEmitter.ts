@@ -130,15 +130,13 @@ export class EventEmitter {
                     this.callbacks[namespace] instanceof Object &&
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
-                    this.callbacks[namespace][name.value].forEach(
-                        (callback: Function) => {
-                            result = callback.apply(this, args);
+                    this.callbacks[namespace][name.value].forEach((callback: Function) => {
+                        result = callback.apply(this, args);
 
-                            if (typeof finalResult === "undefined") {
-                                finalResult = result;
-                            }
-                        },
-                    );
+                        if (typeof finalResult === "undefined") {
+                            finalResult = result;
+                        }
+                    });
                 }
             }
         }
@@ -150,13 +148,11 @@ export class EventEmitter {
                 return this;
             }
 
-            this.callbacks[name.namespace][name.value].forEach(
-                (callback: Function) => {
-                    result = callback.apply(this, args);
+            this.callbacks[name.namespace][name.value].forEach((callback: Function) => {
+                result = callback.apply(this, args);
 
-                    if (typeof finalResult === "undefined") finalResult = result;
-                },
-            );
+                if (typeof finalResult === "undefined") finalResult = result;
+            });
         }
 
         return finalResult;

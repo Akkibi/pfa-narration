@@ -5,7 +5,8 @@ import { ParticleSystem } from "../particles";
 import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { gameState } from "../gameState";
-import checkDistance from "../../utils/utils";
+import { charactersData } from "../../data/characters_data";
+import Npc from "../npc";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -13,9 +14,8 @@ interface spawnData {
 }
 
 interface userData {
-    [key: string]: number
+    [key: string]: number;
 }
-
 
 export default class BaseScene {
     public id: number;
@@ -24,11 +24,11 @@ export default class BaseScene {
     public floor: Floor;
     protected character: Character;
     protected axesHelper: THREE.AxesHelper;
-    private particleSystem: ParticleSystem
+    private particleSystem: ParticleSystem;
     public spawnArray: THREE.PolarGridHelper[] = [];
 
     constructor(id: number) {
-        this.instance = new THREE.Scene()
+        this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
         this.floor = new Floor();
         this.character = new Character(id, this.floor);
@@ -40,7 +40,7 @@ export default class BaseScene {
 
         this.instance.add(this.camera.instance);
         this.instance.add(this.character.getInstance());
-        console.log('lookAt', this.character.getPosition());
+        console.log("lookAt", this.character.getPosition());
         // this.camera.camera.lookAt(this.character.getPosition());
 
         // Add AxesHelper
@@ -48,46 +48,60 @@ export default class BaseScene {
         this.axesHelper = axesHelper;
         this.instance.add(axesHelper);
 
+        // generate npcs
+        this.generateNpcs();
+
         eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.sceneChange.bind(this));
         eventEmitterInstance.on(`scene-change`, this.updateSceneChange.bind(this));
     }
 
     private updateSceneChange(sceneTo: number, sceneFrom: number) {
-        if (sceneTo !== this.id) return
-        console.log("teleport")
+        if (sceneTo !== this.id) return;
+        console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.from !== undefined && spawn.userData.from === sceneFrom) {
                 this.character.position.set(spawn.position.x, spawn.position.z);
                 this.character.speed.set(0.01, 0.01);
-                this.character.heightSpeed = 0
-                this.character.height = spawn.position.y
+                this.character.heightSpeed = 0;
+                this.character.height = spawn.position.y;
                 this.character.currentPosition.copy(spawn.position);
                 this.camera.currentPosition.copy(spawn.position);
             }
-        })
+        });
     }
 
     private sceneChange(position: THREE.Vector3) {
         // console.log("trigger scene", this.spawnArray)
-        if (this.id !== gameState.currentScene) return
+        if (this.id !== gameState.currentScene) return;
         this.spawnArray?.forEach((spawn) => {
-            if (spawn.userData.to !== undefined && checkDistance(position, spawn.position) < 0.25) {
-                console.log(spawn.userData.to)
-                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id])
+            if (spawn.userData.to !== undefined && position.distanceTo(spawn.position) < 0.25) {
+                console.log(spawn.userData.to);
+                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id]);
             }
-        })
-
+        });
     }
 
     protected generateSpawns(spawns: spawnData[]) {
-        spawns.forEach(spawnData => {
-            const color = spawnData.userData.from ? new THREE.Color(0x0000ff) : new THREE.Color(0x00ff00)
-            const spawn = new THREE.PolarGridHelper(0.25, 0, 2, 32, color, color)
+        spawns.forEach((spawnData) => {
+            const color = spawnData.userData.from
+                ? new THREE.Color(0x0000ff)
+                : new THREE.Color(0x00ff00);
+            const spawn = new THREE.PolarGridHelper(0.25, 0, 2, 32, color, color);
             spawn.position.copy(spawnData.position);
             spawn.userData = spawnData.userData;
             this.instance.add(spawn);
             this.spawnArray.push(spawn);
-            console.log("add spawns", this.spawnArray)
-        })
+            console.log("add spawns", this.spawnArray);
+        });
+    }
+
+    private generateNpcs() {
+        for (const [key, value] of Object.entries(charactersData)) {
+            if (value.sceneId === this.id) {
+                console.log(`generate character ${key} in ${value.sceneId}`);
+                const npc = new Npc(key, value.sceneId);
+                this.instance.add(npc.instance);
+            }
+        }
     }
 }

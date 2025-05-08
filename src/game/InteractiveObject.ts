@@ -4,9 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObjectType } from "../data/interactive_objects";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
-import checkDistance from "../utils/utils";
 import { lerp } from "three/src/math/MathUtils.js";
-
 
 export class InteractiveObject {
     private id: number;
@@ -26,14 +24,14 @@ export class InteractiveObject {
         this.id = object.id;
         this.loaded = false;
         this.baseObject = object;
-        this.instance = new THREE.Mesh;
-        this.activeInstance = new THREE.Mesh;
+        this.instance = new THREE.Mesh();
+        this.activeInstance = new THREE.Mesh();
         this.position = object.position;
         this.rotation = object.rotation;
         this.scale = object.scale;
         this.is_active = false;
         this.is_shown = false;
-        this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
+        this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color("red") });
         this.scene = scene;
 
         this.instance.position.copy(object.position);
@@ -45,7 +43,10 @@ export class InteractiveObject {
 
         // Listeners
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
-        eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.isCharacterInInteractiveArea.bind(this));
+        eventEmitterInstance.on(
+            `characterPositionChanged-${this.id}`,
+            this.isCharacterInInteractiveArea.bind(this),
+        );
     }
 
     private async loadObject(gltf_src: string, instance: THREE.Mesh) {
@@ -72,25 +73,27 @@ export class InteractiveObject {
                     const GLTFMesh = gltf.scene.children[0] as THREE.Mesh;
                     GLTFMesh.material = this.material;
 
-                    resolve(GLTFMesh)
+                    resolve(GLTFMesh);
                 },
                 undefined,
                 (error) => {
                     console.error("An error occurred while loading the GLTF model:", error);
-                    reject(error)
+                    reject(error);
                 },
             );
-        })
+        });
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
-        const distance = checkDistance(pos, this.position);
-        eventEmitterInstance.trigger(`showInteractiveObjectControls`, [distance < 0.5]);
+        const distance = pos.distanceTo(this.position);
+        if (this.is_active !== distance < 0.5) {
+            eventEmitterInstance.trigger(`showInteractiveObjectControls`, [distance < 0.5]);
+        }
         this.is_active = distance < 0.5;
     }
 
     private async showObject() {
-        console.log('showObject', this.scene.camera.camera.position)
+        console.log("showObject", this.scene.camera.camera.position);
 
         const res = await this.loadObject(this.baseObject.gltf_src, this.activeInstance);
         // Prevent character from moving when the object is active
@@ -98,34 +101,35 @@ export class InteractiveObject {
 
         if (res) {
             this.scene.instance.add(this.activeInstance);
-            this.activeInstance.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
+            this.activeInstance.material = new THREE.MeshBasicMaterial({
+                color: new THREE.Color("red"),
+            });
             const starting_position = new THREE.Vector3(
                 this.scene.camera.instance.position.x + 4,
                 this.scene.camera.instance.position.y + 1,
-                this.scene.camera.instance.position.z
-            )
+                this.scene.camera.instance.position.z,
+            );
             this.activeInstance.scale.set(0.5, 0.5, 0.5);
             this.activeInstance.position.copy(starting_position);
-            console.log('activeInstance', this.activeInstance.position);
-            console.log('camera', this.scene.camera.camera.position)
-            console.log('char', this.scene.camera.instance.position)
+            console.log("activeInstance", this.activeInstance.position);
+            console.log("camera", this.scene.camera.camera.position);
+            console.log("char", this.scene.camera.instance.position);
             this.is_shown = true;
         }
     }
 
     private async moveObject(startPosition: THREE.Vector3, targetPosition: THREE.Vector3) {
-
         const lerpPosition = new THREE.Vector3(
             lerp(startPosition.x, targetPosition.x, 0.05),
             lerp(startPosition.y, targetPosition.y, 0.05),
-            lerp(startPosition.z, targetPosition.z, 0.05)
-        )
+            lerp(startPosition.z, targetPosition.z, 0.05),
+        );
 
         this.activeInstance.position.copy(lerpPosition);
     }
 
     private hideObject() {
-        console.log('hideObject')
+        console.log("hideObject");
         eventEmitterInstance.trigger(`toggleInteractiveObject`, [false]);
         this.is_shown = false;
 
@@ -133,7 +137,6 @@ export class InteractiveObject {
     }
 
     private update() {
-
         if (this.is_active) {
             let targetPosition = undefined;
 
@@ -141,18 +144,18 @@ export class InteractiveObject {
                 targetPosition = new THREE.Vector3(
                     this.scene.camera.instance.position.x,
                     this.scene.camera.instance.position.y + 1,
-                    this.scene.camera.instance.position.z
-                )
+                    this.scene.camera.instance.position.z,
+                );
             } else {
                 targetPosition = new THREE.Vector3(
                     this.scene.camera.instance.position.x + 4,
                     this.scene.camera.instance.position.y + 1,
-                    this.scene.camera.instance.position.z
-                )
+                    this.scene.camera.instance.position.z,
+                );
             }
 
             if (targetPosition && this.activeInstance.position.distanceTo(targetPosition) > 0.5) {
-                this.moveObject(this.activeInstance.position, targetPosition)
+                this.moveObject(this.activeInstance.position, targetPosition);
             } else if (targetPosition && !this.is_shown) {
                 this.scene.instance.remove(this.activeInstance);
             }
@@ -160,11 +163,9 @@ export class InteractiveObject {
             if (Controls.keys.interaction && !this.is_shown) {
                 this.showObject();
                 Controls.keys.interaction = false;
-            }
-            else if (this.is_shown && Controls.keys.interaction) {
+            } else if (this.is_shown && Controls.keys.interaction) {
                 this.hideObject();
                 Controls.keys.interaction = false;
-
             }
         }
     }

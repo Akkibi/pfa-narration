@@ -3,56 +3,77 @@ import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObject } from "../InteractiveObject";
 import { InteractiveObjects } from "../../data/interactive_objects";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 export class Scene1 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
+    private mixer: THREE.AnimationMixer | null; // Store the animation
+    private time: number = 0;
     constructor() {
         super(1);
         this.instance.background = new THREE.Color(0x00ffff);
+        this.mixer = null;
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(-1, 1, -0.5);
         light.intensity = 1;
         this.instance.add(light);
 
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.instance.add(ambientLight);
+
+        this.instance.add(new THREE.HemisphereLight(0xffffff, 0x000000, 0.5));
+
         const object_1 = new InteractiveObject(InteractiveObjects[0], this);
         this.instance.add(object_1.instance);
-
 
         this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
         this.character.addAxesHelper(this.axesHelper);
 
-        this.generateSpawns([{
-            position: new THREE.Vector3(3, -0.99, 1),
-            userData: {
-                to: 2
-            }
-        }, {
-            position: new THREE.Vector3(2, -0.99, 1),
-            userData: {
-                from: 2
-            }
-        }
+        this.generateSpawns([
+            {
+                position: new THREE.Vector3(3, -0.99, 1),
+                userData: {
+                    to: 2,
+                },
+            },
+            {
+                position: new THREE.Vector3(2, -0.99, 1),
+                userData: {
+                    from: 2,
+                },
+            },
         ]);
 
         this.loadGLTFModel();
+        eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
     }
+
+    private update = () => {
+        // this.time += 0.01;
+        this.mixer?.update(0.025);
+    };
 
     private loadGLTFModel(): void {
         const loader = new GLTFLoader();
-
         // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
         loader.load(
             "./scene1/scene.glb",
-            (gltf: { scene: THREE.Group }) => {
-                this.gltfModel = gltf.scene; // Store the loaded model
-                this.instance.add(this.gltfModel); // Add the model to the scene
-                console.log(this.gltfModel)
-                // Optionally, adjust the model's position, rotation, or scale
+            (gltf: { scene: THREE.Group; animations: THREE.AnimationClip[] }) => {
+                this.gltfModel = gltf.scene;
+                this.instance.add(this.gltfModel);
+                console.log("aniams, animations", gltf.animations);
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);
                     this.gltfModel.scale.set(1, 1, 1);
                     this.gltfModel.rotation.set(0, Math.PI, 0);
+                }
+                if (gltf.animations && gltf.animations.length > 0) {
+                    this.mixer = new THREE.AnimationMixer(this.gltfModel);
+                    gltf.animations.forEach((clip) => {
+                        const clipbat = clip.clone();
+                        this.mixer?.clipAction(clipbat).play();
+                    });
                 }
             },
             undefined,

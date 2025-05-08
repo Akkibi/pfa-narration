@@ -6,7 +6,6 @@ export class Floor {
 
     constructor() {
         this.raycaster = new THREE.Raycaster();
-
     }
 
     public addFloor(floor: THREE.Mesh) {
@@ -14,7 +13,9 @@ export class Floor {
     }
 
     public raycastFrom(position: THREE.Vector2): number | null {
-        if (this.instance === null) { return null };
+        if (this.instance === null) {
+            return null;
+        }
         let posY = null;
         const newPos = new THREE.Vector3(position.x, 100, position.y);
         this.raycaster.set(newPos, new THREE.Vector3(0, -1, 0));

@@ -1,36 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
+import { DialogDataType } from "../data/dialogData";
+import Dialog from "./dialog";
 
 const UiElements = () => {
-    const testButtonRef = useRef<HTMLButtonElement>(null);
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);
-
+    const [showDialog, setShowDialog] = useState<boolean>(false);
+    const [dialogData, setDialogData] = useState<DialogDataType | null>(null);
     useEffect(() => {
-        eventEmitterInstance.on(
-            "showInteractiveObjectControls",
-            (status: boolean) => {
-                setIsObjectActive(status);
-            },
-        );
+        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
+            setIsObjectActive(status);
+        });
+        eventEmitterInstance.on("openDialog", (data: DialogDataType) => {
+            setShowDialog(true);
+            setDialogData(data);
+            console.log(data);
+        });
+        eventEmitterInstance.on("closeDialog", () => {
+            setShowDialog(false);
+        });
     }, []);
 
     return (
         <div className="scene ui-elements">
-            <h1 className="title">UiElements</h1>
-            <button
-                className="btn-test"
-                onClick={() => {
-                    console.log("button clicked");
-                    eventEmitterInstance.trigger("scene-change", [2]);
-                }}
-                ref={testButtonRef}
-            >
-        button test
-            </button>
-            {isObjectActive && (
+            {<Dialog currentDialogData={dialogData} showDialog={showDialog} />}
+            {isObjectActive && !showDialog && (
                 <div className="object-interact">
-          Press <img src="/images/keys/E.png" alt="E" /> to interact
+                    Press <img src="/images/keys/E.png" alt="E" /> to interact
                 </div>
             )}
         </div>
