@@ -67,33 +67,16 @@ class Npc {
         });
     }
 
-    private loadGLTFModel(src: string): Promise<THREE.Group> {
-        return new Promise((resolve, reject) => {
-            const loader = new GLTFLoader();
-
-            loader.load(
-                `./${src}`,
-                (gltf: { scene: THREE.Group }) => {
-                    const GLTFGroup = gltf.scene as THREE.Group;
-                    // GLTFMesh.material = this.material;
-
-                    resolve(GLTFGroup);
-                },
-                undefined,
-                (error) => {
-                    console.error("An error occurred while loading the GLTF model:", error);
-                    reject(error);
-                },
-            );
-        });
-    }
-
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
         this.characterPosition.copy(pos);
         const distance = pos.distanceTo(this.position);
-        if (this.isActive !== distance < this.interactionDistance) {
+        if (distance < this.interactionDistance !== this.isActive) {
             eventEmitterInstance.trigger(`showInteractiveObjectControls`, [
                 distance < this.interactionDistance,
+            ]);
+            eventEmitterInstance.trigger(`zoom-${this.sceneId}`, [
+                distance < this.interactionDistance,
+                2,
             ]);
         }
         this.isActive = distance < this.interactionDistance;

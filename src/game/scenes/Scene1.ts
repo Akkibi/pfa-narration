@@ -45,6 +45,23 @@ export class Scene1 extends BaseScene {
             },
         ]);
 
+        this.generateZoomZones([
+            {
+                position: new THREE.Vector3(10, -0.99, 2),
+                userData: {
+                    size: 5,
+                    zoom: 0.25,
+                },
+            },
+            {
+                position: new THREE.Vector3(-20, 2, 0),
+                userData: {
+                    size: 5,
+                    zoom: 0.25,
+                },
+            },
+        ]);
+
         this.loadGLTFModel();
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
     }

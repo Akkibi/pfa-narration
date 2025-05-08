@@ -26,6 +26,7 @@ export class Character {
 
     public position: THREE.Vector2;
     public currentPosition: THREE.Vector3;
+    public lastPosition: THREE.Vector3;
     private rotation: THREE.Vector2;
     private targetRotation: number;
     public height: number;
@@ -49,6 +50,7 @@ export class Character {
         this.lerpAmount = 0.4;
         this.position = new THREE.Vector2(0, 1);
         this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
+        this.lastPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
         this.targetRotation = 0;
         this.maxGapSize = 0.25;
@@ -330,16 +332,19 @@ export class Character {
     }
 
     public setPosition(position: THREE.Vector2, rotation?: THREE.Euler) {
+        this.lastPosition.set(this.position.x, this.height, this.position.y);
         this.position.copy(position);
-        this.instance.position.set(position.x, this.height, position.y);
+
+        const newPos = new THREE.Vector3(position.x, this.height, position.y);
+        this.instance.position.copy(newPos);
 
         if (rotation) {
             this.rotation.copy(rotation);
             this.instance.rotation.copy(rotation);
         }
-
         eventEmitterInstance.trigger(`characterPositionChanged-${this.id}`, [
-            new THREE.Vector3(position.x, this.height, position.y),
+            newPos.clone(),
+            this.lastPosition.clone(),
         ]);
     }
 

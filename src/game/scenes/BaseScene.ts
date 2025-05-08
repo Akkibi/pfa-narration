@@ -13,6 +13,11 @@ interface spawnData {
     userData: userData;
 }
 
+interface zoomZone {
+    position: THREE.Vector3;
+    userData: userData;
+}
+
 interface userData {
     [key: string]: number;
 }
@@ -26,6 +31,7 @@ export default class BaseScene {
     protected axesHelper: THREE.AxesHelper;
     private particleSystem: ParticleSystem;
     public spawnArray: THREE.PolarGridHelper[] = [];
+    public zoomZoneArray: THREE.PolarGridHelper[] = [];
 
     constructor(id: number) {
         this.instance = new THREE.Scene();
@@ -51,7 +57,10 @@ export default class BaseScene {
         // generate npcs
         this.generateNpcs();
 
-        eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.sceneChange.bind(this));
+        eventEmitterInstance.on(
+            `characterPositionChanged-${this.id}`,
+            this.onPositionChange.bind(this),
+        );
         eventEmitterInstance.on(`scene-change`, this.updateSceneChange.bind(this));
     }
 
@@ -70,13 +79,33 @@ export default class BaseScene {
         });
     }
 
+    private onPositionChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
+        this.sceneChange(position);
+        this.zoomChange(position, lastPosition);
+    }
+
     private sceneChange(position: THREE.Vector3) {
-        // console.log("trigger scene", this.spawnArray)
-        if (this.id !== gameState.currentScene) return;
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.to !== undefined && position.distanceTo(spawn.position) < 0.25) {
                 console.log(spawn.userData.to);
                 eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id]);
+            }
+        });
+    }
+
+    private zoomChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
+        this.zoomZoneArray?.forEach((zoomZone) => {
+            // console.log(zoomZone.userData);
+            if (zoomZone.userData.zoom !== undefined && zoomZone.userData.size !== undefined) {
+                if (
+                    position.distanceTo(zoomZone.position) < zoomZone.userData.size !==
+                    lastPosition.distanceTo(zoomZone.position) < zoomZone.userData.size
+                ) {
+                    eventEmitterInstance.trigger(`zoom-${this.id}`, [
+                        position.distanceTo(zoomZone.position) < zoomZone.userData.size,
+                        zoomZone.userData.zoom,
+                    ]);
+                }
             }
         });
     }
@@ -92,6 +121,19 @@ export default class BaseScene {
             this.instance.add(spawn);
             this.spawnArray.push(spawn);
             console.log("add spawns", this.spawnArray);
+        });
+    }
+
+    protected generateZoomZones(zoomZones: zoomZone[]) {
+        zoomZones.forEach((zoomZone) => {
+            const size = zoomZone.userData.size ?? 1;
+            const color = new THREE.Color(0xff0000);
+            const spawn = new THREE.PolarGridHelper(size, 0, 2, 32, color, color);
+            spawn.position.copy(zoomZone.position);
+            spawn.userData = zoomZone.userData;
+            this.instance.add(spawn);
+            this.zoomZoneArray.push(spawn);
+            console.log("add zoom zones", this.spawnArray);
         });
     }
 

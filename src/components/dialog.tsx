@@ -97,7 +97,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                                             key={index}
                                                             data-count={index + 1}
                                                             style={{
-                                                                animationDelay: index * 200 + "ms",
+                                                                animationDelay: index * 1000 + "ms",
                                                             }}
                                                         >
                                                             {text}
