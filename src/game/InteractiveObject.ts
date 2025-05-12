@@ -5,6 +5,7 @@ import { InteractiveObjectType } from "../data/interactive_objects";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
 import { lerp } from "three/src/math/MathUtils.js";
+import checkDistance from "../utils/utils";
 
 export class InteractiveObject {
     private id: number;
@@ -44,6 +45,16 @@ export class InteractiveObject {
         // Listeners
         eventEmitterInstance.on(`updateScene-${this.scene.scene_id}`, this.update.bind(this));
         eventEmitterInstance.on(`characterPositionChanged-${this.scene.scene_id}`, this.isCharacterInInteractiveArea.bind(this));
+        eventEmitterInstance.on(`userInterractButtonPressed`, () => {
+            if (this.is_active) {
+                if (this.is_shown) {
+                    this.hideObject();
+                } else {
+                    this.showObject();
+                }
+            }
+        }
+        );
     }
 
     private async loadObject(gltf_src: string, instance: THREE.Mesh) {
@@ -142,14 +153,6 @@ export class InteractiveObject {
     private update() {
         if (this.is_active) {
             this.moveObject();
-
-            if (Controls.keys.interaction && !this.is_shown) {
-                this.showObject();
-                Controls.keys.interaction = false;
-            } else if (this.is_shown && Controls.keys.interaction) {
-                this.hideObject();
-                Controls.keys.interaction = false;
-            }
 
             if (this.is_shown) {
                 let rotationSpeed = 0.01;

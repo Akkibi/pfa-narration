@@ -32,7 +32,7 @@ export default class BaseScene {
     public spawnArray: THREE.PolarGridHelper[] = [];
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
 
-    constructor(id: number) {
+    constructor(scene_id: number) {
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
         this.floor = new Floor();
@@ -57,14 +57,14 @@ export default class BaseScene {
         this.generateNpcs();
 
         eventEmitterInstance.on(
-            `characterPositionChanged-${this.id}`,
+            `characterPositionChanged-${this.scene_id}`,
             this.onPositionChange.bind(this),
         );
         eventEmitterInstance.on(`scene-change`, this.updateSceneChange.bind(this));
     }
 
     private updateSceneChange(sceneTo: number, sceneFrom: number) {
-        if (sceneTo !== this.id) return;
+        if (sceneTo !== this.scene_id) return;
         console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.from !== undefined && spawn.userData.from === sceneFrom) {
@@ -88,7 +88,7 @@ export default class BaseScene {
         this.spawnArray?.forEach((spawn) => {
             if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
-                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id]);
+                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.scene_id]);
                 console.log("scenechange");
             }
         });
@@ -102,7 +102,7 @@ export default class BaseScene {
                     position.distanceTo(zoomZone.position) < zoomZone.userData.size !==
                     lastPosition.distanceTo(zoomZone.position) < zoomZone.userData.size
                 ) {
-                    eventEmitterInstance.trigger(`zoom-${this.id}`, [
+                    eventEmitterInstance.trigger(`zoom-${this.scene_id}`, [
                         position.distanceTo(zoomZone.position) < zoomZone.userData.size,
                         zoomZone.userData.zoom,
                     ]);
@@ -140,7 +140,7 @@ export default class BaseScene {
 
     private generateNpcs() {
         for (const [key, value] of Object.entries(charactersData)) {
-            if (value.sceneId === this.id) {
+            if (value.sceneId === this.scene_id) {
                 console.log(`generate character ${key} in ${value.sceneId}`);
                 const npc = new Npc(key, value.sceneId);
                 this.instance.add(npc.instance);

@@ -31,7 +31,7 @@ export const InteractiveObjects: InteractiveObjectType[] = [
         id: 2,
         name: 'object_2',
         gltf_src: './object_2.glb',
-        position: new THREE.Vector3(1, -1, 6),
+        position: new THREE.Vector3(0, -1, 20),
         rotation: new THREE.Euler(0, Math.PI, 0),
         scale: new THREE.Vector3(0.3, 0.3, 0.3),
         // Active Object View

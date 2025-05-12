@@ -1,7 +1,7 @@
 import { eventEmitterInstance } from "../utils/eventEmitter";
 
 const Controls = {
-    keys: { forward: false, back: false, left: false, right: false, space: false, run: false, interaction: false },
+    keys: { forward: false, back: false, left: false, right: false, space: false, run: false },
     scroll: window.scrollY,
 
 
@@ -9,7 +9,6 @@ const Controls = {
         console.log("Controls initialized");
         window.addEventListener("keydown", (e) => this.handleKeyUpDown(e, true));
         window.addEventListener("keyup", (e) => this.handleKeyUpDown(e, false));
-        window.addEventListener('keypress', (e) => this.handleKeyPress(e));
         window.addEventListener('wheel', (e) => this.handleScroll(e));
     },
 

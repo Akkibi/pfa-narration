@@ -22,7 +22,7 @@ const UiElements = () => {
 
         eventEmitterInstance.on(
             "toggleInteractiveObjectPanel",
-            (obj: InteractiveObject) => {   
+            (obj: InteractiveObject) => {
                 setObjectShown(obj);
             }
         )
@@ -47,17 +47,19 @@ const UiElements = () => {
                 onClick={() => {
                     eventEmitterInstance.trigger("scene-change", [2]);
                 }}
-                ref={testButtonRef}
             >
                 button test
             </button>
-            <ObjectPanel active={objectShown !== undefined} />
             {isObjectActive && (
-            <Dialog currentDialogData={dialogData} showDialog={showDialog} />
+                <>
+                    <ObjectPanel active={objectShown !== undefined} />
+                    <div className="object-interact">
+                        Press <img src="/images/keys/E.png" alt="E" /> to {!objectShown ? "interact" : "close"}
+                    </div>
+                </>
+            )}
             {isObjectActive && !showDialog && (
-                <div className="object-interact">
-                    Press <img src="/images/keys/E.png" alt="E" /> to {!objectShown ? "interact" : "close"}
-                </div>
+                <Dialog currentDialogData={dialogData} showDialog={showDialog} />
             )}
         </div>
     );
