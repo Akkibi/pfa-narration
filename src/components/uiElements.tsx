@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
+import { ObjectPanel } from "./objectPanel";
+import { InteractiveObject } from "../game/InteractiveObject";
 
 const UiElements = () => {
     const testButtonRef = useRef<HTMLButtonElement>(null);
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);
+    const [objectShown, setObjectShown] = useState<InteractiveObject | undefined>(undefined);
 
     useEffect(() => {
         eventEmitterInstance.on(
@@ -13,6 +16,13 @@ const UiElements = () => {
                 setIsObjectActive(status);
             },
         );
+
+        eventEmitterInstance.on(
+            "toggleInteractiveObjectPanel",
+            (obj: InteractiveObject) => {   
+                setObjectShown(obj);
+            }
+        )
     }, []);
 
     return (
@@ -21,16 +31,16 @@ const UiElements = () => {
             <button
                 className="btn-test"
                 onClick={() => {
-                    console.log("button clicked");
                     eventEmitterInstance.trigger("scene-change", [2]);
                 }}
                 ref={testButtonRef}
             >
-        button test
+                button test
             </button>
+            <ObjectPanel active={objectShown !== undefined} />
             {isObjectActive && (
                 <div className="object-interact">
-          Press <img src="/images/keys/E.png" alt="E" /> to interact
+                    Press <img src="/images/keys/E.png" alt="E" /> to {!objectShown ? "interact" : "close"}
                 </div>
             )}
         </div>
