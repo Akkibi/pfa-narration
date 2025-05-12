@@ -18,6 +18,9 @@ export class Scene1 extends BaseScene {
         const object_1 = new InteractiveObject(InteractiveObjects[0], this);
         this.instance.add(object_1.instance);
 
+        const object_2 = new InteractiveObject(InteractiveObjects[1], this);
+        this.instance.add(object_2.instance);
+
 
         this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
         this.character.addAxesHelper(this.axesHelper);

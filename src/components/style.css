@@ -39,3 +39,27 @@
     align-items: center;
     gap: 10px;
 }
+
+/* ObjectPanel */
+
+.object-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    /* Center horizontally */
+    transform: translate(-50%, 100%);
+    /* Stay centered horizontally but off-screen vertically */
+    width: 50%;
+    height: 50%;
+    transition: all 0.5s ease-out;
+    /* Smooth animation */
+}
+
+.object-panel.active {
+    transform: translate(-50%, 0%);
+    /* Stay centered horizontally when sliding into view */
+}

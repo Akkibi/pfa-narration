@@ -18,7 +18,7 @@ interface userData {
 
 
 export default class BaseScene {
-    public id: number;
+    public scene_id: number;
     public instance: THREE.Scene;
     public camera: Camera;
     public floor: Floor;
@@ -27,14 +27,14 @@ export default class BaseScene {
     private particleSystem: ParticleSystem
     public spawnArray: THREE.PolarGridHelper[] = [];
 
-    constructor(id: number) {
+    constructor(scene_id: number) {
         this.instance = new THREE.Scene()
         this.instance.background = new THREE.Color(0xffffff);
         this.floor = new Floor();
-        this.character = new Character(id, this.floor);
+        this.character = new Character(scene_id, this.floor);
         this.camera = new Camera(this.character);
-        this.id = id;
-        this.particleSystem = new ParticleSystem(this.instance, this.floor, id);
+        this.scene_id = scene_id;
+        this.particleSystem = new ParticleSystem(this.instance, this.floor, scene_id);
 
         // console.log(this.character.id, " position: ", this.character.getPosition());
 
@@ -48,12 +48,12 @@ export default class BaseScene {
         this.axesHelper = axesHelper;
         this.instance.add(axesHelper);
 
-        eventEmitterInstance.on(`characterPositionChanged-${this.id}`, this.sceneChange.bind(this));
+        eventEmitterInstance.on(`characterPositionChanged-${this.scene_id}`, this.sceneChange.bind(this));
         eventEmitterInstance.on(`scene-change`, this.updateSceneChange.bind(this));
     }
 
     private updateSceneChange(sceneTo: number, sceneFrom: number) {
-        if (sceneTo !== this.id) return
+        if (sceneTo !== this.scene_id) return
         console.log("teleport")
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.from !== undefined && spawn.userData.from === sceneFrom) {
@@ -69,11 +69,11 @@ export default class BaseScene {
 
     private sceneChange(position: THREE.Vector3) {
         // console.log("trigger scene", this.spawnArray)
-        if (this.id !== gameState.currentScene) return
+        if (this.scene_id !== gameState.currentScene) return
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.to !== undefined && checkDistance(position, spawn.position) < 0.25) {
                 console.log(spawn.userData.to)
-                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id])
+                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.scene_id])
             }
         })
 
