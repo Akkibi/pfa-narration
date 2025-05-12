@@ -1,3 +1,6 @@
+
+
+
 .btn-test {
     background-color: white;
     color: black;
@@ -47,7 +50,6 @@
     z-index : 10;
     bottom : 0;
     height : 10vh;
-
 }
 
 .dialog-container{
@@ -59,15 +61,46 @@
     transition: all 0.5s ease-out;
     display : flex;
     flex-direction: row;
-    gap : 1rem;
     justify-content: center;
     align-items: center;
     padding: 0 5vw;
-    clip-path : polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    /* clip-path : polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); */
+    clip-path: ellipse(100% 200% at 10% 50%);
+    opacity: 1;
+    /* -webkit-mask: url("/dialog-transition-mask.png");
+	mask: url("/dialog-transition-mask.png");
+	-webkit-mask-size: 3100% 100%;
+	mask-size: 3100% 100%;
+	-webkit-animation: mask-play 10s steps(30) forwards;
+	animation: mask-play 10s steps(30) forwards; */
 }
 
+/* @-webkit-keyframes mask-play {
+  from {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+  to {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+}
+
+@keyframes mask-play {
+  from {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+  to {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+} */
+
 .cliped{
-    clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
+    opacity: 0;
+    /* clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); */
+    clip-path: ellipse(0% 0% at 10% 50%);
 }
 
 .line-wrapper{
@@ -83,6 +116,7 @@
     padding : 1vh 2vh 1vh 2vh;
     display: flex;
     overflow: hidden;
+    font-size: 0.75rem;
 }
 
 .line-name{
@@ -101,6 +135,7 @@
 }
 
 .dialog-text-container{
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -109,14 +144,15 @@
     align-items: center;
     position: relative;
     z-index: 2;
+    background: url("/characters/background.png");
+    background-size: 100% 100%;
 }
 
 .dialog-box{
     display: flex;
     flex-direction: column;
     justify-content: end;
-    background-color: rgba(55, 50, 55, 1);
-    border : solid 2px black;
+    background-color: rgba(0,0,0, 0.1);
     max-height: 25vh;
     height: 25vh;
     width: 100%;
@@ -132,16 +168,15 @@
 }
 
 .dialog-button{
-    background-color: rgba(55, 50, 55, 1);
+    background-color: rgba(0,0,0, 0.1);
     width: 100%;
     padding : 1vh 2vh 1vh 2vh;
     border-radius: 0.5rem;
-    border: solid 2px black;
     height: 10vh;
 }
 
 .profile-pic-container{
-    height: 40vh;
+    height: 50vh;
     aspect-ratio: 1/1;
     position: relative;
     z-index: 1;
@@ -152,8 +187,19 @@
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    height: 49vh;
+    height: 50vh;
     aspect-ratio: 1/1;
+}
+
+.profile-pic-name{
+    position: absolute;
+    z-index: 5;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    font-size: 2rem;
+    color: black;
+    font-weight: bold;
 }
 
 .sentence{
@@ -179,11 +225,11 @@
 }
 
 .appear-height:nth-child(odd){
-    background-color: rgba(55, 50, 55, 1);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .appear-height:nth-child(even){
-    background-color: rgba(35, 30, 35, 1);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 @keyframes appearHeight {

@@ -60,6 +60,13 @@ export class Scene1 extends BaseScene {
                     zoom: 0.25,
                 },
             },
+            {
+                position: new THREE.Vector3(0, -0.99, 30),
+                userData: {
+                    size: 1,
+                    zoom: 3,
+                },
+            },
         ]);
 
         this.loadGLTFModel();

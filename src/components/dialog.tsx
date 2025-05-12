@@ -39,7 +39,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             color: "#fff",
                         };
                         setDialogHistory((array) => [...array, dialog]);
-                    }, 400);
+                    }, 1000);
                 }
                 if (currentDialogData.dialogs[dialogName].text) {
                     setTimeout(() => {
@@ -49,7 +49,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             color: currentDialogData.color,
                         };
                         setDialogHistory((array) => [...array, dialog]);
-                    }, 400);
+                    }, 1000);
                 }
             } else {
                 setTimeout(() => {
@@ -68,6 +68,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     return (
         <section className={`dialog-container ${showDialog ? "" : "cliped"}`}>
             <div className="profile-pic-container">
+                <p className="profile-pic-name">{currentDialogData?.name}</p>
                 <div
                     className="profile-pic"
                     style={{
@@ -97,7 +98,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                                             key={index}
                                                             data-count={index + 1}
                                                             style={{
-                                                                animationDelay: index * 1000 + "ms",
+                                                                animationDelay: index * 700 + "ms",
                                                             }}
                                                         >
                                                             {text}

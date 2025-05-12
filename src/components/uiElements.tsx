@@ -24,7 +24,7 @@ const UiElements = () => {
 
     return (
         <div className="scene ui-elements">
-            {<Dialog currentDialogData={dialogData} showDialog={showDialog} />}
+            <Dialog currentDialogData={dialogData} showDialog={showDialog} />
             {isObjectActive && !showDialog && (
                 <div className="object-interact">
                     Press <img src="/images/keys/E.png" alt="E" /> to interact

@@ -351,4 +351,12 @@ export class Character {
     public getPosition() {
         return new THREE.Vector3(this.position.x, this.height, this.position.y);
     }
+    public setFloor(floorHeight: number | null = null) {
+        if (floorHeight === null) {
+            this.height = this.floorPosition;
+        } else {
+            this.height = floorHeight;
+            this.heightSpeed = 0;
+        }
+    }
 }

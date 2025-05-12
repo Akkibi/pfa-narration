@@ -36,6 +36,23 @@ export class Scene2 extends BaseScene {
             },
         ]);
 
+        this.generateZoomZones([
+            {
+                position: new THREE.Vector3(10, 0, -5),
+                userData: {
+                    size: 5,
+                    zoom: 0.5,
+                },
+            },
+            {
+                position: new THREE.Vector3(-30, 10, 5),
+                userData: {
+                    size: 10,
+                    zoom: 0.5,
+                },
+            },
+        ]);
+
         this.character.getInstance().position.set(0, 0, 1);
 
         const light = new THREE.DirectionalLight(0xffffff, 1);

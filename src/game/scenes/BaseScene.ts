@@ -4,7 +4,6 @@ import { Camera } from "../Camera";
 import { ParticleSystem } from "../particles";
 import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
-import { gameState } from "../gameState";
 import { charactersData } from "../../data/characters_data";
 import Npc from "../npc";
 
@@ -69,7 +68,8 @@ export default class BaseScene {
         console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
             if (spawn.userData.from !== undefined && spawn.userData.from === sceneFrom) {
-                this.character.position.set(spawn.position.x, spawn.position.z);
+                this.character.setPosition(new THREE.Vector2(spawn.position.x, spawn.position.z));
+                this.character.setFloor();
                 this.character.speed.set(0.01, 0.01);
                 this.character.heightSpeed = 0;
                 this.character.height = spawn.position.y;
@@ -86,9 +86,10 @@ export default class BaseScene {
 
     private sceneChange(position: THREE.Vector3) {
         this.spawnArray?.forEach((spawn) => {
-            if (spawn.userData.to !== undefined && position.distanceTo(spawn.position) < 0.25) {
+            if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
                 eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.id]);
+                console.log("scenechange");
             }
         });
     }

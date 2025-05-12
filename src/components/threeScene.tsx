@@ -52,7 +52,7 @@ const ThreeScene = () => {
         // Time tracking
         let lastTime = Date.now();
         let time = Date.now();
-        const fps = 60;
+        const fps = 70;
         // How many milliseconds should pass before the next frame
         const interval = 1000 / fps;
 
