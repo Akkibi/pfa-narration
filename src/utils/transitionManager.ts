@@ -15,14 +15,7 @@ export class TransitionManager {
 
     constructor() {
         // Create orthographic camera for rendering the transition
-        this.transitionCamera = new THREE.OrthographicCamera(
-            -1,
-            1,
-            1,
-            -1,
-            0,
-            1,
-        );
+        this.transitionCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
         // Create scene for transition
         this.transitionScene = new THREE.Scene();
@@ -74,8 +67,7 @@ export class TransitionManager {
     public loadTransitionTexture(path: string): Promise<void> {
         return new Promise((resolve) => {
             new THREE.TextureLoader().load(path, (texture) => {
-                this.transitionMaterial.uniforms.transitionFactor.value =
-                    texture;
+                this.transitionMaterial.uniforms.transitionFactor.value = texture;
                 resolve();
             });
         });
@@ -121,8 +113,7 @@ export class TransitionManager {
     }
 
     public update(renderer: THREE.WebGLRenderer, deltaTime: number): boolean {
-        if (!this.isTransitioning || !this.currentScene || !this.nextScene)
-            return false;
+        if (!this.isTransitioning || !this.currentScene || !this.nextScene) return false;
         if (!this.currentRenderTarget || !this.nextRenderTarget) return false;
 
         // Update progress
@@ -177,10 +168,8 @@ export class TransitionManager {
         renderer.setClearColor(originalClearColor, originalClearAlpha);
 
         // Set textures to material
-        this.transitionMaterial.uniforms.tCurrentScene.value =
-            this.currentRenderTarget.texture;
-        this.transitionMaterial.uniforms.tNextScene.value =
-            this.nextRenderTarget.texture;
+        this.transitionMaterial.uniforms.tCurrentScene.value = this.currentRenderTarget.texture;
+        this.transitionMaterial.uniforms.tNextScene.value = this.nextRenderTarget.texture;
 
         // Render transition scene
         renderer.render(this.transitionScene, this.transitionCamera);

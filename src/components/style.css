@@ -1,3 +1,6 @@
+
+
+
 .btn-test {
     background-color: white;
     color: black;
@@ -15,9 +18,9 @@
     margin-bottom: 1rem;
 }
 
-.ui-elements {
+/* .ui-elements {
     padding: 1rem;
-}
+} */
 
 .scene {
     position: absolute;
@@ -62,4 +65,198 @@
 .object-panel.active {
     transform: translate(-50%, 0%);
     /* Stay centered horizontally when sliding into view */
+}
+
+/* dialog */
+
+.bottom-bar{
+    position : fixed;
+    z-index : 10;
+    bottom : 0;
+    height : 10vh;
+}
+
+.dialog-container{
+    position: fixed;
+    z-index: 30;
+    width: 100%;
+    height : 50vh;
+    bottom: 0;
+    transition: all 0.5s ease-out;
+    display : flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5vw;
+    /* clip-path : polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); */
+    clip-path: ellipse(100% 200% at 10% 50%);
+    opacity: 1;
+    /* -webkit-mask: url("/dialog-transition-mask.png");
+	mask: url("/dialog-transition-mask.png");
+	-webkit-mask-size: 3100% 100%;
+	mask-size: 3100% 100%;
+	-webkit-animation: mask-play 10s steps(30) forwards;
+	animation: mask-play 10s steps(30) forwards; */
+}
+
+/* @-webkit-keyframes mask-play {
+  from {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+  to {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+}
+
+@keyframes mask-play {
+  from {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+  to {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+} */
+
+.cliped{
+    opacity: 0;
+    /* clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); */
+    clip-path: ellipse(0% 0% at 10% 50%);
+}
+
+.line-wrapper{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    bottom: 0;
+}
+
+.line{
+    color: white;
+    padding : 1vh 2vh 1vh 2vh;
+    display: flex;
+    overflow: hidden;
+    font-size: 0.75rem;
+}
+
+.line-name{
+    height: fit-content;
+    font-weight: bold;
+    padding: 0.25rem 0.75rem;
+    background-color: white;
+    color: black;
+    border-radius: 1rem;
+    width: fit-content;
+    height: fit-content;
+}
+.line-text{
+    height: fit-content;
+    padding: 0.25rem 0.75rem;
+}
+
+.dialog-text-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    background: url("/characters/background.png");
+    background-size: 100% 100%;
+}
+
+.dialog-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    background-color: rgba(0,0,0, 0.1);
+    max-height: 25vh;
+    height: 25vh;
+    width: 100%;
+    overflow-y: scroll;
+    border-radius: 0.5rem;
+}
+
+.options-container{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.dialog-button{
+    background-color: rgba(0,0,0, 0.1);
+    width: 100%;
+    padding : 1vh 2vh 1vh 2vh;
+    border-radius: 0.5rem;
+    height: 10vh;
+}
+
+.profile-pic-container{
+    height: 50vh;
+    aspect-ratio: 1/1;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-pic{
+    position : absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 50vh;
+    aspect-ratio: 1/1;
+}
+
+.profile-pic-name{
+    position: absolute;
+    z-index: 5;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    font-size: 2rem;
+    color: black;
+    font-weight: bold;
+}
+
+.sentence{
+    margin-right: 1rem;
+    opacity: 0;
+    animation-name: appearOpacity;
+    animation-duration: 500ms;
+    animation-fill-mode: forwards;
+}
+
+@keyframes appearOpacity {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+
+.appear-height{
+    display: grid;
+    /* grid-template-rows: 0fr; */
+    animation-name: appearHeight;
+    animation-duration: 1000ms;
+    animation-fill-mode: forwards;
+}
+
+.appear-height:nth-child(odd){
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.appear-height:nth-child(even){
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes appearHeight {
+    0% {grid-template-rows: 0fr;}
+    100% {grid-template-rows: 1fr;}
 }

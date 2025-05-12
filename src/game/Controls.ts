@@ -1,3 +1,5 @@
+import { eventEmitterInstance } from "../utils/eventEmitter";
+
 const Controls = {
     keys: { forward: false, back: false, left: false, right: false, space: false, run: false, interaction: false },
     scroll: window.scrollY,
@@ -53,13 +55,11 @@ const Controls = {
                 this.keys.space = pressed;
                 console.log(`Space: ${pressed}`);
                 break;
-        }
-    },
-
-    handleKeyPress(event: KeyboardEvent) {
-        switch (event.code) {
             case "KeyE":
-                this.keys.interaction = !this.keys.interaction;
+                if (pressed === true) {
+                    eventEmitterInstance.trigger("userInterractButtonPressed");
+                    console.log(`KeyE: ${pressed}`);
+                }
                 break;
         }
     },

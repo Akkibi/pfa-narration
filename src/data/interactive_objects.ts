@@ -11,7 +11,7 @@ export type InteractiveObjectType = {
     scale: THREE.Vector3;
     texture_src?: string;
     gltf_src: string;
-}
+};
 
 export const InteractiveObjects: InteractiveObjectType[] = [
     {

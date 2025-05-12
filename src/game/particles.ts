@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { eventEmitterInstance } from '../utils/eventEmitter';
-import { Floor } from './floor';
+import * as THREE from "three";
+import { eventEmitterInstance } from "../utils/eventEmitter";
+import { Floor } from "./floor";
 
 // interface ParticleData {
 //     position: THREE.Vector3;
@@ -14,11 +14,19 @@ class Particle {
     private age: number;
     private floor: Floor;
 
-    constructor(position: THREE.Vector3, speed: THREE.Vector3, material: THREE.PointsMaterial, floor: Floor) {
+    constructor(
+        position: THREE.Vector3,
+        speed: THREE.Vector3,
+        material: THREE.PointsMaterial,
+        floor: Floor,
+    ) {
         this.age = 0;
-        this.floor = floor
+        this.floor = floor;
         const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
+        geometry.setAttribute(
+            "position",
+            new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3),
+        );
         this.instance = new THREE.Points(geometry, material);
         this.velocity = speed.clone();
         this.lifespan = 30 + Math.floor(Math.random() * 61);
@@ -27,11 +35,11 @@ class Particle {
     update(): boolean {
         const pos = this.instance.geometry.attributes.position as THREE.BufferAttribute;
         pos.array[0] += this.velocity.x;
-        const floorPosition = this.floor.raycastFrom(new THREE.Vector2(pos.array[0], pos.array[2]))
+        const floorPosition = this.floor.raycastFrom(new THREE.Vector2(pos.array[0], pos.array[2]));
         if (floorPosition !== null) {
             pos.array[1] = Math.max(pos.array[1] + this.velocity.y, floorPosition);
         } else {
-            pos.array[1] += this.velocity.y
+            pos.array[1] += this.velocity.y;
         }
         pos.array[2] += this.velocity.z;
         pos.needsUpdate = true;
@@ -56,7 +64,7 @@ export class ParticleSystem {
     private floor: Floor;
 
     constructor(scene: THREE.Scene, floor: Floor, id: number) {
-        this.floor = floor
+        this.floor = floor;
         this.id = id;
         this.scene = scene;
 
@@ -65,9 +73,12 @@ export class ParticleSystem {
             vertexColors: false,
         });
 
-        eventEmitterInstance.on('trigger-particle', (position: THREE.Vector3, speed: THREE.Vector3, id: number) => {
-            if (this.id === id) this.spawnParticle(position, speed);
-        });
+        eventEmitterInstance.on(
+            "trigger-particle",
+            (position: THREE.Vector3, speed: THREE.Vector3, id: number) => {
+                if (this.id === id) this.spawnParticle(position, speed);
+            },
+        );
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
     }
 

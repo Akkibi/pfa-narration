@@ -5,7 +5,6 @@ export class Scene3 extends BaseScene {
     private torus: THREE.Mesh;
 
     constructor() {
-
         super(3);
 
         this.instance = new THREE.Scene();

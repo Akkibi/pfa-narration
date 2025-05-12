@@ -27,7 +27,6 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
@@ -40,6 +39,7 @@
     border-width: 0;
     border-style: solid;
     border-color: #e0e0e0;
+    scroll-behavior: smooth;
 }
 
 *::selection {

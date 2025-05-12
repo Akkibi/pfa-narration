@@ -4,9 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObjectType } from "../data/interactive_objects";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
-import checkDistance from "../utils/utils";
 import { lerp } from "three/src/math/MathUtils.js";
-
 
 export class InteractiveObject {
     private id: number;
@@ -26,14 +24,14 @@ export class InteractiveObject {
         this.id = object.id;
         this.loaded = false;
         this.baseObject = object;
-        this.instance = new THREE.Mesh;
-        this.activeInstance = new THREE.Mesh;
+        this.instance = new THREE.Mesh();
+        this.activeInstance = new THREE.Mesh();
         this.position = object.position;
         this.rotation = object.rotation;
         this.scale = object.scale;
         this.is_active = false;
         this.is_shown = false;
-        this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
+        this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color("red") });
         this.scene = scene;
 
         this.instance.position.copy(object.position);
@@ -72,15 +70,15 @@ export class InteractiveObject {
                     const GLTFMesh = gltf.scene.children[0] as THREE.Mesh;
                     // GLTFMesh.material = this.material;
 
-                    resolve(GLTFMesh)
+                    resolve(GLTFMesh);
                 },
                 undefined,
                 (error) => {
                     console.error("An error occurred while loading the GLTF model:", error);
-                    reject(error)
+                    reject(error);
                 },
             );
-        })
+        });
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
@@ -142,15 +140,13 @@ export class InteractiveObject {
 
 
     private update() {
-
         if (this.is_active) {
             this.moveObject();
 
             if (Controls.keys.interaction && !this.is_shown) {
                 this.showObject();
                 Controls.keys.interaction = false;
-            }
-            else if (this.is_shown && Controls.keys.interaction) {
+            } else if (this.is_shown && Controls.keys.interaction) {
                 this.hideObject();
                 Controls.keys.interaction = false;
             }

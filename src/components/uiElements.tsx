@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
+import { DialogDataType } from "../data/dialogData";
+import Dialog from "./dialog";
 import { ObjectPanel } from "./objectPanel";
 import { InteractiveObject } from "../game/InteractiveObject";
 
 const UiElements = () => {
-    const testButtonRef = useRef<HTMLButtonElement>(null);
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);
+    const [showDialog, setShowDialog] = useState<boolean>(false);
+    const [dialogData, setDialogData] = useState<DialogDataType | null>(null);
     const [objectShown, setObjectShown] = useState<InteractiveObject | undefined>(undefined);
 
     useEffect(() => {
@@ -23,6 +26,17 @@ const UiElements = () => {
                 setObjectShown(obj);
             }
         )
+        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
+            setIsObjectActive(status);
+        });
+        eventEmitterInstance.on("openDialog", (data: DialogDataType) => {
+            setShowDialog(true);
+            setDialogData(data);
+            console.log(data);
+        });
+        eventEmitterInstance.on("closeDialog", () => {
+            setShowDialog(false);
+        });
     }, []);
 
     return (
@@ -39,6 +53,8 @@ const UiElements = () => {
             </button>
             <ObjectPanel active={objectShown !== undefined} />
             {isObjectActive && (
+            <Dialog currentDialogData={dialogData} showDialog={showDialog} />
+            {isObjectActive && !showDialog && (
                 <div className="object-interact">
                     Press <img src="/images/keys/E.png" alt="E" /> to {!objectShown ? "interact" : "close"}
                 </div>
