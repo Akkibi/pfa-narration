@@ -30,10 +30,6 @@ export class Scene1 extends BaseScene {
         const object_2 = new InteractiveObject(InteractiveObjects[1], this);
         this.instance.add(object_2.instance);
 
-
-        this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
-        this.character.addAxesHelper(this.axesHelper);
-
         this.generateSpawns([
             {
                 position: new THREE.Vector3(3, -0.99, 1),
@@ -74,7 +70,7 @@ export class Scene1 extends BaseScene {
         ]);
 
         this.loadGLTFModel();
-        eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
+        eventEmitterInstance.on(`updateScene-${this.scene_id}`, this.update.bind(this));
     }
 
     private update = () => {
@@ -122,7 +118,7 @@ export class Scene1 extends BaseScene {
                     floor.scale.set(1, 1, 1);
                     floor.rotation.set(0, Math.PI, 0);
                 }
-                this.floor.addFloor(floor);
+                this.createFloor(floor);
             },
             undefined,
             (error) => {

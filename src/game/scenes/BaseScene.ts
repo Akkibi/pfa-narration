@@ -24,29 +24,23 @@ interface userData {
 export default class BaseScene {
     public scene_id: number;
     public instance: THREE.Scene;
-    public camera: Camera;
-    public floor: Floor;
-    protected character: Character;
+    public camera: Camera | null;
+    public floor: Floor | null;
+    protected character: Character | null;
     protected axesHelper: THREE.AxesHelper;
-    private particleSystem: ParticleSystem;
+    private particleSystem: ParticleSystem | null;
     public spawnArray: THREE.PolarGridHelper[] = [];
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
 
     constructor(scene_id: number) {
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
-        this.floor = new Floor();
-        this.character = new Character(scene_id, this.floor);
-        this.camera = new Camera(this.character);
         this.scene_id = scene_id;
-        this.particleSystem = new ParticleSystem(this.instance, this.floor, scene_id);
-
+        this.particleSystem = null;
+        this.floor = null;
+        this.character = null;
+        this.camera = null;
         // console.log(this.character.id, " position: ", this.character.getPosition());
-
-        this.instance.add(this.camera.instance);
-        this.instance.add(this.character.getInstance());
-        console.log("lookAt", this.character.getPosition());
-        // this.camera.camera.lookAt(this.character.getPosition());
 
         // Add AxesHelper
         const axesHelper = new THREE.AxesHelper(5);
@@ -63,18 +57,36 @@ export default class BaseScene {
         eventEmitterInstance.on(`scene-change`, this.updateSceneChange.bind(this));
     }
 
-    private updateSceneChange(sceneTo: number, sceneFrom: number) {
+    protected createFloor(floorModel: THREE.Mesh) {
+        this.floor = new Floor(floorModel);
+        this.character = new Character(this.scene_id, this.floor);
+        this.camera = new Camera(this.character);
+        this.particleSystem = new ParticleSystem(this.instance, this.floor, this.scene_id);
+        this.instance.add(this.camera.instance);
+        this.instance.add(this.character.getInstance());
+        this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
+        this.character.addAxesHelper(this.axesHelper);
+    }
+
+    private updateSceneChange(sceneTo: number, sceneFrom: number, speed: THREE.Vector2) {
         if (sceneTo !== this.scene_id) return;
         console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
-            if (spawn.userData.from !== undefined && spawn.userData.from === sceneFrom) {
+            if (
+                spawn.userData.from !== undefined &&
+                spawn.userData.from === sceneFrom &&
+                this.character !== null &&
+                this.camera !== null
+            ) {
                 this.character.setPosition(new THREE.Vector2(spawn.position.x, spawn.position.z));
                 this.character.setFloor();
-                this.character.speed.set(0.01, 0.01);
+                this.character.speed.copy(speed);
                 this.character.heightSpeed = 0;
                 this.character.height = spawn.position.y;
                 this.character.currentPosition.copy(spawn.position);
                 this.camera.currentPosition.copy(spawn.position);
+                console.log("character pos ", this.character.getPosition());
+                console.log("character speed ", this.character.getSpeed());
             }
         });
     }
@@ -88,7 +100,11 @@ export default class BaseScene {
         this.spawnArray?.forEach((spawn) => {
             if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
-                eventEmitterInstance.trigger("scene-change", [spawn.userData.to, this.scene_id]);
+                eventEmitterInstance.trigger("scene-change", [
+                    spawn.userData.to,
+                    this.scene_id,
+                    this.character?.speed,
+                ]);
                 console.log("scenechange");
             }
         });

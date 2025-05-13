@@ -89,17 +89,22 @@
     align-items: center;
     padding: 0 5vw;
     /* clip-path : polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); */
-    clip-path: ellipse(100% 200% at 10% 50%);
-    opacity: 1;
-    /* -webkit-mask: url("/dialog-transition-mask.png");
-	mask: url("/dialog-transition-mask.png");
-	-webkit-mask-size: 3100% 100%;
-	mask-size: 3100% 100%;
-	-webkit-animation: mask-play 10s steps(30) forwards;
-	animation: mask-play 10s steps(30) forwards; */
+    /* clip-path: ellipse(100% 200% at 20% 50%);
+    opacity: 1; */
+    mask-mode: luminance;
+    -webkit-mask-image: url("/dialog-transition-mask.png");
+	mask-image: url("/dialog-transition-mask.png");
+	/* -webkit-mask-position: 0% 20%;
+	mask-position: 0% 20%; */
+	-webkit-mask-size: 100 3100%;
+	mask-size: 100% 3100%;
+    -webkit-animation: mask-play 0.5s steps(30) forwards;
+    animation: mask-play 0.5s steps(30) forwards;
+    -webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
 }
 
-/* @-webkit-keyframes mask-play {
+@-webkit-keyframes mask-play {
   from {
 	-webkit-mask-position: 0 0%;
 	mask-position: 0 0%;
@@ -119,12 +124,38 @@
 	-webkit-mask-position: 0 100%;
 	mask-position: 0 100%;
   }
-} */
+}
+
+@-webkit-keyframes mask-reverse {
+  from {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+  to {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+}
+
+@keyframes mask-reverse {
+  from {
+	-webkit-mask-position: 0 100%;
+	mask-position: 0 100%;
+  }
+  to {
+	-webkit-mask-position: 0 0%;
+	mask-position: 0 0%;
+  }
+}
 
 .cliped{
-    opacity: 0;
-    /* clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); */
-    clip-path: ellipse(0% 0% at 10% 50%);
+    -webkit-animation: mask-reverse 0.5s steps(30) forwards;
+	animation: mask-reverse 0.5s steps(30) forwards;
+    /* -webkit-mask-position: 0% 0%;
+    mask-position: 0% 0%; */
+    /* opacity: 0;
+    clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
+    clip-path: ellipse(0% 0% at 20% 50%); */
 }
 
 .line-wrapper{

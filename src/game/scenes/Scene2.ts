@@ -53,7 +53,8 @@ export class Scene2 extends BaseScene {
             },
         ]);
 
-        this.character.getInstance().position.set(0, 0, 1);
+        // this.character.setPosition(new THREE.Vector2(10, -5));
+        // this.character.setFloor();
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(-1, 1, -0.5);
@@ -64,7 +65,7 @@ export class Scene2 extends BaseScene {
         this.instance.add(ambientLight);
 
         // this.floor.addFloor(floor); // Store the loaded model
-        this.character.addAxesHelper(this.axesHelper);
+        // this.character.addAxesHelper(this.axesHelper);
 
         this.loadGLTFModel();
     }
@@ -105,7 +106,7 @@ export class Scene2 extends BaseScene {
                     floor.scale.set(1, 1, 1);
                     floor.rotation.set(0, Math.PI, 0);
                 }
-                this.floor.addFloor(floor);
+                this.createFloor(floor);
             },
             undefined,
             (error) => {

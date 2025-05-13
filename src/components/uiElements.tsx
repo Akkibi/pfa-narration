@@ -13,19 +13,13 @@ const UiElements = () => {
     const [objectShown, setObjectShown] = useState<InteractiveObject | undefined>(undefined);
 
     useEffect(() => {
-        eventEmitterInstance.on(
-            "showInteractiveObjectControls",
-            (status: boolean) => {
-                setIsObjectActive(status);
-            },
-        );
+        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
+            setIsObjectActive(status);
+        });
 
-        eventEmitterInstance.on(
-            "toggleInteractiveObjectPanel",
-            (obj: InteractiveObject) => {
-                setObjectShown(obj);
-            }
-        )
+        eventEmitterInstance.on("toggleInteractiveObjectPanel", (obj: InteractiveObject) => {
+            setObjectShown(obj);
+        });
         eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
             setIsObjectActive(status);
         });
@@ -50,17 +44,19 @@ const UiElements = () => {
             >
                 button test
             </button>
-            {isObjectActive && (
+            {/* <section className="square">square</section> */}
+            {isObjectActive && !showDialog && (
                 <>
                     <ObjectPanel active={objectShown !== undefined} />
                     <div className="object-interact">
-                        Press <img src="/images/keys/E.png" alt="E" /> to {!objectShown ? "interact" : "close"}
+                        Press <img src="/images/keys/E.png" alt="E" /> to{" "}
+                        {!objectShown ? "interact" : "close"}
                     </div>
                 </>
             )}
-            {isObjectActive && !showDialog && (
-                <Dialog currentDialogData={dialogData} showDialog={showDialog} />
-            )}
+            {/* {isObjectActive && !showDialog && ( */}
+            <Dialog currentDialogData={dialogData} showDialog={showDialog} />
+            {/* )} */}
         </div>
     );
 };
