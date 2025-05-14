@@ -69,10 +69,13 @@ const ThreeScene = () => {
             if (deltaTime >= interval) {
                 stats.begin();
                 eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`);
-                renderer.render(
-                    scenes[`${gameState.currentScene ?? 1}`].instance,
-                    scenes[`${gameState.currentScene ?? 1}`].camera.camera,
-                );
+                const camera = scenes[`${gameState.currentScene ?? 1}`].camera;
+                if (camera !== null) {
+                    renderer.render(
+                        scenes[`${gameState.currentScene ?? 1}`].instance,
+                        camera.camera,
+                    );
+                }
                 lastTime = time;
                 stats.end();
             }
@@ -97,7 +100,7 @@ const ThreeScene = () => {
             renderer.pixelRatio = window.devicePixelRatio;
             for (const [key, value] of Object.entries(scenes)) {
                 console.log(key);
-                value.camera.handleResize();
+                value.camera?.handleResize();
             }
         };
         window.addEventListener("resize", handleResize);

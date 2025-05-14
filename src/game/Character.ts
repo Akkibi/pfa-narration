@@ -2,8 +2,9 @@ import { eventEmitterInstance } from "../utils/eventEmitter";
 import { lerp } from "../utils/lerp";
 import Controls from "./Controls";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { Floor } from "./floor";
+import { loadGLTFModel } from "./CharacterModel";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 const CharacterVars = {
     height: 1,
@@ -13,17 +14,16 @@ const CharacterVars = {
     turnSpeed: 0.2,
     friction: 0.92,
     jumpSpeed: 0.25,
+    lerpAmount: 0.4,
 };
 
 export class Character {
     private lerpAmount: number;
-    private instance: THREE.Group;
+    public instance: THREE.Group;
     public id: number;
-    public loaded: boolean;
-    public floorPosition: number = 2;
+    public floorPosition: number;
     public speed: THREE.Vector2;
     private lastSpeed: THREE.Vector2;
-
     public position: THREE.Vector2;
     public currentPosition: THREE.Vector3;
     public lastPosition: THREE.Vector3;
@@ -43,12 +43,16 @@ export class Character {
     constructor(id: number, floor: Floor) {
         this.floor = floor;
         this.id = id;
-        this.loaded = false;
-        this.speed = new THREE.Vector2(0.1, 0.1);
-        this.height = 2;
-        this.heightSpeed = 0.1;
+        this.speed = new THREE.Vector2(0, -0.01);
+        this.height = 0;
+        this.heightSpeed = 0;
         this.lerpAmount = 0.4;
         this.position = new THREE.Vector2(0, 1);
+
+        const floorPos = floor.raycastFrom(this.position);
+        console.log(floorPos);
+        this.floorPosition = floorPos === null ? 0 : floorPos;
+
         this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.lastPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
@@ -58,13 +62,15 @@ export class Character {
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         this.isGameFreeze = false;
 
-        this.loadObject("./character.glb");
-
-        this.instance.position.z = -0.2;
+        this.loadObject("./character.glb", "./character-albedo.png");
         this.instance.scale.set(0.2, 0.2, 0.2);
+
+        this.update();
 
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => (this.isGameFreeze = status));
+
+        console.log("start position : ", this.position, this.height);
     }
 
     private updateCharacterModelSmooth() {
@@ -80,13 +86,11 @@ export class Character {
         this.axesHelper = axesHelper;
     }
 
-    private async loadObject(gltf_src: string) {
+    private async loadObject(gltf_src: string, albedo_src: string) {
         try {
-            const group = await this.loadGLTFModel(gltf_src);
-
+            const group = await loadGLTFModel(gltf_src, albedo_src);
+            // const group = await this.loadGLTFModel(gltf_src);
             this.instance.add(group);
-
-            this.loaded = true;
 
             this.storeBones();
         } catch (error) {
@@ -97,7 +101,6 @@ export class Character {
     private loadGLTFModel(src: string): Promise<THREE.Group> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
-
             loader.load(
                 `./${src}`,
                 (gltf: { scene: THREE.Group }) => {
@@ -117,11 +120,11 @@ export class Character {
 
     private storeBones() {
         const bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
-        console.log("bones", bones);
         for (let i = 0; i <= 4; i++) {
             const bone = this.instance.getObjectByName(`head-${i}`);
             if (bone) bones.push(bone);
         }
+        console.log("bones", bones);
         this.bones = bones;
     }
 
@@ -143,7 +146,7 @@ export class Character {
             // newVelocity = oldVelocity * (1 - damping);
             // newVelocity -= (oldPosition - restValue) * springTension;
             // newPosition = oldPosition + newVelocity;
-
+            // console.log(b.rotation);
             b.rotation.z = lerp(b.rotation.z, newBoneAngle, 0.1);
         });
     }
@@ -244,15 +247,15 @@ export class Character {
     }
 
     private jumpParticles() {
-        for (let i = 0; i <= 20; i++) {
+        for (let i = 0; i <= 15; i++) {
             const speedRandomizer = new THREE.Vector3().set(
                 (Math.random() - 0.5) * 0.1,
+                Math.random() * 0.025,
                 (Math.random() - 0.5) * 0.1,
-                Math.random() * 0.1,
             );
             const particlePosition = new THREE.Vector3().set(
                 this.position.x,
-                this.height - 0.1,
+                this.height + 0.01,
                 this.position.y,
             );
             eventEmitterInstance.trigger("trigger-particle", [
@@ -265,20 +268,21 @@ export class Character {
 
     private updatePositionParticles() {
         const currentSpeed =
-            Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3 + 0.01;
-        if (this.isOnGround && Math.random() * 0.15 < currentSpeed) {
+            Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y) * 0.3;
+        // console.log("currentSpeed", Math.random() * 0.1 < currentSpeed);
+        if (this.isOnGround && Math.random() * 0.1 < currentSpeed) {
             const speedRandomizer = new THREE.Vector2().set(
                 (Math.random() - 0.5) * 0.1,
                 (Math.random() - 0.5) * 0.1,
             );
             const particlePosition = new THREE.Vector3().set(
                 this.position.x - this.speed.x * 5,
-                this.height - 0.1,
+                this.height + 0.01,
                 this.position.y - this.speed.y * 5,
             );
             const particleVelocity = new THREE.Vector3().set(
                 this.speed.x * -0.2 + speedRandomizer.x,
-                currentSpeed,
+                currentSpeed + 0.01,
                 this.speed.y * -0.2 + speedRandomizer.y,
             );
             eventEmitterInstance.trigger("trigger-particle", [
@@ -351,9 +355,13 @@ export class Character {
     public getPosition() {
         return new THREE.Vector3(this.position.x, this.height, this.position.y);
     }
+    public getSpeed() {
+        return new THREE.Vector3(this.speed.x, this.heightSpeed, this.speed.y);
+    }
     public setFloor(floorHeight: number | null = null) {
         if (floorHeight === null) {
             this.height = this.floorPosition;
+            this.heightSpeed = 0;
         } else {
             this.height = floorHeight;
             this.heightSpeed = 0;

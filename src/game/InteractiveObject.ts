@@ -44,7 +44,10 @@ export class InteractiveObject {
 
         // Listeners
         eventEmitterInstance.on(`updateScene-${this.scene.scene_id}`, this.update.bind(this));
-        eventEmitterInstance.on(`characterPositionChanged-${this.scene.scene_id}`, this.isCharacterInInteractiveArea.bind(this));
+        eventEmitterInstance.on(
+            `characterPositionChanged-${this.scene.scene_id}`,
+            this.isCharacterInInteractiveArea.bind(this),
+        );
         eventEmitterInstance.on(`userInterractButtonPressed`, () => {
             if (this.is_active) {
                 if (this.is_shown) {
@@ -53,8 +56,7 @@ export class InteractiveObject {
                     this.showObject();
                 }
             }
-        }
-        );
+        });
     }
 
     private async loadObject(gltf_src: string, instance: THREE.Mesh) {
@@ -93,12 +95,10 @@ export class InteractiveObject {
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
-
         const distance = checkDistance(pos, this.position);
         if (distance < 1 !== this.is_active)
             eventEmitterInstance.trigger(`showInteractiveObjectControls`, [distance < 1]);
         this.is_active = distance < 1;
-
     }
 
     private async showObject() {
@@ -109,7 +109,9 @@ export class InteractiveObject {
         if (res) {
             this.scene.instance.add(this.activeInstance);
             // this.activeInstance.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
-            const starting_position = this.scene.camera.instance.position.clone().add(this.baseObject.hiddenPosition);
+            const starting_position = this.scene.camera.instance.position
+                .clone()
+                .add(this.baseObject.hiddenPosition);
             this.activeInstance.scale.set(0.5, 0.5, 0.5);
             this.activeInstance.rotation.copy(this.baseObject.activeRotation);
             this.activeInstance.position.copy(starting_position);
@@ -119,22 +121,24 @@ export class InteractiveObject {
     }
 
     private async moveObject() {
-
         let targetPosition = undefined;
 
         if (this.is_shown) {
-            targetPosition = this.scene.camera.instance.position.clone().add(this.baseObject.activePosition);
+            targetPosition = this.scene.camera.instance.position
+                .clone()
+                .add(this.baseObject.activePosition);
         } else {
-            targetPosition =
-                this.scene.camera.instance.position.clone().add(this.baseObject.hiddenPosition);
+            targetPosition = this.scene.camera.instance.position
+                .clone()
+                .add(this.baseObject.hiddenPosition);
         }
 
         if (targetPosition && this.activeInstance.position.distanceTo(targetPosition) > 0.1) {
             const lerpPosition = new THREE.Vector3(
                 lerp(this.activeInstance.position.x, targetPosition.x, 0.09),
                 lerp(this.activeInstance.position.y, targetPosition.y, 0.09),
-                lerp(this.activeInstance.position.z, targetPosition.z, 0.09)
-            )
+                lerp(this.activeInstance.position.z, targetPosition.z, 0.09),
+            );
 
             this.activeInstance.position.copy(lerpPosition);
         } else if (targetPosition && !this.is_shown) {
@@ -146,9 +150,7 @@ export class InteractiveObject {
         this.is_shown = false;
         eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [undefined]);
         eventEmitterInstance.trigger(`toggleFreeze`, [false]);
-
     }
-
 
     private update() {
         if (this.is_active) {

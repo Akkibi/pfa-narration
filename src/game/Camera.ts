@@ -46,12 +46,6 @@ export class Camera {
             this.zoomAmount = this.defaultZoomAmount;
             this.targetZoomPosition.copy(this.zoomDirection);
         }
-        console.log(
-            "zoom",
-            this.currentZoomPosition,
-            this.targetZoomPosition,
-            this.currentZoomPosition.distanceTo(this.targetZoomPosition),
-        );
     }
 
     private moveCamera() {
