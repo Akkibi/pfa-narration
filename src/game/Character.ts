@@ -2,8 +2,9 @@ import { eventEmitterInstance } from "../utils/eventEmitter";
 import { lerp } from "../utils/lerp";
 import Controls from "./Controls";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { Floor } from "./floor";
+import { loadGLTFModel } from "./CharacterModel";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 const CharacterVars = {
     height: 1,
@@ -20,11 +21,9 @@ export class Character {
     private lerpAmount: number;
     public instance: THREE.Group;
     public id: number;
-    public loaded: boolean;
     public floorPosition: number;
     public speed: THREE.Vector2;
     private lastSpeed: THREE.Vector2;
-
     public position: THREE.Vector2;
     public currentPosition: THREE.Vector3;
     public lastPosition: THREE.Vector3;
@@ -44,7 +43,6 @@ export class Character {
     constructor(id: number, floor: Floor) {
         this.floor = floor;
         this.id = id;
-        this.loaded = false;
         this.speed = new THREE.Vector2(0, -0.01);
         this.height = 0;
         this.heightSpeed = 0;
@@ -64,7 +62,7 @@ export class Character {
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         this.isGameFreeze = false;
 
-        this.loadObject("./character.glb");
+        this.loadObject("./character.glb", "./character-albedo.png");
         this.instance.scale.set(0.2, 0.2, 0.2);
 
         this.update();
@@ -88,13 +86,11 @@ export class Character {
         this.axesHelper = axesHelper;
     }
 
-    private async loadObject(gltf_src: string) {
+    private async loadObject(gltf_src: string, albedo_src: string) {
         try {
+            // const group = await loadGLTFModel(gltf_src, albedo_src);
             const group = await this.loadGLTFModel(gltf_src);
-
             this.instance.add(group);
-
-            this.loaded = true;
 
             this.storeBones();
         } catch (error) {
@@ -105,7 +101,6 @@ export class Character {
     private loadGLTFModel(src: string): Promise<THREE.Group> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
-
             loader.load(
                 `./${src}`,
                 (gltf: { scene: THREE.Group }) => {
