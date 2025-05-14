@@ -31,6 +31,7 @@ export default class BaseScene {
     private particleSystem: ParticleSystem | null;
     public spawnArray: THREE.PolarGridHelper[] = [];
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
+    protected backgroundMaps: string[] = [];
 
     constructor(scene_id: number) {
         this.instance = new THREE.Scene();
@@ -60,7 +61,7 @@ export default class BaseScene {
     protected createFloor(floorModel: THREE.Mesh) {
         this.floor = new Floor(floorModel);
         this.character = new Character(this.scene_id, this.floor);
-        this.camera = new Camera(this.character);
+        this.camera = new Camera(this.character, this.backgroundMaps);
         this.particleSystem = new ParticleSystem(this.instance, this.floor, this.scene_id);
         this.instance.add(this.camera.instance);
         this.instance.add(this.character.getInstance());

@@ -11,7 +11,7 @@ export class Scene1 extends BaseScene {
     private time: number = 0;
     constructor() {
         super(1);
-        this.instance.background = new THREE.Color(0x00ffff);
+        this.instance.background = new THREE.Color(0x000000);
         this.mixer = null;
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -44,6 +44,8 @@ export class Scene1 extends BaseScene {
                 },
             },
         ]);
+
+        this.backgroundMaps = ["background-1", "background-2", "background-3", "background-4"];
 
         this.generateZoomZones([
             {

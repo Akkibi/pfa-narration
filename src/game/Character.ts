@@ -88,8 +88,8 @@ export class Character {
 
     private async loadObject(gltf_src: string, albedo_src: string) {
         try {
-            // const group = await loadGLTFModel(gltf_src, albedo_src);
-            const group = await this.loadGLTFModel(gltf_src);
+            const group = await loadGLTFModel(gltf_src, albedo_src);
+            // const group = await this.loadGLTFModel(gltf_src);
             this.instance.add(group);
 
             this.storeBones();
@@ -120,11 +120,11 @@ export class Character {
 
     private storeBones() {
         const bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
-        console.log("bones", bones);
         for (let i = 0; i <= 4; i++) {
             const bone = this.instance.getObjectByName(`head-${i}`);
             if (bone) bones.push(bone);
         }
+        console.log("bones", bones);
         this.bones = bones;
     }
 
@@ -146,7 +146,7 @@ export class Character {
             // newVelocity = oldVelocity * (1 - damping);
             // newVelocity -= (oldPosition - restValue) * springTension;
             // newPosition = oldPosition + newVelocity;
-
+            // console.log(b.rotation);
             b.rotation.z = lerp(b.rotation.z, newBoneAngle, 0.1);
         });
     }
