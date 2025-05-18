@@ -109,6 +109,11 @@ export class InteractiveObject {
         if (res) {
             this.scene.instance.add(this.activeInstance);
             // this.activeInstance.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
+            if (!this.scene.camera) {
+                console.error("Camera is null");
+                return;
+            }
+
             const starting_position = this.scene.camera.instance.position
                 .clone()
                 .add(this.baseObject.hiddenPosition);
@@ -117,11 +122,18 @@ export class InteractiveObject {
             this.activeInstance.position.copy(starting_position);
             this.is_shown = true;
             eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [this]);
+        } else {
+            console.error("InteractiveObject couldn't load.");
         }
     }
 
     private async moveObject() {
         let targetPosition = undefined;
+
+        if (!this.scene.camera) {
+            console.error("Camera is null");
+            return;
+        }
 
         if (this.is_shown) {
             targetPosition = this.scene.camera.instance.position
