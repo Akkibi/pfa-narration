@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { DialogDataType } from "../data/dialogData";
-import Dialog from "./dialog";
-import { ObjectPanel } from "./objectPanel";
 import { InteractiveObject } from "../game/InteractiveObject";
+import { ObjectPanel } from "./game/objectPanel";
+import Dialog from "./game/dialog";
 
 const UiElements = () => {
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);
