@@ -29,37 +29,33 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     useEffect(() => {
         if (currentDialogData) {
             console.log("currentDialogData.done", currentDialogData.done);
-            if (!currentDialogData.done) {
-                if (currentDialogData.dialogs[dialogName].charlie) {
-                    setTimeout(() => {
+            setTimeout(() => {
+                if (!currentDialogData.done) {
+                    if (currentDialogData.dialogs[dialogName].charlie) {
                         const dialog: line = {
                             name: "Charlie",
                             text: currentDialogData.dialogs[dialogName].charlie ?? ["..."],
                             color: "#fff",
                         };
                         setCurrentLine(dialog);
-                    }, 1000);
-                }
-                if (currentDialogData.dialogs[dialogName].text) {
-                    setTimeout(() => {
+                    }
+                    if (currentDialogData.dialogs[dialogName].text) {
                         const dialog: line = {
                             name: currentDialogData.name,
                             text: currentDialogData.dialogs[dialogName].text ?? ["..."],
                             color: currentDialogData.color,
                         };
                         setCurrentLine(dialog);
-                    }, 1000);
-                }
-            } else {
-                setTimeout(() => {
+                    }
+                } else {
                     const dialog: line = {
                         name: currentDialogData.name,
                         text: currentDialogData.fallback,
                         color: currentDialogData.color,
                     };
                     setCurrentLine(dialog);
-                }, 400);
-            }
+                }
+            }, 1000);
         }
     }, [currentDialogData, dialogName, showDialog]);
 
