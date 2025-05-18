@@ -6,6 +6,7 @@ import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { charactersData } from "../../data/characters_data";
 import Npc from "../npc";
+import { loadImage } from "../../utils/loadImage";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -61,7 +62,7 @@ export default class BaseScene {
     protected createFloor(floorModel: THREE.Mesh) {
         this.floor = new Floor(floorModel);
         this.character = new Character(this.scene_id, this.floor);
-        this.camera = new Camera(this.character, this.backgroundMaps);
+        this.camera = new Camera(this.character);
         this.particleSystem = new ParticleSystem(this.instance, this.floor, this.scene_id);
         this.instance.add(this.camera.instance);
         this.instance.add(this.character.getInstance());
@@ -155,7 +156,7 @@ export default class BaseScene {
         });
     }
 
-    private generateNpcs() {
+    protected generateNpcs() {
         for (const [key, value] of Object.entries(charactersData)) {
             if (value.sceneId === this.scene_id) {
                 console.log(`generate character ${key} in ${value.sceneId}`);
@@ -163,5 +164,27 @@ export default class BaseScene {
                 this.instance.add(npc.instance);
             }
         }
+    }
+
+    protected generateBackgroundMaps(backgroundMaps: string[]) {
+        backgroundMaps.map((backgroundMap, index) => {
+            loadImage(backgroundMap, (texture) => {
+                const plane = new THREE.PlaneGeometry(35 * 20, 13 * 20, 1, 1);
+                const material = new THREE.MeshBasicMaterial({
+                    transparent: true,
+                    map: texture,
+                });
+
+                // const material = new THREE.MeshBasicMaterial({ color: "red" });
+                const mesh = new THREE.Mesh(plane, material);
+                mesh.rotateY(Math.PI);
+                mesh.position.set(0, -190 + index * 48, 900 - index * 240);
+                const scale = 3.5 - index / 1.1;
+                mesh.scale.set(scale, scale, scale);
+                mesh.lookAt(new THREE.Vector3(0, 1, -5).add(mesh.position));
+                console.log("backgrounds position", mesh.position);
+                this.instance.add(mesh);
+            });
+        });
     }
 }

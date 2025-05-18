@@ -45,7 +45,12 @@ export class Scene1 extends BaseScene {
             },
         ]);
 
-        this.backgroundMaps = ["background-1", "background-2", "background-3", "background-4"];
+        this.generateBackgroundMaps([
+            "./scene1/backgrounds/background-1.png",
+            "./scene1/backgrounds/background-2.png",
+            "./scene1/backgrounds/background-3.png",
+            "./scene1/backgrounds/background-4.png",
+        ]);
 
         this.generateZoomZones([
             {
@@ -56,17 +61,17 @@ export class Scene1 extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(-20, 2, 0),
+                position: new THREE.Vector3(-8, -1, 2),
                 userData: {
-                    size: 5,
-                    zoom: 0.25,
+                    size: 4,
+                    zoom: 0.5,
                 },
             },
             {
                 position: new THREE.Vector3(0, -0.99, 30),
                 userData: {
                     size: 1,
-                    zoom: 3,
+                    zoom: 4,
                 },
             },
         ]);

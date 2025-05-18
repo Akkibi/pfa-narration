@@ -13,7 +13,9 @@ export class Camera {
     private zoomDirection: THREE.Vector3;
     private targetZoomPosition: THREE.Vector3;
     private currentZoomPosition: THREE.Vector3;
+    private backgroundMapObjects: THREE.Mesh[];
     constructor(character: Character) {
+        this.backgroundMapObjects = [];
         this.instance = new THREE.Group();
         this.camera = new THREE.PerspectiveCamera(
             50,
@@ -54,11 +56,12 @@ export class Camera {
             lerp(this.character.floorPosition, this.character.height, 0.5),
             this.character.position.y,
         );
-        if (this.currentPosition.distanceTo(characterPosition) > 0.05) {
+        if (this.currentPosition.distanceTo(characterPosition) > 0.01) {
             this.currentPosition.copy(
                 lerpVector3(this.currentPosition, characterPosition, this.lerpAmount),
             );
             this.instance.position.copy(this.currentPosition);
+            // eventEmitterInstance.trigger(`cameraMove-${this.character.id}`, [this.currentPosition]);
         }
         if (this.currentZoomPosition.distanceTo(this.targetZoomPosition) > 0.05) {
             this.currentZoomPosition.copy(
