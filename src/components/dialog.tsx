@@ -15,15 +15,14 @@ interface line {
 }
 
 const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
-    const [dialogHistory, setDialogHistory] = useState<line[]>([]);
+    const [currentLine, setCurrentLine] = useState<line | null>(null);
     const [dialogName, setDialogName] = useState<string>("start");
     const dialogBoxRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (currentDialogData) {
             setDialogName("start");
-            setDialogHistory([]);
-            console.log("dialogName", dialogName);
+            setCurrentLine(null);
         }
     }, [currentDialogData]);
 
@@ -38,7 +37,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             text: currentDialogData.dialogs[dialogName].charlie ?? ["..."],
                             color: "#fff",
                         };
-                        setDialogHistory((array) => [...array, dialog]);
+                        setCurrentLine(dialog);
                     }, 1000);
                 }
                 if (currentDialogData.dialogs[dialogName].text) {
@@ -48,7 +47,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             text: currentDialogData.dialogs[dialogName].text ?? ["..."],
                             color: currentDialogData.color,
                         };
-                        setDialogHistory((array) => [...array, dialog]);
+                        setCurrentLine(dialog);
                     }, 1000);
                 }
             } else {
@@ -58,8 +57,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                         text: currentDialogData.fallback,
                         color: currentDialogData.color,
                     };
-                    setDialogHistory([dialog]);
-                    console.log("dialogHistory", dialogHistory);
+                    setCurrentLine(dialog);
                 }, 400);
             }
         }
@@ -79,37 +77,32 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             <div className="dialog-text-container">
                 <div className="dialog-box" ref={dialogBoxRef}>
                     <div className="line-wrapper">
-                        {dialogHistory.length > 0 &&
-                            dialogHistory.map((line, lineIndex) => {
-                                return (
-                                    <div key={lineIndex} className="appear-height">
-                                        <div className="line">
-                                            <p
-                                                className="line-name"
-                                                style={{ backgroundColor: line.color }}
+                        {currentLine && (
+                            <div className="line">
+                                <p
+                                    className="line-name"
+                                    style={{ backgroundColor: currentLine.color }}
+                                >
+                                    [{currentLine.name}]
+                                </p>
+                                <p className="line-text">
+                                    {currentLine.text.map((text, index) => {
+                                        return (
+                                            <span
+                                                className="sentence"
+                                                key={index}
+                                                data-count={index + 1}
+                                                style={{
+                                                    animationDelay: index * 700 + "ms",
+                                                }}
                                             >
-                                                {line.name}
-                                            </p>
-                                            <p className="line-text">
-                                                {line.text.map((text, index) => {
-                                                    return (
-                                                        <span
-                                                            className="sentence"
-                                                            key={index}
-                                                            data-count={index + 1}
-                                                            style={{
-                                                                animationDelay: index * 700 + "ms",
-                                                            }}
-                                                        >
-                                                            {text}
-                                                        </span>
-                                                    );
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                                {text}
+                                            </span>
+                                        );
+                                    })}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="options-container">
@@ -125,14 +118,11 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                         key={index}
                                         onClick={() => {
                                             setDialogName(option.to);
-                                            setDialogHistory((array) => [
-                                                ...array,
-                                                {
-                                                    name: "Charlie",
-                                                    text: option.text ?? ["..."],
-                                                    color: "#fff",
-                                                },
-                                            ]);
+                                            setCurrentLine({
+                                                name: "Charlie",
+                                                text: option.text ?? ["..."],
+                                                color: "#fff",
+                                            });
                                         }}
                                     >
                                         {option.text}
@@ -149,7 +139,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     dialogData[currentDialogData.name.toLowerCase()].done = true;
                                     console.log(dialogData[currentDialogData.name.toLowerCase()]);
                                     setDialogName("start");
-                                    setDialogHistory([]);
+                                    setCurrentLine(null);
                                     eventEmitterInstance.trigger("closeDialog");
                                 }
                             }}
