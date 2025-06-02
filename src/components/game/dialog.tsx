@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { DialogDataType } from "../../data/dialogData";
-import { dialogData } from "../../data/dialogData";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
+
+gsap.registerPlugin(useGSAP);
 
 interface DialogProps {
     currentDialogData: DialogDataType | null;
@@ -11,136 +14,207 @@ interface DialogProps {
 interface line {
     name: string;
     text: string[];
-    color: string;
+    next?: string;
+    options?: Array<{
+        text: string[];
+        to: string;
+    }>;
 }
 
 const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     const [currentLine, setCurrentLine] = useState<line | null>(null);
+    const [isVisible, setIsVisible] = useState<boolean>(false);
     const [dialogName, setDialogName] = useState<string>("start");
     const dialogBoxRef = useRef<HTMLDivElement>(null);
+    const clipRef = useRef<HTMLDivElement>(null);
+    const lineRef = useRef<HTMLDivElement>(null);
+    const { contextSafe } = useGSAP({ scope: clipRef });
+    const [activeButton, setActiveButton] = useState<number>(0);
+
+    const close = contextSafe(() => {
+        const tl = gsap.timeline({ defaults: { duration: 0.5 } });
+        tl.to(lineRef.current, {
+            clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            duration: 0.5,
+            ease: "power1.inOut",
+        });
+    });
 
     useEffect(() => {
+        if (!showDialog) return;
+        const handleKeyPress = (e: KeyboardEvent) => {
+            let buttonCount = currentDialogData?.dialogs[dialogName].options?.length;
+            if (!buttonCount) buttonCount = 1;
+            if (e.key === "ArrowUp" || e.key === "w" || e.key === "z") {
+                setActiveButton((activeButton + 1) % buttonCount);
+            } else if (e.key === "ArrowDown" || e.key === "s") {
+                setActiveButton(Math.abs(activeButton - 1) % buttonCount);
+            } else if (e.key === "Enter") {
+                const button = currentDialogData?.dialogs[dialogName].options?.[activeButton];
+                if (button) {
+                    reOpen(button.to);
+                } else if (currentDialogData?.dialogs[dialogName].next) {
+                    reOpen(currentDialogData.dialogs[dialogName].next);
+                } else {
+                    eventEmitterInstance.trigger("closeDialog");
+                    if (currentDialogData) currentDialogData.done = true;
+                }
+            }
+            console.log("activeButton", activeButton);
+        };
+
+        document.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [currentDialogData, dialogName, activeButton, showDialog]);
+
+    useEffect(() => {
+        console.log("isVisible", isVisible);
+    }, [isVisible]);
+
+    const reOpen = contextSafe((dialog: string) => {
+        const tl = gsap.timeline({
+            defaults: { duration: 0.5 },
+            onStart: () => {
+                setIsVisible(false);
+                console.log("start");
+            },
+        });
+        tl.to(lineRef.current, {
+            clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+            duration: 0.5,
+            ease: "power1.inOut",
+            onComplete: () => {
+                setDialogName(dialog);
+                setIsVisible(true);
+                console.log("complete");
+            },
+        })
+            .to(lineRef.current, {
+                clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+                duration: 0.5,
+                delay: 0.5,
+                ease: "power1.inOut",
+            })
+            .progress(0)
+            .play();
+    });
+
+    const open = contextSafe(() => {
+        const tl = gsap.timeline({ defaults: { duration: 0.5 } });
+        tl.to(lineRef.current, {
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            duration: 0.5,
+            delay: 0.5,
+            ease: "power1.inOut",
+        });
+    });
+
+    useEffect(() => {
+        if (showDialog) {
+            open();
+            setIsVisible(true);
+        } else {
+            close();
+            setIsVisible(false);
+        }
+    }, [showDialog]);
+
+    useEffect(() => {
+        if (showDialog) {
+            const dialog = currentDialogData?.dialogs[dialogName];
+            if (!dialog) return;
+            const line = {
+                name: dialog.isCharlie ? "Charlie" : currentDialogData.name,
+                text: currentDialogData.done ? currentDialogData.fallback : dialog.text,
+                next: dialog.next,
+                options: dialog.options,
+            };
+            setCurrentLine(line);
+        }
+    }, [showDialog, currentDialogData, dialogName]);
+
+    useGSAP(() => {
         if (currentDialogData) {
             setDialogName("start");
             setCurrentLine(null);
         }
     }, [currentDialogData]);
 
-    useEffect(() => {
-        if (currentDialogData) {
-            console.log("currentDialogData.done", currentDialogData.done);
-            setTimeout(() => {
-                if (!currentDialogData.done) {
-                    if (currentDialogData.dialogs[dialogName].charlie) {
-                        const dialog: line = {
-                            name: "Charlie",
-                            text: currentDialogData.dialogs[dialogName].charlie ?? ["..."],
-                            color: "#fff",
-                        };
-                        setCurrentLine(dialog);
-                    }
-                    if (currentDialogData.dialogs[dialogName].text) {
-                        const dialog: line = {
-                            name: currentDialogData.name,
-                            text: currentDialogData.dialogs[dialogName].text ?? ["..."],
-                            color: currentDialogData.color,
-                        };
-                        setCurrentLine(dialog);
-                    }
-                } else {
-                    const dialog: line = {
-                        name: currentDialogData.name,
-                        text: currentDialogData.fallback,
-                        color: currentDialogData.color,
-                    };
-                    setCurrentLine(dialog);
-                }
-            }, 1000);
-        }
-    }, [currentDialogData, dialogName, showDialog]);
-
     return (
-        <section className={`dialog-container ${showDialog ? "" : "cliped"}`}>
+        <section className={`dialog-container ${isVisible ? "" : "cliped"}`} ref={clipRef}>
             <div className="profile-pic-container">
-                <p className="profile-pic-name">{currentDialogData?.name}</p>
                 <div
                     className="profile-pic"
                     style={{
-                        background: `center / contain no-repeat url(/characters/${currentDialogData?.name.toLowerCase()}.png)`,
+                        background: `center / contain no-repeat url(/characters/${currentLine && currentLine.name.toLowerCase()}.png)`,
                     }}
                 ></div>
             </div>
             <div className="dialog-text-container">
                 <div className="dialog-box" ref={dialogBoxRef}>
                     <div className="line-wrapper">
-                        {currentLine && (
-                            <div className="line">
-                                <p
-                                    className="line-name"
-                                    style={{ backgroundColor: currentLine.color }}
-                                >
-                                    [{currentLine.name}]
-                                </p>
-                                <p className="line-text">
-                                    {currentLine.text.map((text, index) => {
+                        {/* {currentLine && ( */}
+                        <div className="line">
+                            <p className="line-name" ref={lineRef}>
+                                [{currentLine && currentLine.name}]
+                            </p>
+                            <p className="line-text">
+                                {currentLine &&
+                                    currentLine.text.map((text, index) => {
                                         return (
                                             <span
                                                 className="sentence"
                                                 key={index}
                                                 data-count={index + 1}
                                                 style={{
-                                                    animationDelay: index * 700 + "ms",
+                                                    animationDelay: 500 + index * 500 + "ms",
                                                 }}
                                             >
                                                 {text}
                                             </span>
                                         );
                                     })}
-                                </p>
-                            </div>
-                        )}
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div className="options-container">
-                    {currentDialogData &&
-                        !currentDialogData.done &&
-                        currentDialogData.dialogs[dialogName].options &&
+                    {currentDialogData && currentDialogData.dialogs[dialogName].options ? (
                         currentDialogData.dialogs[dialogName].options.length > 0 &&
                         currentDialogData.dialogs[dialogName].options?.map((option, index) => {
                             return (
-                                <>
-                                    <button
-                                        className="dialog-button"
-                                        key={index}
-                                        onClick={() => {
-                                            setDialogName(option.to);
-                                            setCurrentLine({
-                                                name: "Charlie",
-                                                text: option.text ?? ["..."],
-                                                color: "#fff",
-                                            });
-                                        }}
-                                    >
-                                        {option.text}
-                                    </button>
-                                </>
+                                <button
+                                    className={`dialog-button ${activeButton === index ? "active-button" : ""}`}
+                                    key={option.text[0]}
+                                    onClick={() => {
+                                        reOpen(option.to);
+                                    }}
+                                >
+                                    <span>{option.text}</span>
+                                </button>
                             );
-                        })}
-                    {((currentDialogData && currentDialogData.done) ||
-                        (currentDialogData && !currentDialogData.dialogs[dialogName].options)) && (
+                        })
+                    ) : currentDialogData && currentDialogData.dialogs[dialogName].next ? (
                         <button
-                            className="dialog-button"
+                            className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
                             onClick={() => {
-                                if (dialogData[currentDialogData.name.toLowerCase()]) {
-                                    dialogData[currentDialogData.name.toLowerCase()].done = true;
-                                    console.log(dialogData[currentDialogData.name.toLowerCase()]);
-                                    setDialogName("start");
-                                    setCurrentLine(null);
-                                    eventEmitterInstance.trigger("closeDialog");
-                                }
+                                reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
                             }}
                         >
-                            Leave Dialog
+                            <span>Next</span>
+                        </button>
+                    ) : (
+                        <button
+                            className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
+                            onClick={() => {
+                                eventEmitterInstance.trigger("closeDialog");
+                                if (currentDialogData) currentDialogData.done = true;
+                            }}
+                        >
+                            <span>Leave Dialog</span>
                         </button>
                     )}
                 </div>

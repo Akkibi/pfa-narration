@@ -131,29 +131,28 @@ export class Character {
     }
 
     private update() {
-        if (this.isGameFreeze === true) return;
-
-        let moveSpeedFactor = this.vars.moveSpeed;
-        if (Controls.keys.run) {
-            moveSpeedFactor *= 2;
+        if (this.isGameFreeze === false) {
+            let moveSpeedFactor = this.vars.moveSpeed;
+            if (Controls.keys.run) {
+                moveSpeedFactor *= 2;
+            }
+            if (Controls.keys.forward) {
+                this.speed.y += moveSpeedFactor;
+            }
+            if (Controls.keys.back) {
+                this.speed.y -= moveSpeedFactor;
+            }
+            if (Controls.keys.left) {
+                this.speed.x += moveSpeedFactor;
+            }
+            if (Controls.keys.right) {
+                this.speed.x -= moveSpeedFactor;
+            }
+            if (Controls.keys.space && this.isOnGround) {
+                this.heightSpeed += this.vars.jumpSpeed;
+                this.jumpParticles();
+            }
         }
-        if (Controls.keys.forward) {
-            this.speed.y += moveSpeedFactor;
-        }
-        if (Controls.keys.back) {
-            this.speed.y -= moveSpeedFactor;
-        }
-        if (Controls.keys.left) {
-            this.speed.x += moveSpeedFactor;
-        }
-        if (Controls.keys.right) {
-            this.speed.x -= moveSpeedFactor;
-        }
-        if (Controls.keys.space && this.isOnGround) {
-            this.heightSpeed += this.vars.jumpSpeed;
-            this.jumpParticles();
-        }
-
         if (this.speed.length() > 0) {
             // Calculate the target rotation based on movement direction
             this.targetRotation = Math.atan2(this.speed.x, this.speed.y);

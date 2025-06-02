@@ -6,7 +6,6 @@ export interface DialogDataType {
     name: string;
     done: boolean;
     fallback: string[];
-    color: string;
     dialogs: {
         [key: string]: {
             text: string[];
@@ -14,7 +13,8 @@ export interface DialogDataType {
                 text: string[];
                 to: string;
             }>;
-            charlie?: string[];
+            isCharlie: boolean;
+            next?: string;
         };
     };
 }
@@ -23,10 +23,10 @@ export const dialogData: DialogsDataType = {
     capitaine: {
         name: "Capitaine",
         done: false,
-        color: "#afa",
         fallback: ["J'ai plus rien à te dire."],
         dialogs: {
             start: {
+                isCharlie: false,
                 text: [
                     "On débarque dans quelques minutes.",
                     "On laisse la cargaison et on repart.",
@@ -48,12 +48,24 @@ export const dialogData: DialogsDataType = {
                 ],
             },
             A: {
+                isCharlie: true,
+                text: ["J'compte pas rentrer", "Et le texte ne s'arette pas là"],
+                next: "C",
+            },
+            B: {
+                isCharlie: true,
+                text: ["J'm'en souviendrai", "Et le texte ne s'arette pas là"],
+                next: "D",
+            },
+            C: {
+                isCharlie: false,
                 text: [
                     "Y a qu'les imbéciles pour être aussi sûrs d'eux.",
                     "Et t'es pas un imbécile Charlie alors réfléchis bien à c'que tu veux.",
                 ],
             },
-            B: {
+            D: {
+                isCharlie: false,
                 text: ["Alors p'têtre qu'on s'reverra, gamin."],
             },
         },
@@ -61,15 +73,19 @@ export const dialogData: DialogsDataType = {
     talua: {
         name: "Talua",
         done: false,
-        color: "#aaf",
         fallback: ["Je t'ai dit je peut rien pour toi."],
         dialogs: {
             start: {
-                charlie: [
+                isCharlie: true,
+                text: [
                     "Bonjour m'sieur par hasard, vous auriez du boulot pour moi, ou un toit.",
                     "J'y connais rien, mais j'apprends vite.",
                     "J'pourrais vous",
                 ],
+                next: "bonjour",
+            },
+            bonjour: {
+                isCharlie: true,
                 text: ["Ah...", "J'taurai bien aidé, p'tit frère.", "Mais y'a pas de travail ici."],
                 options: [
                     {
@@ -91,9 +107,11 @@ export const dialogData: DialogsDataType = {
                 ],
             },
             A: {
+                isCharlie: true,
                 text: ["Désolé mec, j'suis pas le bongars."],
             },
             B: {
+                isCharlie: true,
                 text: [
                     "Ah...",
                     "Fais gaffe à ce que tu dis si tu veux pas de problèmes avec les gens du coin.",
