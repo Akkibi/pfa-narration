@@ -19,6 +19,11 @@
     cursor: pointer;
 }
 
+.audio-wave-button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 .audio-wave-playing {
     object-fit: contain;
     width: 20px;
