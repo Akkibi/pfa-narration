@@ -11,12 +11,16 @@ interface DialogProps {
     showDialog: boolean;
 }
 
+const dialogData = {
+    textSpeed: 30,
+};
+
 interface line {
     name: string;
-    text: string[];
+    text: string;
     next?: string;
     options?: Array<{
-        text: string[];
+        text: string;
         to: string;
     }>;
 }
@@ -85,7 +89,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         tl.to(lineRef.current, {
             clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
             duration: 0.5,
-            ease: "power1.inOut",
+            ease: "expo.out",
             onComplete: () => {
                 setDialogName(dialog);
                 setIsVisible(true);
@@ -96,7 +100,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                 clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
                 duration: 0.5,
                 delay: 0.5,
-                ease: "power1.inOut",
+                ease: "expo.out",
             })
             .progress(0)
             .play();
@@ -108,7 +112,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
             duration: 0.5,
             delay: 0.5,
-            ease: "power1.inOut",
+            ease: "expo.out",
         });
     });
 
@@ -143,6 +147,10 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         }
     }, [currentDialogData]);
 
+    console.log(
+        currentLine && 500 + currentLine.text.split("").length * dialogData.textSpeed + "ms",
+    );
+
     return (
         <section className={`dialog-container ${isVisible ? "" : "cliped"}`} ref={clipRef}>
             <div className="profile-pic-container">
@@ -163,17 +171,17 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             </p>
                             <p className="line-text">
                                 {currentLine &&
-                                    currentLine.text.map((text, index) => {
+                                    currentLine.text.split("").map((letter, index) => {
                                         return (
                                             <span
                                                 className="sentence"
-                                                key={index}
-                                                data-count={index + 1}
+                                                key={index + letter + isVisible.toString()}
                                                 style={{
-                                                    animationDelay: 500 + index * 500 + "ms",
+                                                    animationDelay:
+                                                        500 + index * dialogData.textSpeed + "ms",
                                                 }}
                                             >
-                                                {text}
+                                                {letter}
                                             </span>
                                         );
                                     })}
@@ -181,7 +189,23 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="options-container">
+                <div
+                    className="options-container"
+                    key={isVisible.toString()}
+                    style={
+                        isVisible
+                            ? {
+                                  animationDelay: currentLine
+                                      ? 500 +
+                                        currentLine.text.split("").length * dialogData.textSpeed +
+                                        "ms"
+                                      : "500ms",
+                              }
+                            : {
+                                  opacity: 0,
+                              }
+                    }
+                >
                     {currentDialogData && currentDialogData.dialogs[dialogName].options ? (
                         currentDialogData.dialogs[dialogName].options.length > 0 &&
                         currentDialogData.dialogs[dialogName].options?.map((option, index) => {

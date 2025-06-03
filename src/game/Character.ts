@@ -80,7 +80,7 @@ export class Character {
         );
         this.instance.position.copy(this.currentPosition);
     }
-
+    1;
     public addAxesHelper(axesHelper: THREE.AxesHelper) {
         this.axesHelper = axesHelper;
     }
@@ -175,6 +175,7 @@ export class Character {
             this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y);
         }
     }
+
     private updateSpeed() {
         // Save speed before applying friction
         this.lastSpeed.copy(this.speed);
