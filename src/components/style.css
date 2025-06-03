@@ -260,7 +260,6 @@
 }
 
 .sentence{
-    margin-right: 1rem;
     opacity: 0;
     animation-name: appearOpacity;
     animation-duration: 500ms;
