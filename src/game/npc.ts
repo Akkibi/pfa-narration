@@ -106,6 +106,7 @@ class Npc {
 
     private closeInteraction = () => {
         this.isDialogOpened = false;
+        eventEmitterInstance.trigger(`toggleFreeze`, [false]);
     };
 
     private interract = () => {
@@ -113,9 +114,11 @@ class Npc {
             if (this.isDialogOpened) {
                 this.isDialogOpened = false;
                 eventEmitterInstance.trigger("closeDialog", []);
+                eventEmitterInstance.trigger(`toggleFreeze`, [false]);
             } else {
                 this.isDialogOpened = true;
                 eventEmitterInstance.trigger(`openDialog`, [dialogData[this.name]]);
+                eventEmitterInstance.trigger(`toggleFreeze`, [true]);
             }
         }
     };

@@ -35,15 +35,6 @@ const UiElements = () => {
 
     return (
         <div className="scene ui-elements">
-            <h1 className="title">UiElements</h1>
-            <button
-                className="btn-test"
-                onClick={() => {
-                    eventEmitterInstance.trigger("scene-change", [2]);
-                }}
-            >
-                button test
-            </button>
             {/* <section className="square">square</section> */}
             {isObjectActive && !showDialog && (
                 <>
@@ -54,9 +45,7 @@ const UiElements = () => {
                     </div>
                 </>
             )}
-            {/* {isObjectActive && !showDialog && ( */}
             <Dialog currentDialogData={dialogData} showDialog={showDialog} />
-            {/* )} */}
         </div>
     );
 };

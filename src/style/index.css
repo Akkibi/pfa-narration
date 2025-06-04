@@ -31,7 +31,8 @@
     -moz-osx-font-smoothing: grayscale;
     font-family: Cadiz, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
-    font-weight: 400;
+    font-weight: 200;
+    font-style: normal;
 }
 
 *,
