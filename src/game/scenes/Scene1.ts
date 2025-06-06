@@ -43,6 +43,18 @@ export class Scene1 extends BaseScene {
                     from: 2,
                 },
             },
+            {
+                position: new THREE.Vector3(3, -0.99, 2),
+                userData: {
+                    to: 3,
+                },
+            },
+            {
+                position: new THREE.Vector3(2, -0.99, 1),
+                userData: {
+                    from: 3,
+                },
+            },
         ]);
 
         this.generateBackgroundMaps([
