@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { DialogDataType } from "../../data/dialogData";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 gsap.registerPlugin(useGSAP);
@@ -18,6 +19,7 @@ const dialogData = {
 interface line {
     name: string;
     text: string;
+    audio?: string;
     next?: string;
     options?: Array<{
         text: string;
@@ -93,7 +95,6 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             onComplete: () => {
                 setDialogName(dialog);
                 setIsVisible(true);
-                console.log("complete");
             },
         })
             .to(lineRef.current, {
@@ -137,6 +138,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                 options: dialog.options,
             };
             setCurrentLine(line);
+            eventEmitterInstance.trigger("playSound", [dialog.audio]);
         }
     }, [showDialog, currentDialogData, dialogName]);
 
@@ -152,98 +154,123 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     );
 
     return (
-        <section className={`dialog-container ${isVisible ? "" : "cliped"}`} ref={clipRef}>
-            <div className="profile-pic-container">
-                <div
-                    className="profile-pic"
-                    style={{
-                        background: `center / contain no-repeat url(/characters/${currentLine && currentLine.name.toLowerCase()}.png)`,
-                    }}
-                ></div>
-            </div>
-            <div className="dialog-text-container">
-                <div className="dialog-box" ref={dialogBoxRef}>
-                    <div className="line-wrapper">
-                        {/* {currentLine && ( */}
-                        <div className="line">
-                            <p className="line-name" ref={lineRef}>
-                                [{currentLine && currentLine.name}]
-                            </p>
-                            <p className="line-text">
-                                {currentLine &&
-                                    currentLine.text.split("").map((letter, index) => {
-                                        return (
-                                            <span
-                                                className="sentence"
-                                                key={index + letter + isVisible.toString()}
-                                                style={{
-                                                    animationDelay:
-                                                        500 + index * dialogData.textSpeed + "ms",
-                                                }}
-                                            >
-                                                {letter}
-                                            </span>
-                                        );
-                                    })}
-                            </p>
+        <div id="dialog">
+            <section className={`dialog-container ${isVisible ? "" : "cliped"}`} ref={clipRef}>
+                <div className="profile-pic-container">
+                    <div
+                        className="profile-pic"
+                        style={{
+                            background: `center / contain no-repeat url(/characters/${currentLine && currentLine.name.toLowerCase()}.png)`,
+                        }}
+                    ></div>
+                </div>
+                <div className="dialog-text-container">
+                    <div className="dialog-box" ref={dialogBoxRef}>
+                        <div className="line-wrapper">
+                            {/* {currentLine && ( */}
+                            <div className="line">
+                                <p className="line-name" ref={lineRef}>
+                                    [{currentLine && currentLine.name}]
+                                </p>
+                                <p className="line-text">
+                                    {currentLine &&
+                                        currentLine.text.split("").map((letter, index) => {
+                                            return (
+                                                <span
+                                                    className="letter"
+                                                    key={index + letter + isVisible.toString()}
+                                                    style={{
+                                                        animationDelay:
+                                                            500 +
+                                                            index * dialogData.textSpeed +
+                                                            "ms",
+                                                    }}
+                                                >
+                                                    {letter}
+                                                </span>
+                                            );
+                                        })}
+                                </p>
+                            </div>
                         </div>
                     </div>
+                    <div
+                        className="options-container"
+                        key={isVisible.toString()}
+                        style={
+                            isVisible
+                                ? {
+                                      animationDelay: currentLine
+                                          ? 500 +
+                                            currentLine.text.split("").length *
+                                                dialogData.textSpeed +
+                                            "ms"
+                                          : "500ms",
+                                  }
+                                : {
+                                      opacity: 0,
+                                  }
+                        }
+                    >
+                        {currentDialogData && currentDialogData.dialogs[dialogName].options ? (
+                            currentDialogData.dialogs[dialogName].options.length > 0 &&
+                            currentDialogData.dialogs[dialogName].options?.map((option, index) => {
+                                return (
+                                    <button
+                                        className={`dialog-button ${activeButton === index ? "active-button" : ""}`}
+                                        key={option.text[0]}
+                                        onClick={() => {
+                                            reOpen(option.to);
+                                        }}
+                                    >
+                                        {activeButton === index ? (
+                                            <img
+                                                src="/images/arrow.png"
+                                                className="active-button-indicator"
+                                            />
+                                        ) : (
+                                            <div className="active-button-indicator" />
+                                        )}
+                                        <span>{option.text}</span>
+                                    </button>
+                                );
+                            })
+                        ) : currentDialogData && currentDialogData.dialogs[dialogName].next ? (
+                            <button
+                                className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
+                                onClick={() => {
+                                    reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
+                                }}
+                            >
+                                {activeButton === 0 && (
+                                    <img
+                                        src="/images/arrow.png"
+                                        className="active-button-indicator"
+                                    />
+                                )}
+                                <span>Next</span>
+                            </button>
+                        ) : (
+                            <button
+                                className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
+                                onClick={() => {
+                                    eventEmitterInstance.trigger("closeDialog");
+                                    if (currentDialogData) currentDialogData.done = true;
+                                }}
+                            >
+                                {activeButton === 0 && (
+                                    <img
+                                        src="/images/arrow.png"
+                                        className="active-button-indicator"
+                                    />
+                                )}
+                                <span>Leave Dialog</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
-                <div
-                    className="options-container"
-                    key={isVisible.toString()}
-                    style={
-                        isVisible
-                            ? {
-                                  animationDelay: currentLine
-                                      ? 500 +
-                                        currentLine.text.split("").length * dialogData.textSpeed +
-                                        "ms"
-                                      : "500ms",
-                              }
-                            : {
-                                  opacity: 0,
-                              }
-                    }
-                >
-                    {currentDialogData && currentDialogData.dialogs[dialogName].options ? (
-                        currentDialogData.dialogs[dialogName].options.length > 0 &&
-                        currentDialogData.dialogs[dialogName].options?.map((option, index) => {
-                            return (
-                                <button
-                                    className={`dialog-button ${activeButton === index ? "active-button" : ""}`}
-                                    key={option.text[0]}
-                                    onClick={() => {
-                                        reOpen(option.to);
-                                    }}
-                                >
-                                    <span>{option.text}</span>
-                                </button>
-                            );
-                        })
-                    ) : currentDialogData && currentDialogData.dialogs[dialogName].next ? (
-                        <button
-                            className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
-                            onClick={() => {
-                                reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
-                            }}
-                        >
-                            <span>Next</span>
-                        </button>
-                    ) : (
-                        <button
-                            className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
-                            onClick={() => {
-                                eventEmitterInstance.trigger("closeDialog");
-                                if (currentDialogData) currentDialogData.done = true;
-                            }}
-                        >
-                            <span>Leave Dialog</span>
-                        </button>
-                    )}
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     );
 };
 

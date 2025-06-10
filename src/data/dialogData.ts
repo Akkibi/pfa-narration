@@ -9,6 +9,7 @@ export interface DialogDataType {
     dialogs: {
         [key: string]: {
             text: string;
+            audio?: string;
             options?: Array<{
                 text: string;
                 to: string;

@@ -4,15 +4,16 @@ const Controls = {
     keys: { forward: false, back: false, left: false, right: false, space: false, run: false },
     scroll: window.scrollY,
 
-
     init() {
         console.log("Controls initialized");
         window.addEventListener("keydown", (e) => this.handleKeyUpDown(e, true));
         window.addEventListener("keyup", (e) => this.handleKeyUpDown(e, false));
-        window.addEventListener('wheel', (e) => this.handleScroll(e));
+        window.addEventListener("wheel", (e) => this.handleScroll(e));
     },
 
     handleKeyUpDown(event: KeyboardEvent, pressed: boolean) {
+        if (event.metaKey || event.altKey || event.ctrlKey) return;
+
         switch (event.code) {
             case "ShiftLeft":
                 this.keys.run = pressed;
@@ -67,8 +68,7 @@ const Controls = {
         const delta = event.deltaY;
         console.log("Scroll delta:", delta);
         this.scroll += delta / 10;
-    }
-
+    },
 };
 Controls.init();
 
