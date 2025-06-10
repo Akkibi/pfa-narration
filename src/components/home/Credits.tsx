@@ -52,19 +52,27 @@ const team = {
 export default function Credits({ setIsCredits }: CreditsProps) {
     return (
         <>
+            <img src="/images/logo.png" alt="logo" className="logo" />
             <div
                 style={{
+                    flex: 1,
                     padding: "20px",
                     fontFamily: "sans-serif",
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
                 }}
             >
-                <img src="/images/logo.png" alt="logo" className="logo" />
-                <h2>Credits</h2>
+                <h1>Credits</h1>
 
-                <section style={{ padding: "10px 0" }}>
+                <section
+                    style={{
+                        padding: "10px 0",
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center ",
+                    }}
+                >
                     <h3>Designers</h3>
                     {team.designers.map((member) => (
                         <div key={member.name} style={{ padding: "10px 0" }}>

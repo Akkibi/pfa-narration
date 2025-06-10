@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Credits from "./Credits";
 import "./style.css";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 type HomeProps = {
     setStatus: (index: number) => void;
@@ -8,6 +9,10 @@ type HomeProps = {
 
 export default function Home({ setStatus }: HomeProps) {
     const [isCredits, setIsCredits] = useState(false);
+
+    useEffect(() => {
+        eventEmitterInstance.trigger("playSound", ["soundtrack_0"]);
+    }, []);
 
     return (
         <>
@@ -26,40 +31,62 @@ export default function Home({ setStatus }: HomeProps) {
                         playsInline
                         preload="none"
                         muted
-                        style={{ width: "100%", height: "100%", objectFit: "fill" }}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     >
                         <source src="/videos/intro.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
-                {isCredits === false && (
-                    <>
-                        <img src="/images/logo.png" alt="logo" className="logo" />
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setStatus(2);
-                            }}
-                            className="button"
-                        >
-                            enter
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setIsCredits(true);
-                            }}
-                            className="credits-button"
-                        >
-                            credits
-                        </button>
-                    </>
-                )}
-                {isCredits === true && (
-                    <div className={"credits " + (isCredits && "active")}>
-                        <Credits setIsCredits={setIsCredits} />
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        height: "100%",
+                        flex: 1,
+                        width: "100%",
+                    }}
+                >
+                    <div
+                        style={{
+                            position: "relative",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            justifyContent: "center",
+                            width: "100%",
+                            paddingLeft: "15%",
+                        }}
+                    >
+                        <div className={"home-content " + (isCredits && "active")}>
+                            <img src="/images/logo.png" alt="logo" className="logo" />
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setStatus(2);
+                                }}
+                                className="button"
+                            >
+                                <img src="/images/arrow.png" className="active-button-indicator" />
+                                enter
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setIsCredits(true);
+                                }}
+                                className="credits-button"
+                            >
+                                credits
+                            </button>
+                        </div>
+
+                        <div className={"credits " + (isCredits && "active")}>
+                            <Credits setIsCredits={setIsCredits} />
+                        </div>
                     </div>
-                )}
+                    <div style={{ flex: 1, width: "100%" }} />
+                </div>
             </div>
         </>
     );

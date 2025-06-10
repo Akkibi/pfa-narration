@@ -1,13 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import "./style.css";
+import { eventEmitterInstance } from "../utils/eventEmitter";
+import { AudioData } from "../data/audio";
+
+type ActivePlayer = {
+    name: string;
+    player: Tone.Player;
+};
 
 type AudioControlsProps = {
     playerRef: React.RefObject<Tone.Player | null>;
 };
 
 export function AudioControls({ playerRef }: AudioControlsProps) {
-    const [isAudioPlaying, setIsAudioPlaying] = useState<boolean | null>(null);
+    const [isMute, setIsMute] = useState(false);
+    const [isToneStarted, setIsToneStarted] = useState(false);
+    const activePlayersRef = useRef<ActivePlayer[]>([]);
     const mouseRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -25,57 +34,88 @@ export function AudioControls({ playerRef }: AudioControlsProps) {
             }
         };
 
-        const handleClick = () => {
-            startAudio();
+        const handleClick = async () => {
+            await Tone.start();
+            setIsToneStarted(true);
             document.removeEventListener("mousemove", handleMouseMove);
         };
 
         document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("click", handleClick, { once: true });
+
+        eventEmitterInstance.on(`playSound`, (name: string, volume?: number) =>
+            toggleSound(name, volume),
+        );
     }, []);
 
-    const startAudio = async () => {
-        if (isAudioPlaying === null) {
-            await Tone.start();
+    const toggleSound = (soundName: string, volume?: number) => {
+        const sound = AudioData.find((a) => a.name === soundName);
 
-            playerRef.current = new Tone.Player("/sounds/soundtrack/home.wav").toDestination();
-            playerRef.current.autostart = true;
-            playerRef.current.loop = true;
+        if (sound) {
+            const buffer = new Tone.ToneAudioBuffer(sound.src, () => {
+                if (!activePlayersRef.current.find((p) => p.name === soundName)) {
+                    const player = new Tone.Player({ url: buffer }).toDestination();
+
+                    player.loop = sound.loop ?? false;
+                    player.volume.value = volume ?? sound.volume ?? 0;
+
+                    if (!player) return;
+
+                    player.fadeIn = sound.fadeIn ?? 0;
+                    player.mute = isMute;
+
+                    player.start();
+
+                    const newPlayer = {
+                        name: soundName,
+                        player,
+                    };
+
+                    player.onstop = () => {
+                        activePlayersRef.current = activePlayersRef.current.filter(
+                            (p) => p.name !== soundName,
+                        );
+                    };
+
+                    activePlayersRef.current.push(newPlayer);
+                }
+            });
         } else {
-            const player = playerRef.current;
-            if (player && player.mute) {
-                player.mute = false;
-            }
-        }
-        setIsAudioPlaying(true);
-    };
-
-    const stopAudio = async () => {
-        const player = playerRef.current;
-
-        if (player && player.state === "started" && !player.mute) {
-            player.mute = true;
-            setIsAudioPlaying(false);
+            console.error(`Impossible to play sound: ${soundName}`);
         }
     };
 
-    return isAudioPlaying === null ? (
+    const toggleMuteAudio = () => {
+        if (activePlayersRef.current.length === 0) return;
+
+        if (!isMute) {
+            activePlayersRef.current.forEach((p) => (p.player.mute = true));
+        } else {
+            activePlayersRef.current.forEach((p) => (p.player.mute = false));
+        }
+
+        setIsMute(!isMute);
+    };
+
+    return isToneStarted === false ? (
         <div ref={mouseRef} className="move">
             click to play soundtrack
         </div>
     ) : (
-        <button
-            className="audio-wave-button"
-            tabIndex={-1}
-            onClick={() => (isAudioPlaying ? stopAudio() : startAudio())}
-        >
-            {isAudioPlaying ? (
-                <img src="/images/audio_wave.gif" className="audio-wave-playing" alt="audio_wave" />
-            ) : (
-                <div className="audio-wave-not-playing">
-                    <div />
-                </div>
-            )}
-        </button>
+        <div id="audio-controls">
+            <button className="audio-wave-button" tabIndex={-1} onClick={() => toggleMuteAudio()}>
+                {!isMute ? (
+                    <img
+                        src="/images/audio_wave.gif"
+                        className="audio-wave-playing"
+                        alt="audio_wave"
+                    />
+                ) : (
+                    <div className="audio-wave-not-playing">
+                        <div />
+                    </div>
+                )}
+            </button>
+        </div>
     );
 }
