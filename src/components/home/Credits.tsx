@@ -51,60 +51,60 @@ const team = {
 
 export default function Credits({ setIsCredits }: CreditsProps) {
     return (
-        <>
+        <div
+            style={{
+                flex: 1,
+                padding: "20px",
+                fontFamily: "sans-serif",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+            }}
+        >
             <img src="/images/logo.png" alt="logo" className="logo" />
-            <div
+            <h1>Credits</h1>
+
+            <section
                 style={{
-                    flex: 1,
-                    padding: "20px",
-                    fontFamily: "sans-serif",
+                    padding: "10px 0",
                     display: "flex",
                     flexDirection: "column",
+                    justifyContent: "center ",
+                    overflowY: "auto",
+                    minHeight: 0,
                 }}
             >
-                <h1>Credits</h1>
+                <h3>Designers</h3>
+                {team.designers.map((member) => (
+                    <div key={member.name} style={{ padding: "10px 0" }}>
+                        <strong>{member.name}</strong>
+                        <ul>
+                            {member.roles.map((role, index) => (
+                                <li key={index}>{role}</li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+                <h3>Développeurs</h3>
+                {team.developers.map((member) => (
+                    <div key={member.name} style={{ padding: "10px 0" }}>
+                        <strong>{member.name}</strong>
+                        <ul>
+                            {member.roles.map((role, index) => (
+                                <li key={index}>{role}</li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </section>
 
-                <section
-                    style={{
-                        padding: "10px 0",
-                        flex: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center ",
-                    }}
-                >
-                    <h3>Designers</h3>
-                    {team.designers.map((member) => (
-                        <div key={member.name} style={{ padding: "10px 0" }}>
-                            <strong>{member.name}</strong>
-                            <ul>
-                                {member.roles.map((role, index) => (
-                                    <li key={index}>{role}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                    <h3>Développeurs</h3>
-                    {team.developers.map((member) => (
-                        <div key={member.name} style={{ padding: "10px 0" }}>
-                            <strong>{member.name}</strong>
-                            <ul>
-                                {member.roles.map((role, index) => (
-                                    <li key={index}>{role}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </section>
-
-                <button
-                    onClick={() => {
-                        setIsCredits(false);
-                    }}
-                >
-                    close credits
-                </button>
-            </div>
-        </>
+            <button
+                onClick={() => {
+                    setIsCredits(false);
+                }}
+            >
+                close credits
+            </button>
+        </div>
     );
 }

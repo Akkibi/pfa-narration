@@ -17,33 +17,12 @@
 }
 
 .home .logo {
-    width: 50%;
+    width: 100%;
     margin-top: 2rem;
-    margin-bottom: .625rem;
+    margin-bottom: 3rem;
     display: flex;
     align-items: start;
 }
-
-@keyframes pushing_1 {
-    from {
-        transform: translateY(0);
-    }
-
-    to {
-        transform: translateY(-100%);
-    }
-}
-
-@keyframes pushing_2 {
-    from {
-        transform: translateY(-100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
-}
-
 
 .home-content {
     position: absolute;
@@ -95,7 +74,7 @@
 
 .credits {
     position: absolute;
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: start;

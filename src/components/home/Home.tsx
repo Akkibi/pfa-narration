@@ -16,7 +16,7 @@ export default function Home({ setStatus }: HomeProps) {
 
     return (
         <>
-            <div className="home">
+            <div className="home ">
                 <div
                     style={{
                         position: "fixed",

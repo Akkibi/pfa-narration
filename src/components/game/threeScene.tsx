@@ -18,8 +18,9 @@ interface SceneListType {
 const ThreeScene = () => {
     const mountRef = useRef<HTMLDivElement>(null);
     const [currentSceneIndex, setCurrentSceneIndex] = useState(1);
-    console.log("currentSceneIndex", currentSceneIndex);
+
     gameState.currentScene = currentSceneIndex;
+
     useEffect(() => {
         if (!mountRef.current) return;
         if (mountRef.current.children.length > 0) return;
@@ -88,7 +89,6 @@ const ThreeScene = () => {
 
         const sceneChangeHandler = (sceneId: number) => {
             setCurrentSceneIndex(sceneId);
-            console.log("changeSceneIndex", currentSceneIndex, sceneId);
         };
 
         // Listen for scene change events
