@@ -19,15 +19,6 @@
     padding: 1rem;
 } */
 
-.scene {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
 .object-interact {
     color: white;
     text-align: center;

@@ -5,7 +5,7 @@ export class Scene3 extends BaseScene {
     private torus: THREE.Mesh;
 
     constructor() {
-        super(3);
+        super("hub_2");
 
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0x000030);

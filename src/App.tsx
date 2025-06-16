@@ -1,26 +1,19 @@
-import UiElements from "./components/game/uiElements";
-import ThreeScene from "./components/game/threeScene";
-import { useRef, useState } from "react";
-import Home from "./components/home/Home";
+import { useRef } from "react";
 import * as Tone from "tone";
 import { AudioControls } from "./components/AudioControls";
+import { TransitionProvider } from "./components/contexts/TransitionManager";
+import Pages from "./pages/Pages";
 
 function App() {
-    const [status, setStatus] = useState(1);
     const playerRef = useRef<Tone.Player>(null);
 
     return (
-        <>
-            <AudioControls playerRef={playerRef} />
-            {status === 1 ? (
-                <Home setStatus={setStatus} />
-            ) : (
-                <>
-                    <ThreeScene />
-                    <UiElements />
-                </>
-            )}
-        </>
+        <TransitionProvider>
+            <>
+                <AudioControls playerRef={playerRef} />
+                <Pages />
+            </>
+        </TransitionProvider>
     );
 }
 

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { Floor } from "./floor";
+import { Scenes } from "../components/contexts/TransitionManager";
 
 // interface ParticleData {
 //     position: THREE.Vector3;
@@ -66,15 +67,14 @@ class Particle {
 }
 
 export class ParticleSystem {
-    private id: number;
+    private id: Scenes;
     private scene: THREE.Scene;
     private particles: Particle[] = [];
     private sharedMaterial: THREE.PointsMaterial;
     private floor: Floor;
     private materialList: THREE.PointsMaterial[] = [];
 
-    constructor(scene: THREE.Scene, floor: Floor, id: number) {
-        console.log("new ParticleSystem !!");
+    constructor(scene: THREE.Scene, floor: Floor, id: Scenes) {
         this.floor = floor;
         this.id = id;
         this.scene = scene;
@@ -97,7 +97,7 @@ export class ParticleSystem {
         this.materialList.push(this.sharedMaterial.clone());
         eventEmitterInstance.on(
             "trigger-particle",
-            (position: THREE.Vector3, speed: THREE.Vector3, id: number) => {
+            (position: THREE.Vector3, speed: THREE.Vector3, id: Scenes) => {
                 if (this.id === id) this.spawnParticle(position, speed);
             },
         );
