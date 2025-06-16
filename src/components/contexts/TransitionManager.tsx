@@ -1,13 +1,15 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 export type Scenes =
     | "home"
     | "intro_prison"
+    | "hub_0"
     | "hub_1"
     | "dream_3"
     | "hub_2"
     | "falling"
-    | "dark_world";
+    | "dark_world"
+    | "end";
 
 type TransitionContextProps = {
     displayedPage: Scenes;
@@ -19,8 +21,8 @@ type TransitionContextProps = {
 const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
-    const [currentPage, setCurrentPage] = useState<Scenes>("hub_1");
-    const [displayedPage, setDisplayedPage] = useState<Scenes>("hub_1");
+    const [currentPage, setCurrentPage] = useState<Scenes>("home");
+    const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
     const [isFadingOut, setIsFadingOut] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 

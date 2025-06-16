@@ -41,7 +41,6 @@ export class Character {
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
     constructor(id: Scenes, floor: Floor) {
-        console.log("Creating Character", id);
         this.floor = floor;
         this.id = id;
         this.speed = new THREE.Vector2(0, -0.01);
@@ -51,7 +50,7 @@ export class Character {
         this.position = new THREE.Vector2(0, 1);
 
         const floorPos = floor.raycastFrom(this.position);
-        console.log(floorPos);
+        // console.log(floorPos);
         this.floorPosition = floorPos === null ? 0 : floorPos;
 
         this.currentPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);

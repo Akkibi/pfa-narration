@@ -63,3 +63,37 @@
     transform: translate(-50%, 0%);
     /* Stay centered horizontally when sliding into view */
 }
+
+.subtitles-container {
+    position: fixed;
+    /* width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center; */
+    bottom: 40px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    animation-name: appearOpacity;
+    animation-duration: 500ms;
+    animation-fill-mode: forwards;
+    opacity: 0;
+    font-size: 1.4rem;
+}
+
+@keyframes appearOpacity {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.letter {
+    opacity: 0;
+    animation-name: appearOpacity;
+    animation-duration: 500ms;
+    animation-fill-mode: forwards;
+}

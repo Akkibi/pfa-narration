@@ -8,6 +8,7 @@ import SceneManager from "../components/SceneManager";
 import { Scene1 } from "../game/scenes/Scene1";
 import { Scene2 } from "../game/scenes/Scene2";
 import { Scene3 } from "../game/scenes/Scene3";
+import { IntroPrisonSubs } from "../data/subsData";
 
 interface SceneListType {
     [key: string]: Scene1 | Scene2 | Scene3;
@@ -47,7 +48,14 @@ export default function Pages() {
         >
             {displayedPage === "home" && <Home changePage={changePage} />}
             {displayedPage === "intro_prison" && (
-                <Player src="/videos/intro_prison.mov" onEnd={() => changePage("hub_1")} />
+                <Player
+                    src="/videos/intro_prison.mov"
+                    onEnd={() => changePage("hub_1")}
+                    subs={IntroPrisonSubs}
+                />
+            )}
+            {displayedPage === "hub_0" && scenes && (
+                <SceneManager currentSceneIndex="hub_0" scene={scenes["hub_0"]} />
             )}
             {displayedPage === "hub_1" && scenes && (
                 <SceneManager currentSceneIndex="hub_1" scene={scenes["hub_1"]} />

@@ -1,11 +1,32 @@
 .page {
-    transition: opacity 1s ease;
+    transition: background-color 1s ease;
+    width: 100dw;
+    height: 100vh;
 }
 
-.fade-in {
+.page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* z-index: 50; */
+    pointer-events: none;
+    /* Allow clicks to pass through */
+    transition: background-color 1s ease;
+}
+
+.fade-in::before {
+    background-color: transparent;
     opacity: 1;
 }
 
-.fade-out {
-    opacity: 0;
+.fade-out::before {
+    background-color: white;
+}
+
+.page>* {
+    position: relative;
+    /* z-index: 49; */
+    height: 100%;
+    width: 100%;
 }

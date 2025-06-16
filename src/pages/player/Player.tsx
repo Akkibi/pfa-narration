@@ -1,18 +1,27 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Subtitle } from "../../data/subsData";
+import "./style.css";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 type PlayerProps = {
     src: string;
     onEnd: () => void;
+    subs: Subtitle[];
 };
 
-export default function Player({ src, onEnd }: PlayerProps) {
+export default function Player({ src, onEnd, subs }: PlayerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        console.log(videoRef.current, videoRef.current?.onended);
         if (videoRef.current && videoRef.current.onended === null) {
-            videoRef.current.onended = onEnd;
+            videoRef.current.onended = () => {
+                onEnd();
+                eventEmitterInstance.trigger("toggleSoundtrack");
+            };
         }
+
+        eventEmitterInstance.trigger("toggleSoundtrack");
+        eventEmitterInstance.trigger("triggerSubs", [subs]);
     }, [videoRef]);
 
     return (

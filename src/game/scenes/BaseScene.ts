@@ -140,7 +140,6 @@ export default class BaseScene {
             spawn.userData = spawnData.userData;
             this.instance.add(spawn);
             this.spawnArray.push(spawn);
-            console.log("add spawns", this.spawnArray);
         });
     }
 

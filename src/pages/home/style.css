@@ -1,4 +1,5 @@
 .move {
+    z-index: 1000;
     left: 50%;
     top: 50%;
     transform: translate(0, -100%);
@@ -7,6 +8,7 @@
 }
 
 .home {
+    z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,7 +20,7 @@
 }
 
 .home .logo {
-    width: 100%;
+    width: 60%;
     margin-top: 2rem;
     margin-bottom: 3rem;
     display: flex;
@@ -90,10 +92,10 @@
 
 #audio-controls {
     .audio-wave-button {
+        z-index: 1000;
         bottom: 0;
         right: 0;
         position: fixed;
-        z-index: 1000;
         margin: 2vh;
 
     }

@@ -21,9 +21,8 @@ export default function Home({ changePage }: HomeProps) {
                 <div
                     style={{
                         position: "fixed",
-                        width: "100%",
-                        height: "100%",
-                        zIndex: -1,
+                        width: "100vw",
+                        height: "100vh",
                     }}
                 >
                     <video

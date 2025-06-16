@@ -1,3 +1,5 @@
+import { start } from "tone";
+
 export interface DialogsDataType {
     [key: string]: DialogDataType;
 }
@@ -21,6 +23,21 @@ export interface DialogDataType {
 }
 
 export const dialogData: DialogsDataType = {
+    // intro_prison: {
+    //     name: "Intro Prison",
+    //     done: false,
+    //     dialogs: {
+    //         start: {
+    //             text: "",
+    //             isCharlie: false,
+    //             next: "A",
+    //         },
+    //         A: {
+    //             text: "",
+
+    //         },
+    //     },
+    // },
     capitaine: {
         name: "Capitaine",
         done: false,

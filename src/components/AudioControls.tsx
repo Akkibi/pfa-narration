@@ -2,22 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
-import { AudioData } from "../data/audio";
+import { AudioData } from "../data/audioData";
 
 type ActivePlayer = {
     name: string;
     player: Tone.Player;
 };
 
-type AudioControlsProps = {
-    playerRef: React.RefObject<Tone.Player | null>;
-};
-
-export function AudioControls({ playerRef }: AudioControlsProps) {
+export function AudioControls() {
     const [isMute, setIsMute] = useState(false);
     const [isToneStarted, setIsToneStarted] = useState(false);
     const activePlayersRef = useRef<ActivePlayer[]>([]);
     const mouseRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (activePlayersRef.current.length > 0) {
+            console.log(activePlayersRef.current);
+        }
+    }, [activePlayersRef]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -36,6 +38,7 @@ export function AudioControls({ playerRef }: AudioControlsProps) {
 
         const handleClick = async () => {
             await Tone.start();
+            console.log("Audio context started");
             setIsToneStarted(true);
             document.removeEventListener("mousemove", handleMouseMove);
         };
@@ -43,9 +46,11 @@ export function AudioControls({ playerRef }: AudioControlsProps) {
         document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("click", handleClick, { once: true });
 
-        eventEmitterInstance.on(`playSound`, (name: string, volume?: number) =>
-            toggleSound(name, volume),
+        eventEmitterInstance.on(
+            `playSound`,
+            (name: string, volume?: number, muteSoundtrack?: boolean) => toggleSound(name, volume),
         );
+        eventEmitterInstance.on(`toggleSoundtrack`, () => toggleSoundtrack());
     }, []);
 
     const toggleSound = (soundName: string, volume?: number) => {
@@ -56,6 +61,7 @@ export function AudioControls({ playerRef }: AudioControlsProps) {
                 if (!activePlayersRef.current.find((p) => p.name === soundName)) {
                     const player = new Tone.Player({ url: buffer }).toDestination();
 
+                    console.log("Playing sound:", soundName);
                     player.loop = sound.loop ?? false;
                     player.volume.value = volume ?? sound.volume ?? 0;
 
@@ -78,10 +84,28 @@ export function AudioControls({ playerRef }: AudioControlsProps) {
                     };
 
                     activePlayersRef.current.push(newPlayer);
+
+                    console.log("Active players:", activePlayersRef.current);
                 }
             });
         } else {
             console.error(`Impossible to play sound: ${soundName}`);
+        }
+    };
+
+    const toggleSoundtrack = () => {
+        if (activePlayersRef.current.length === 0) return;
+        const soundTrackPlayer = activePlayersRef.current.find((p) =>
+            p.name.includes("soundtrack"),
+        )?.player;
+        if (soundTrackPlayer === undefined) return;
+
+        if (soundTrackPlayer.volume.value > -60) {
+            soundTrackPlayer.volume.rampTo(-60, 1); // Fade out over 1 second
+            console.log("Soundtrack faded out");
+        } else {
+            soundTrackPlayer.volume.rampTo(0, 1); // Fade in over 1 second
+            console.log("Soundtrack faded in");
         }
     };
 

@@ -34,7 +34,7 @@ const UiElements = () => {
     }, []);
 
     return (
-        <div className="scene ui-elements" style={{ zIndex: 10 }}>
+        <div className="scene">
             {/* <section className="square">square</section> */}
             {isObjectActive && !showDialog && (
                 <>
