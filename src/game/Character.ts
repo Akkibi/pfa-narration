@@ -4,6 +4,7 @@ import Controls from "./Controls";
 import * as THREE from "three";
 import { Floor } from "./floor";
 import { loadGLTFModel } from "./CharacterModel";
+import { Scenes } from "../components/contexts/TransitionManager";
 
 const CharacterVars = {
     height: 1,
@@ -19,7 +20,7 @@ const CharacterVars = {
 export class Character {
     private lerpAmount: number;
     public instance: THREE.Group;
-    public id: number;
+    public id: Scenes;
     public floorPosition: number;
     public speed: THREE.Vector2;
     private lastSpeed: THREE.Vector2;
@@ -39,7 +40,8 @@ export class Character {
     private isGameFreeze: boolean;
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
-    constructor(id: number, floor: Floor) {
+    constructor(id: Scenes, floor: Floor) {
+        console.log("Creating Character", id);
         this.floor = floor;
         this.id = id;
         this.speed = new THREE.Vector2(0, -0.01);
@@ -68,8 +70,6 @@ export class Character {
 
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
         eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => (this.isGameFreeze = status));
-
-        console.log("start position : ", this.position, this.height);
     }
 
     private updateCharacterModelSmooth() {
@@ -102,7 +102,7 @@ export class Character {
             const bone = this.instance.getObjectByName(`head-${i}`);
             if (bone) bones.push(bone);
         }
-        console.log("bones", bones);
+        // console.log("bones", bones);
         this.bones = bones;
     }
 
@@ -224,6 +224,7 @@ export class Character {
                 (20 / 0.11) * Math.abs(this.speed.x + this.speed.y) - 20,
             ]);
             this.setPosition(newPos, this.updateRotation());
+            console.log(`position-${this.id}`, newPos);
             this.updatePositionParticles();
         }
     }

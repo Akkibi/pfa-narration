@@ -4,10 +4,11 @@ import { charactersData } from "../data/characters_data";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { lerpVector3 } from "../utils/lerp";
 import { dialogData } from "../data/dialogData";
+import { Scenes } from "../components/contexts/TransitionManager";
 
 class Npc {
     private name: string;
-    private sceneId: number;
+    private sceneId: Scenes;
     public instance: THREE.Group;
     private position: THREE.Vector3;
     private isActive: boolean;
@@ -16,7 +17,7 @@ class Npc {
     private characterPositionTarget: THREE.Vector3;
     private interactionDistance: number;
     private isDialogOpened: boolean;
-    constructor(name: string, sceneId: number) {
+    constructor(name: string, sceneId: Scenes) {
         this.isDialogOpened = false;
         this.interactionDistance = 1;
         this.name = name;

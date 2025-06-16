@@ -7,7 +7,7 @@ export class Scene3 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
 
     constructor() {
-        super(3);
+        super("hub_2");
 
         this.generateSpawns([
             {

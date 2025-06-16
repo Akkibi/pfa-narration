@@ -7,19 +7,19 @@ export class Scene2 extends BaseScene {
     private gltfModel: THREE.Group | null = null;
 
     constructor() {
-        super(2);
+        super("dream_3");
 
         this.generateSpawns([
             {
                 position: new THREE.Vector3(6, 0, -3),
                 userData: {
-                    to: 1,
+                    to: "hub_1",
                 },
             },
             {
                 position: new THREE.Vector3(7, 0, -3),
                 userData: {
-                    from: 1,
+                    from: "hub_1",
                 },
             },
         ]);

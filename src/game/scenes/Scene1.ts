@@ -10,7 +10,7 @@ export class Scene1 extends BaseScene {
     private mixer: THREE.AnimationMixer | null; // Store the animation
     private time: number = 0;
     constructor() {
-        super(1);
+        super("hub_1");
         this.instance.background = new THREE.Color(0x000000);
         this.mixer = null;
 
@@ -34,13 +34,13 @@ export class Scene1 extends BaseScene {
             {
                 position: new THREE.Vector3(3, -0.99, 1),
                 userData: {
-                    to: 2,
+                    to: "dream_3",
                 },
             },
             {
                 position: new THREE.Vector3(2, -0.99, 1),
                 userData: {
-                    from: 2,
+                    from: "dream_3",
                 },
             },
             {
@@ -105,7 +105,7 @@ export class Scene1 extends BaseScene {
             (gltf: { scene: THREE.Group; animations: THREE.AnimationClip[] }) => {
                 this.gltfModel = gltf.scene;
                 this.instance.add(this.gltfModel);
-                console.log("aniams, animations", gltf.animations);
+                // console.log("aniams, animations", gltf.animations);
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);
                     this.gltfModel.scale.set(1, 1, 1);

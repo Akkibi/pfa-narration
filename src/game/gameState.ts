@@ -1,3 +1,3 @@
 export const gameState = {
-    currentScene: 1,
+    currentScene: "hub_1",
 };

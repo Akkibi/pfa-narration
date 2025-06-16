@@ -7,6 +7,7 @@ import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { charactersData } from "../../data/characters_data";
 import Npc from "../npc";
 import { loadImage } from "../../utils/loadImage";
+import { Scenes } from "../../components/contexts/TransitionManager";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -19,11 +20,11 @@ interface zoomZone {
 }
 
 interface userData {
-    [key: string]: number;
+    [key: string]: number | Scenes;
 }
 
 export default class BaseScene {
-    public scene_id: number;
+    public scene_id: Scenes;
     public instance: THREE.Scene;
     public camera: Camera | null;
     public floor: Floor | null;
@@ -34,7 +35,8 @@ export default class BaseScene {
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
     protected backgroundMaps: string[] = [];
 
-    constructor(scene_id: number) {
+    constructor(scene_id: Scenes) {
+        console.log("Scene Id", scene_id);
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
         this.scene_id = scene_id;
@@ -70,7 +72,7 @@ export default class BaseScene {
         this.character.addAxesHelper(this.axesHelper);
     }
 
-    private updateSceneChange(sceneTo: number, sceneFrom: number, speed: THREE.Vector2) {
+    private updateSceneChange(sceneTo: Scenes, sceneFrom: number, speed: THREE.Vector2) {
         if (sceneTo !== this.scene_id) return;
         console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
@@ -107,7 +109,6 @@ export default class BaseScene {
                     this.scene_id,
                     this.character?.speed,
                 ]);
-                console.log("scenechange");
             }
         });
     }
@@ -147,12 +148,12 @@ export default class BaseScene {
         zoomZones.forEach((zoomZone) => {
             const size = zoomZone.userData.size ?? 1;
             const color = new THREE.Color(0xff0000);
-            const spawn = new THREE.PolarGridHelper(size, 0, 2, 32, color, color);
+            const spawn = new THREE.PolarGridHelper(Number(size), 0, 2, 32, color, color);
             spawn.position.copy(zoomZone.position);
             spawn.userData = zoomZone.userData;
             this.instance.add(spawn);
             this.zoomZoneArray.push(spawn);
-            console.log("add zoom zones", this.spawnArray);
+            // console.log("add zoom zones", this.spawnArray);
         });
     }
 
@@ -187,7 +188,7 @@ export default class BaseScene {
                 const scale = 3.5 - index / 1.1;
                 mesh.scale.set(scale, scale, scale);
                 mesh.lookAt(new THREE.Vector3(0, 1, -5).add(mesh.position));
-                console.log("backgrounds position", mesh.position);
+                // console.log("backgrounds position", mesh.position);
                 this.instance.add(mesh);
             });
         });

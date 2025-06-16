@@ -66,7 +66,6 @@ const Controls = {
 
     handleScroll(event: WheelEvent) {
         const delta = event.deltaY;
-        console.log("Scroll delta:", delta);
         this.scroll += delta / 10;
     },
 };
