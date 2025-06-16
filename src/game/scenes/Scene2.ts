@@ -9,18 +9,6 @@ export class Scene2 extends BaseScene {
     constructor() {
         super(2);
 
-        // const GROUND_WIDHT = 10;
-        // const GROUND_HEIGHT = 10;
-
-        // const floor = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(GROUND_WIDHT, GROUND_HEIGHT),
-        //     new THREE.MeshStandardMaterial({ color: "white" })
-        // );
-        // floor.name = "floor";
-        // floor.position.set(GROUND_WIDHT / 2, - this.character.vars.height / 2, GROUND_HEIGHT / 2);
-        // floor.rotation.x = -Math.PI / 2;
-        // this.instance.add(floor);
-
         this.generateSpawns([
             {
                 position: new THREE.Vector3(6, 0, -3),
@@ -51,6 +39,13 @@ export class Scene2 extends BaseScene {
                     zoom: 0.5,
                 },
             },
+        ]);
+
+        this.generateBackgroundMaps([
+            "./scene2/backgrounds/background-1.png",
+            "./scene2/backgrounds/background-2.png",
+            "./scene2/backgrounds/background-3.png",
+            "./scene2/backgrounds/background-4.png",
         ]);
 
         // this.character.setPosition(new THREE.Vector2(10, -5));

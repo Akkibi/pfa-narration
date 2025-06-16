@@ -169,7 +169,12 @@ export default class BaseScene {
     protected generateBackgroundMaps(backgroundMaps: string[]) {
         backgroundMaps.map((backgroundMap, index) => {
             loadImage(backgroundMap, (texture) => {
-                const plane = new THREE.PlaneGeometry(35 * 20, 13 * 20, 1, 1);
+                const plane = new THREE.PlaneGeometry(
+                    (texture.image.width / 80) * 20,
+                    (texture.image.height / 80) * 20,
+                    1,
+                    1,
+                );
                 const material = new THREE.MeshBasicMaterial({
                     transparent: true,
                     map: texture,
