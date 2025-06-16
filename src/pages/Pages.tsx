@@ -16,7 +16,7 @@ interface SceneListType {
 
 export default function Pages() {
     const [scenes, setScenes] = useState<SceneListType>();
-    const { isFadingOut, changePage, displayedPage, handleTransitionEnd } = useTransitionContext();
+    const { setPage, displayedPage } = useTransitionContext();
 
     useEffect(() => {
         const loaded_scenes: SceneListType = {
@@ -33,20 +33,26 @@ export default function Pages() {
         console.log("displayedPage", displayedPage);
     }, [displayedPage]);
 
-    const sceneChangeHandler = (sceneId: Scenes) => {
-        changePage(sceneId);
-        console.log("changeSceneIndex", sceneId);
-    };
+    useEffect(() => {
+        const handleSkip = (key: KeyboardEvent) => {
+            if (key.key === "$") {
+                setPage("hub_1");
+            }
+        };
+        const sceneChangeHandler = (sceneId: Scenes) => {
+            setPage(sceneId);
+            console.log("changeSceneIndex", sceneId);
+        };
 
-    // Listen for scene change events
-    eventEmitterInstance.on("scene-change", sceneChangeHandler);
+        document.addEventListener("keydown", handleSkip);
+        eventEmitterInstance.on("scene-change", sceneChangeHandler);
 
-    return (
-        <div
-            className={`page ${isFadingOut ? "fade-out" : "fade-in"}`}
-            onTransitionEnd={handleTransitionEnd}
-        >
-            {displayedPage === "home" && <Home changePage={changePage} />}
+        return () => {
+            document.removeEventListener("keydown", handleSkip);
+        };
+    }, [setPage]);
+
+    /* {displayedPage === "home" && <Home changePage={changePage} />}
             {displayedPage === "intro_prison" && (
                 <Player
                     src="/videos/intro_prison.mov"
@@ -71,7 +77,47 @@ export default function Pages() {
             )}
             {displayedPage === "dark_world" && scenes && (
                 <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />
-            )}
-        </div>
-    );
+            )} */
+
+    if (scenes)
+        switch (displayedPage) {
+            case "home":
+                return <Home />;
+            case "intro_prison":
+                return (
+                    <Player
+                        src="/videos/intro_prison.mov"
+                        onEnd={() => setPage("hub_1")}
+                        subs={IntroPrisonSubs}
+                    />
+                );
+            case "hub_0":
+                return <SceneManager currentSceneIndex="hub_0" scene={scenes["hub_0"]} />;
+            case "hub_1":
+                return <SceneManager currentSceneIndex="hub_1" scene={scenes["hub_1"]} />;
+            case "dream_3":
+                return <SceneManager currentSceneIndex="dream_3" scene={scenes["dream_3"]} />;
+            case "hub_2":
+                return <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />;
+            case "falling":
+                return (
+                    <Player
+                        src="/videos/intro_prison.mp4"
+                        onEnd={() => setPage("hub_1")}
+                        subs={IntroPrisonSubs}
+                    />
+                );
+            case "dark_world":
+                return <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />;
+            case "end":
+                return (
+                    <Player
+                        src="/videos/intro_prison.mp4"
+                        onEnd={() => setPage("hub_1")}
+                        subs={IntroPrisonSubs}
+                    />
+                );
+            default:
+                return <></>;
+        }
 }

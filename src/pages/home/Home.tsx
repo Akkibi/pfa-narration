@@ -4,11 +4,7 @@ import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { Scenes } from "../../components/contexts/TransitionManager";
 
-type HomeProps = {
-    changePage: (page: Scenes) => void;
-};
-
-export default function Home({ changePage }: HomeProps) {
+export default function Home() {
     const [isCredits, setIsCredits] = useState(false);
 
     useEffect(() => {
@@ -63,7 +59,8 @@ export default function Home({ changePage }: HomeProps) {
                             <button
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    changePage("intro_prison");
+                                    // setPage("intro_prison");
+                                    eventEmitterInstance.trigger("scene-change", ["intro_prison"]);
                                 }}
                                 className="button"
                             >

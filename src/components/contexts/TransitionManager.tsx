@@ -1,4 +1,6 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import { createContext, ReactNode, useContext, useRef, useState } from "react";
+import gsap from "gsap";
 
 export type Scenes =
     | "home"
@@ -13,43 +15,47 @@ export type Scenes =
 
 type TransitionContextProps = {
     displayedPage: Scenes;
-    isFadingOut: boolean;
-    changePage: (page: Scenes) => void;
-    handleTransitionEnd: () => void;
+    // changePage: (page: Scenes) => void;
+    setPage: (page: Scenes) => void;
 };
 
 const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
-    const [currentPage, setCurrentPage] = useState<Scenes>("home");
+    const fadeRef = useRef<HTMLDivElement>(null);
     const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
-    const [isFadingOut, setIsFadingOut] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [page, setPage] = useState<Scenes>("home");
 
-    const changePage = (newPage: Scenes) => {
-        if (newPage === currentPage || isFadingOut) return; // Prevent change if fading out.
-        setIsFadingOut(true); // Trigger fade-out
-        setCurrentPage(newPage);
-        setIsLoading(true);
-    };
-
-    const handleTransitionEnd = () => {
-        console.log("handleTransitionEnd");
-        if (isFadingOut) {
-            setDisplayedPage(currentPage); // Set new page after fading out
-            setIsFadingOut(false);
-        }
-    };
+    useGSAP(() => {
+        if (!fadeRef.current || page === "home") return;
+        console.log("scene transition to :", page);
+        const tl = gsap.timeline({ paused: true });
+        tl.to(fadeRef.current, {
+            duration: 0.5,
+            opacity: 1,
+            ease: "power1.inOut",
+            onComplete: () => {
+                setDisplayedPage(page);
+            },
+            overwrite: true,
+        }).to(fadeRef.current, {
+            duration: 0.5,
+            opacity: 0,
+            ease: "power1.inOut",
+        });
+        tl.progress(0).play();
+    }, [page]);
 
     return (
         <TransitionContext.Provider
             value={{
                 displayedPage,
-                isFadingOut,
-                changePage,
-                handleTransitionEnd,
+                setPage,
             }}
         >
+            <div id="fade" ref={fadeRef}>
+                fade
+            </div>
             {children}
         </TransitionContext.Provider>
     );
