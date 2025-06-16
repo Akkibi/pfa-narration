@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { eventEmitterInstance } from "../utils/eventEmitter";
-import { TransitionManager } from "../utils/transitionManager";
 import { Scene1 } from "../game/scenes/Scene1";
 import { Scene2 } from "../game/scenes/Scene2";
 import { Scene3 } from "../game/scenes/Scene3";
@@ -20,6 +19,7 @@ type SceneManagerProps = {
 
 export default function SceneManager({ currentSceneIndex, scene }: SceneManagerProps) {
     const mountRef = useRef<HTMLDivElement>(null);
+    const animRef = useRef<number>(null);
 
     gameState.currentScene = currentSceneIndex;
     useEffect(() => {
@@ -35,16 +35,6 @@ export default function SceneManager({ currentSceneIndex, scene }: SceneManagerP
         renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current.appendChild(renderer.domElement);
-        // Create scenes
-
-        // Create transition manager
-        const transitionManager = new TransitionManager();
-
-        // // Load transition texture
-        // transitionManager
-        //     .loadTransitionTexture("./gradient.png")
-        //     .then(() => console.log("Transition texture loaded"))
-        //     .catch((err) => console.error("Failed to load transition texture:", err));
 
         // Time tracking
         let lastTime = Date.now();
@@ -74,7 +64,7 @@ export default function SceneManager({ currentSceneIndex, scene }: SceneManagerP
                 stats.end();
             }
 
-            requestAnimationFrame(() => animate(tick + 1));
+            animRef.current = requestAnimationFrame(() => animate(tick + 1));
         };
 
         // Start animation loop
@@ -90,11 +80,10 @@ export default function SceneManager({ currentSceneIndex, scene }: SceneManagerP
 
         // Cleanup
         return () => {
+            console.log("EXIT", currentSceneIndex);
             window.removeEventListener("resize", handleResize);
-            // window.location.reload();
-            // eventEmitterInstance.off("nextScene");
-            transitionManager.dispose();
             renderer.dispose();
+            if (animRef.current) cancelAnimationFrame(animRef.current);
             mountRef.current?.removeChild(renderer.domElement);
         };
     }, []);

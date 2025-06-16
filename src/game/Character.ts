@@ -224,7 +224,6 @@ export class Character {
                 (20 / 0.11) * Math.abs(this.speed.x + this.speed.y) - 20,
             ]);
             this.setPosition(newPos, this.updateRotation());
-            console.log(`position-${this.id}`, newPos);
             this.updatePositionParticles();
         }
     }

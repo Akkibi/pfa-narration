@@ -46,13 +46,13 @@ export class Scene1 extends BaseScene {
             {
                 position: new THREE.Vector3(3, -0.99, 2),
                 userData: {
-                    to: 3,
+                    to: "hub_2",
                 },
             },
             {
                 position: new THREE.Vector3(2, -0.99, 1),
                 userData: {
-                    from: 3,
+                    from: "hub_2",
                 },
             },
         ]);

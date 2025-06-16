@@ -22,7 +22,7 @@ export default function Pages() {
             hub_1: new Scene1(),
             dream_3: new Scene2(),
             hub_2: new Scene3(),
-            dark_world: new Scene1(),
+            // dark_world: new Scene1(),
         };
 
         setScenes(loaded_scenes);
@@ -49,15 +49,21 @@ export default function Pages() {
             {displayedPage === "intro_prison" && (
                 <Player src="/videos/intro_prison.mov" onEnd={() => changePage("hub_1")} />
             )}
-            {displayedPage === "hub_1" && (
+            {displayedPage === "hub_1" && scenes && (
                 <SceneManager currentSceneIndex="hub_1" scene={scenes["hub_1"]} />
             )}
-            {displayedPage === "dream_3" && <SceneManager currentSceneIndex="dream_3" />}
-            {displayedPage === "hub_2" && <SceneManager currentSceneIndex="hub_2" />}
+            {displayedPage === "dream_3" && scenes && (
+                <SceneManager currentSceneIndex="dream_3" scene={scenes["dream_3"]} />
+            )}
+            {displayedPage === "hub_2" && scenes && (
+                <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />
+            )}
             {displayedPage === "falling" && (
                 <Player src="/videos/intro_prison.mp4" onEnd={() => changePage("hub_1")} />
             )}
-            {displayedPage === "dark_world" && <SceneManager currentSceneIndex="hub_1" />}
+            {displayedPage === "dark_world" && scenes && (
+                <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />
+            )}
         </div>
     );
 }
