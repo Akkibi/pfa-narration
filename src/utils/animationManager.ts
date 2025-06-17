@@ -37,7 +37,6 @@ class Animation {
     };
 
     public set = async (animData: AnimationType) => {
-        console.log("set animData");
         const loop = [];
 
         if (animData && animData.length > 0) {
