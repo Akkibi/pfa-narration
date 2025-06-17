@@ -1,6 +1,7 @@
 import { useGSAP } from "@gsap/react";
 import { createContext, ReactNode, useContext, useRef, useState } from "react";
 import gsap from "gsap";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 export type Scenes =
     | "home"
@@ -11,7 +12,8 @@ export type Scenes =
     | "hub_2"
     | "falling"
     | "dark_world"
-    | "end";
+    | "end"
+    | "test";
 
 type TransitionContextProps = {
     displayedPage: Scenes;
@@ -36,6 +38,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             ease: "power1.inOut",
             onComplete: () => {
                 setDisplayedPage(page);
+                eventEmitterInstance.trigger(`toggleFreeze`, [false]);
             },
             overwrite: true,
         }).to(fadeRef.current, {

@@ -16,6 +16,7 @@ export class Game {
     private fps = 70;
     private interval = 1000 / this.fps;
     private currentScene: GameScenes;
+    private tick = 0;
 
     private constructor(sceneIndex: Scenes, scene: GameScenes) {
         this.sceneIndex = sceneIndex;
@@ -83,8 +84,8 @@ export class Game {
 
         if (deltaTime >= this.interval) {
             this.stats.begin();
-
-            eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`);
+            this.tick++;
+            eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`, [this.tick]);
             const camera = this.currentScene.camera;
             if (camera !== null) {
                 this.renderer.render(this.currentScene.instance, camera.camera);
