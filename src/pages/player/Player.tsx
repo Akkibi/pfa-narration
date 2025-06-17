@@ -7,9 +7,11 @@ type PlayerProps = {
     src: string;
     onEnd: () => void;
     subs: Subtitle[];
+    sounds: string[];
+    soundTrack?: boolean;
 };
 
-export default function Player({ src, onEnd, subs }: PlayerProps) {
+export default function Player({ src, onEnd, subs, sounds, soundTrack = false }: PlayerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -20,7 +22,10 @@ export default function Player({ src, onEnd, subs }: PlayerProps) {
             };
         }
 
-        eventEmitterInstance.trigger("toggleSoundtrack");
+        sounds.forEach((sound) => {
+            eventEmitterInstance.trigger("playSound", [sound]);
+        });
+        if (!soundTrack) eventEmitterInstance.trigger("toggleSoundtrack");
         eventEmitterInstance.trigger("triggerSubs", [subs]);
     }, [videoRef]);
 

@@ -55,6 +55,85 @@
     /* Stay centered horizontally when sliding into view */
 }
 
+/* object */
+
+#object {
+    .object-container {
+        position: fixed;
+        z-index: 30;
+        width: 80%;
+        height: 40vh;
+        bottom: 3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: all 0.5s ease-out;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 0 5vw;
+        /* clip-path : polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); */
+        /* clip-path: ellipse(100% 200% at 20% 50%);
+    opacity: 1; */
+        mask-mode: luminance;
+        -webkit-mask-image: url("/dialog-transition-mask.png");
+        mask-image: url("/dialog-transition-mask.png");
+        /* -webkit-mask-position: 0% 20%;
+    mask-position: 0% 20%; */
+        -webkit-mask-size: 100% 3100%;
+        mask-size: 100% 3100%;
+        -webkit-animation: mask-play 0.5s steps(30) forwards;
+        animation: mask-play 0.5s steps(30) forwards;
+        -webkit-mask-position: 0 0%;
+        mask-position: 0 0%;
+        font-family: Cadiz;
+        /* background-color: red; */
+    }
+
+
+    .cliped {
+        -webkit-animation: mask-reverse 0.5s steps(30) forwards;
+        animation: mask-reverse 0.5s steps(30) forwards;
+        user-select: none;
+        pointer-events: none;
+        /* -webkit-mask-position: 0% 0%;
+        mask-position: 0% 0%; */
+        /* opacity: 0;
+        clip-path : polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
+        clip-path: ellipse(0% 0% at 20% 50%); */
+    }
+
+    .object-text-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        background: url("/object-background.png");
+        background-size: 100% 100%;
+    }
+
+    .object-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: fit-content;
+        width: 60%;
+    }
+
+    .object-line-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: fit-content;
+        bottom: 0;
+    }
+}
+
 /* dialog */
 
 #dialog {
@@ -109,42 +188,6 @@
     }
 
 
-
-    .line-wrapper {
-        margin-top: 6vh;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: fit-content;
-        bottom: 0;
-    }
-
-    .line {
-        color: white;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .line-name {
-        color: white;
-        width: fit-content;
-        height: fit-content;
-        font-size: 1.4rem;
-        font-weight: 900;
-    }
-
-    .line-text {
-        font-family: 'Cadiz';
-        font-weight: normal;
-        font-style: normal;
-
-        height: fit-content;
-        padding: 0.25rem 0rem;
-        opacity: 0.6;
-        line-height: 1.4rem;
-        font-size: 1.2rem;
-    }
 
     .dialog-text-container {
         height: 100%;
@@ -277,6 +320,41 @@
     }
 }
 
+.line-wrapper {
+    margin-top: 6vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    bottom: 0;
+}
+
+.line {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.line-name {
+    color: white;
+    width: fit-content;
+    height: fit-content;
+    font-size: 1.4rem;
+    font-weight: 900;
+}
+
+.line-text {
+    font-family: 'Cadiz';
+    font-weight: normal;
+    font-style: normal;
+
+    height: fit-content;
+    padding: 0.25rem 0rem;
+    opacity: 0.6;
+    line-height: 1.4rem;
+    font-size: 1.2rem;
+}
 
 @-webkit-keyframes mask-play {
     from {

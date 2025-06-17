@@ -1,5 +1,3 @@
-import { start } from "tone";
-
 export interface DialogsDataType {
     [key: string]: DialogDataType;
 }
@@ -12,6 +10,7 @@ export interface DialogDataType {
         [key: string]: {
             text: string;
             audio?: string;
+            duration?: number;
             options?: Array<{
                 text: string;
                 to: string;
@@ -23,21 +22,6 @@ export interface DialogDataType {
 }
 
 export const dialogData: DialogsDataType = {
-    // intro_prison: {
-    //     name: "Intro Prison",
-    //     done: false,
-    //     dialogs: {
-    //         start: {
-    //             text: "",
-    //             isCharlie: false,
-    //             next: "A",
-    //         },
-    //         A: {
-    //             text: "",
-
-    //         },
-    //     },
-    // },
     capitaine: {
         name: "Capitaine",
         done: false,
@@ -45,7 +29,9 @@ export const dialogData: DialogsDataType = {
         dialogs: {
             start: {
                 isCharlie: false,
-                text: "On débarque, on dépose la cargaison et on repart. T'as fait le taff donc pas d'histoires entre nous. Mais l'océan lave pas tout gamin. On revient dans 6 mois. A toi de voir si tu veux rembarquer.",
+                text: "On débarque, on dépose la cargaison et on repart. T'as fait le taff donc pas d'histoires entre nous. Mais l'océan lave pas tout gamin. On revient dans 6 mois. À toi de voir si tu veux rembarquer.",
+                audio: "capitain_00",
+                duration: 11,
                 options: [
                     {
                         text: "J'compte pas rentrer",
@@ -59,21 +45,29 @@ export const dialogData: DialogsDataType = {
             },
             A: {
                 isCharlie: true,
-                text: "J'compte pas rentrer Et le texte ne s'arette pas là",
+                text: "J'compte pas rentrer. Plus rien m'attend sur l'continent.",
                 next: "C",
+                audio: "capitain_01_A",
+                duration: 3,
             },
             B: {
                 isCharlie: true,
-                text: "J'm'en souviendrai Et le texte ne s'arette pas là",
+                text: "J'm'en souviendrai. Avoir une porte de sortie, ça fait jamais d'mal.",
                 next: "D",
+                audio: "capitain_01_B",
+                duration: 4,
             },
             C: {
                 isCharlie: false,
                 text: "Y a qu'les imbéciles pour être aussi sûrs d'eux. Et t'es pas un imbécile Charlie alors réfléchis bien à c'que tu veux.",
+                audio: "capitain_02_A",
+                duration: 7,
             },
             D: {
                 isCharlie: false,
                 text: "Alors p'têtre qu'on s'reverra, gamin.",
+                audio: "capitain_02_B",
+                duration: 2,
             },
         },
     },

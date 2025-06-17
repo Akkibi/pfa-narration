@@ -218,10 +218,10 @@ export class Character {
             const newPos: THREE.Vector2 = new THREE.Vector2().copy(
                 this.checkPosRecursive(this.position, this.speed, 0),
             );
-            eventEmitterInstance.trigger("playSound", [
-                "walking",
-                (20 / 0.11) * Math.abs(this.speed.x + this.speed.y) - 20,
-            ]);
+            // eventEmitterInstance.trigger("playSound", [
+            //     "walking",
+            //     (20 / 0.11) * Math.abs(this.speed.x + this.speed.y) - 20,
+            // ]);
             this.setPosition(newPos, this.updateRotation());
             this.updatePositionParticles();
         }

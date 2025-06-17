@@ -73,6 +73,7 @@
     bottom: 40px;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 10;
 
     animation-name: appearOpacity;
     animation-duration: 500ms;
@@ -91,9 +92,25 @@
     }
 }
 
+.subtitles-line-text {
+    font-family: 'Cadiz';
+    font-weight: normal;
+    font-style: normal;
+
+    height: fit-content;
+    padding: 0.25rem 0rem;
+    opacity: 0.6;
+    line-height: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+    -webkit-text-fill-color: white;
+    -webkit-text-stroke: 1px black;
+}
+
 .letter {
     opacity: 0;
     animation-name: appearOpacity;
     animation-duration: 500ms;
     animation-fill-mode: forwards;
+
 }

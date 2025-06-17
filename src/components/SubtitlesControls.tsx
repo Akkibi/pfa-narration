@@ -13,8 +13,10 @@ export default function SubtitlesControls() {
     }, []);
 
     useEffect(() => {
-        if (subs.length > 0) {
+        if (subs && subs.length > 0) {
             playSub(0);
+        } else {
+            console.warn("No subtitles loaded");
         }
     }, [subs]);
 
@@ -25,19 +27,28 @@ export default function SubtitlesControls() {
 
     const playSub = (index: number) => {
         if (index < subs.length) {
-            setCurrentLine(subs[index]);
-            const delay = subs[index].duration
-                ? (subs[index].duration * 1000) / subs[index].text.length
+            const currentSub = subs[index];
+            const delay = currentSub.duration
+                ? (currentSub.duration * 1000) / currentSub.text.length
                 : 500;
             setAnimationDelay(delay);
-            eventEmitterInstance.trigger("playSound", [subs[index].audio]);
-            if (subs[index].duration)
-                setTimeout(
-                    () => {
-                        playSub(index + 1);
-                    },
-                    subs[index].duration * 1000 + 1500,
-                );
+
+            // If there's a startDelay property, wait before showing the subtitle
+            const startDelay = currentSub.delay ? currentSub.delay * 1000 : 0;
+
+            setTimeout(() => {
+                setCurrentLine(currentSub);
+                eventEmitterInstance.trigger("playSound", [currentSub.audio]);
+
+                if (currentSub.duration) {
+                    setTimeout(
+                        () => {
+                            playSub(index + 1);
+                        },
+                        currentSub.duration * 1000 + 1500,
+                    );
+                }
+            }, startDelay);
         } else {
             setCurrentLine(null);
         }
@@ -45,7 +56,7 @@ export default function SubtitlesControls() {
 
     return (
         <div className="subtitles-container">
-            <p className="line-text">
+            <p className="subtitles-line-text">
                 {currentLine && currentLine.name}{" "}
                 {currentLine &&
                     currentLine.text.split("").map((letter, index) => {

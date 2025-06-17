@@ -8,7 +8,7 @@ import SceneManager from "../components/SceneManager";
 import { Test } from "../game/scenes/test";
 import { Souvenir } from "../game/scenes/souvenir";
 import { Hub2 } from "../game/scenes/hub2";
-import { IntroPrisonSubs } from "../data/subsData";
+import { Hub0Subs, IntroPrisonSubs } from "../data/subsData";
 import { Hub } from "../game/scenes/hub";
 
 interface SceneListType {
@@ -91,14 +91,27 @@ export default function Pages() {
                         src="/videos/intro_prison.mov"
                         onEnd={() => setPage("hub_1")}
                         subs={IntroPrisonSubs}
+                        sounds={["closing_door", "ambient_prison"]}
                     />
                 );
             case "test":
                 return <SceneManager currentSceneIndex="test" scene={scenes["test"]} />;
             case "hub_0":
-                return <SceneManager currentSceneIndex="hub_0" scene={scenes["hub_0"]} />;
+                return (
+                    <SceneManager
+                        currentSceneIndex="hub_0"
+                        scene={scenes["hub_0"]}
+                        subs={Hub0Subs}
+                    />
+                );
             case "hub_1":
-                return <SceneManager currentSceneIndex="hub_1" scene={scenes["hub_1"]} />;
+                return (
+                    <SceneManager
+                        currentSceneIndex="hub_1"
+                        scene={scenes["hub_1"]}
+                        subs={Hub0Subs}
+                    />
+                );
             case "dream_3":
                 return <SceneManager currentSceneIndex="dream_3" scene={scenes["dream_3"]} />;
             case "hub_2":
