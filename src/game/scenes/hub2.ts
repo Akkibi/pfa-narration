@@ -24,9 +24,21 @@ export class Hub2 extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(1, 0, 1),
+                position: new THREE.Vector3(1, -0.1, 1),
                 userData: {
                     from: "hub_1",
+                },
+            },
+            {
+                position: new THREE.Vector3(1, -0.1, 1),
+                userData: {
+                    from: "hub_0",
+                },
+            },
+            {
+                position: new THREE.Vector3(1.5, -0.1, 1),
+                userData: {
+                    to: "hub_0",
                 },
             },
         ]);
@@ -86,8 +98,8 @@ export class Hub2 extends BaseScene {
                         .clone()
                         .add(
                             new THREE.Vector3(
-                                Math.sin(tick / 200 + number) * 0.5,
-                                Math.cos(tick / 200 + number + 173) * 0.5,
+                                Math.sin(tick / 125 + number) * 0.5,
+                                Math.cos(tick / 125 + number + 173) * 0.5,
                                 0,
                             ),
                         ),
