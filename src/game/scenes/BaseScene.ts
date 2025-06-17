@@ -103,7 +103,7 @@ export default class BaseScene {
     private sceneChange(position: THREE.Vector3) {
         if (gameState.freezed === true) return;
         this.spawnArray?.forEach((spawn) => {
-            if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
+            if (position.distanceTo(spawn.position) < 0.5 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
                 eventEmitterInstance.trigger("scene-change-game", [
                     spawn.userData.to,

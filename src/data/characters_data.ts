@@ -14,7 +14,7 @@ export type CharacterDataType = {
 export const charactersData: CharactersDataType = {
     capitaine: {
         sceneId: "dream_3",
-        position: new THREE.Vector3(21, 6, 7),
+        position: new THREE.Vector3(23, 6, 5),
         targetPosition: new THREE.Vector3(-1, 0, -1),
     },
     talua: {
