@@ -85,7 +85,10 @@ export class Game {
         if (deltaTime >= this.interval) {
             this.stats.begin();
             this.tick++;
-            eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`, [this.tick]);
+            eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`, [
+                this.tick,
+                deltaTime,
+            ]);
             const camera = this.currentScene.camera;
             if (camera !== null) {
                 this.renderer.render(this.currentScene.instance, camera.camera);

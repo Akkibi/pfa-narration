@@ -7,15 +7,10 @@ import SubtitlesControls from "./components/SubtitlesControls";
 function App() {
     return (
         <TransitionProvider>
-            <>
-                {/* z-index:  */}
-                <AudioControls />
-
-                <SubtitlesControls />
-                {/* z-index: 100 */}
-                <UiElements />
-                <Pages />
-            </>
+            <AudioControls />
+            <SubtitlesControls />
+            <UiElements />
+            <Pages />
         </TransitionProvider>
     );
 }
