@@ -17,7 +17,7 @@ export class Souvenir extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(7, 0, -3),
+                position: new THREE.Vector3(20, 9, 13),
                 userData: {
                     from: "test",
                 },
@@ -26,14 +26,14 @@ export class Souvenir extends BaseScene {
 
         this.generateZoomZones([
             {
-                position: new THREE.Vector3(10, 0, -5),
+                position: new THREE.Vector3(5, 0, -5),
                 userData: {
                     size: 5,
                     zoom: 0.5,
                 },
             },
             {
-                position: new THREE.Vector3(-30, 10, 5),
+                position: new THREE.Vector3(-50, 10, 10),
                 userData: {
                     size: 10,
                     zoom: 0.5,
@@ -67,7 +67,7 @@ export class Souvenir extends BaseScene {
                 console.log(this.gltfModel);
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.gltfModel) {
-                    this.gltfModel.position.set(10, 0, -3);
+                    this.gltfModel.position.set(5, 0, -3);
                     this.gltfModel.scale.set(1, 1, 1);
                     this.gltfModel.rotation.set(0, Math.PI, 0);
                 }
@@ -87,7 +87,7 @@ export class Souvenir extends BaseScene {
                 this.instance.add(floor);
                 // Optionally, adjust the model's position, rotation, or scale
                 if (floor) {
-                    floor.position.set(10, 0, -3);
+                    floor.position.set(5, 0, -3);
                     floor.scale.set(1, 1, 1);
                     floor.rotation.set(0, Math.PI, 0);
                 }

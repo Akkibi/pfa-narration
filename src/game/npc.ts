@@ -53,7 +53,8 @@ class Npc {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
             loader.load(
-                `./characters/${this.name}.glb`,
+                // `./characters/${this.name}.glb`,
+                "./characters/character.glb",
                 (gltf: { scene: THREE.Group }) => {
                     const GLTFGroup = gltf.scene as THREE.Group;
                     this.instance.add(GLTFGroup);
