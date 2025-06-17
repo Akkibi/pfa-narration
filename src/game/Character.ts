@@ -57,7 +57,7 @@ export class Character {
         this.lastPosition = new THREE.Vector3(this.position.x, this.height, this.position.y);
         this.rotation = new THREE.Vector2(0, 0);
         this.targetRotation = 0;
-        this.maxGapSize = 0.25;
+        this.maxGapSize = 0.1;
         this.instance = new THREE.Group();
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
         gameState.freezed = false;
@@ -239,6 +239,7 @@ export class Character {
                 this.height + 0.01,
                 this.position.y,
             );
+
             eventEmitterInstance.trigger("trigger-particle", [
                 particlePosition,
                 speedRandomizer,

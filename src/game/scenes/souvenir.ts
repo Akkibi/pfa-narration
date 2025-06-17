@@ -11,7 +11,7 @@ export class Souvenir extends BaseScene {
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(-161, 10.3, 46.5),
+                position: new THREE.Vector3(-161, 11, 46.5),
                 userData: {
                     to: "hub_2",
                 },

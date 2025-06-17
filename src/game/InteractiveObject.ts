@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { InteractiveObjectType } from "../data/interactive_objects";
+import { InteractiveObjectType } from "../data/objectsData";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
 import { lerp } from "three/src/math/MathUtils.js";

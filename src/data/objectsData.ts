@@ -18,8 +18,8 @@ export type InteractiveObjectType = {
 export const InteractiveObjects: InteractiveObjectType[] = [
     {
         id: 1,
-        name: "object_1",
-        gltf_src: "./object_1.glb",
+        name: "susane",
+        gltf_src: "./susane.glb",
         position: new THREE.Vector3(-1, -0.8, 6),
         rotation: new THREE.Euler(0, Math.PI * 0.8, 0),
         scale: new THREE.Vector3(0.3, 0.3, 0.3),
@@ -45,5 +45,11 @@ export const InteractiveObjects: InteractiveObjectType[] = [
         activePosition: new THREE.Vector3(0, 1, -2),
         hiddenPosition: new THREE.Vector3(0, 4, 0),
         activeRotation: new THREE.Euler(0, Math.PI, 0),
+        subtitle: {
+            name: "object_00",
+            text: "Franchement, là j'dirai pas non à ptit verre. Mais faut que j'me tienne à carreau. Pas question d'retomber.",
+            audio: "object_00",
+            duration: 6,
+        },
     },
 ];
