@@ -4,20 +4,25 @@ import { Scene2 } from "../game/scenes/Scene2";
 import { Scene3 } from "../game/scenes/Scene3";
 import { Scenes } from "./contexts/TransitionManager";
 import { Game } from "../game/game";
+import { Subtitle } from "../data/subsData";
+import { eventEmitterInstance } from "../utils/eventEmitter";
 
 export type GameScenes = Scene1 | Scene2 | Scene3;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
+    subs: Subtitle[];
 };
 
-export default function SceneManager({ currentSceneIndex, scene }: SceneManagerProps) {
+export default function SceneManager({ currentSceneIndex, scene, subs }: SceneManagerProps) {
     const mountRef = useRef<HTMLDivElement>(null);
     const game = Game.getInstance(currentSceneIndex, scene);
 
     useEffect(() => {
         if (!mountRef.current) return;
         game.start(mountRef.current);
+        console.log("subtitles", subs);
+        // eventEmitterInstance.trigger("triggerSubs", [subs]);
         return () => {
             game.cleanup();
         };
@@ -34,7 +39,7 @@ export default function SceneManager({ currentSceneIndex, scene }: SceneManagerP
     }, [scene, currentSceneIndex, game]);
 
     return (
-        <div className="scene-container">
+        <>
             <div className="scene" ref={mountRef}></div>
             <div
                 className="scene-info"
@@ -50,6 +55,6 @@ export default function SceneManager({ currentSceneIndex, scene }: SceneManagerP
             >
                 Current Scene: {currentSceneIndex}
             </div>
-        </div>
+        </>
     );
 }

@@ -13,7 +13,7 @@ export class InteractiveObject {
     public instance: THREE.Mesh;
     public activeInstance: THREE.Mesh;
     public position: THREE.Vector3;
-    private baseObject: InteractiveObjectType;
+    public baseObject: InteractiveObjectType;
     private rotation: THREE.Euler;
     private scale: THREE.Vector3;
     private is_active: boolean;
@@ -121,7 +121,7 @@ export class InteractiveObject {
             this.activeInstance.rotation.copy(this.baseObject.activeRotation);
             this.activeInstance.position.copy(starting_position);
             this.is_shown = true;
-            eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [this]);
+            eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [this.baseObject]);
         } else {
             console.error("InteractiveObject couldn't load.");
         }
