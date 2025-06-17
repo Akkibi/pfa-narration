@@ -39,6 +39,7 @@ export class Camera {
     }
 
     private changeZoom(isZoom: boolean, zoomAmount: number) {
+        console.log("changeZoom", isZoom, zoomAmount);
         if (isZoom) {
             this.zoomAmount = zoomAmount;
             this.targetZoomPosition.copy(

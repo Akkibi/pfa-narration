@@ -38,6 +38,13 @@ export class Hub extends BaseScene {
 
         this.generateZoomZones([
             {
+                position: new THREE.Vector3(0, 1, 0),
+                userData: {
+                    size: 0.5,
+                    zoom: 3,
+                },
+            },
+            {
                 position: new THREE.Vector3(0, 0, -5.5),
                 userData: {
                     size: 5,

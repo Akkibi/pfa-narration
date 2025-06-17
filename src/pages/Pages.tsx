@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
-import { Scenes, useTransitionContext } from "../components/contexts/TransitionManager";
+import { useEffect, useRef, useState } from "react";
+import {
+    Scenes,
+    ScenesSequence,
+    useTransitionContext,
+} from "../components/contexts/TransitionManager";
 import Home from "./home/Home";
 import Player from "./player/Player";
 import "./style.css";
@@ -18,6 +22,7 @@ interface SceneListType {
 export default function Pages() {
     const [scenes, setScenes] = useState<SceneListType>();
     const { setPage, displayedPage } = useTransitionContext();
+    const displayedPageRef = useRef(useTransitionContext().displayedPage);
 
     useEffect(() => {
         const loaded_scenes: SceneListType = {
@@ -33,53 +38,49 @@ export default function Pages() {
 
     useEffect(() => {
         console.log("displayedPage", displayedPage);
+        displayedPageRef.current = displayedPage;
     }, [displayedPage]);
 
     useEffect(() => {
         const handleSkip = (key: KeyboardEvent) => {
             if (key.key === "$") {
                 setPage("test");
+            } else if (key.key === "[") {
+                const currentIndex = ScenesSequence.findIndex(
+                    (scene) => scene === displayedPageRef.current,
+                );
+                if (currentIndex !== -1 && currentIndex < ScenesSequence.length - 1) {
+                    console.log(ScenesSequence[currentIndex + 1], ScenesSequence[currentIndex]);
+                    setPage(ScenesSequence[currentIndex + 1]);
+                    eventEmitterInstance.trigger(`zoom-${ScenesSequence[currentIndex + 1]}`, [
+                        true,
+                        4,
+                    ]);
+                    eventEmitterInstance.trigger("scene-change-game", [
+                        ScenesSequence[currentIndex + 1],
+                        ScenesSequence[currentIndex],
+                    ]);
+                }
             }
         };
-        const sceneChangeHandler = (sceneId: Scenes) => {
-            setPage(sceneId);
-            console.log("changeSceneIndex", sceneId);
+        const sceneChangeHandler = (to: Scenes) => {
+            setPage(to);
+            console.log("changeSceneIndex", to);
         };
 
         document.addEventListener("keydown", handleSkip);
-        eventEmitterInstance.on("scene-change", sceneChangeHandler);
+        eventEmitterInstance.on("scene-change-ui", sceneChangeHandler);
 
         return () => {
             document.removeEventListener("keydown", handleSkip);
         };
     }, [setPage]);
 
-    /* {displayedPage === "home" && <Home changePage={changePage} />}
-            {displayedPage === "intro_prison" && (
-                <Player
-                    src="/videos/intro_prison.mov"
-                    onEnd={() => changePage("hub_1")}
-                    subs={IntroPrisonSubs}
-                />
-            )}
-            {displayedPage === "hub_0" && scenes && (
-                <SceneManager currentSceneIndex="hub_0" scene={scenes["hub_0"]} />
-            )}
-            {displayedPage === "hub_1" && scenes && (
-                <SceneManager currentSceneIndex="hub_1" scene={scenes["hub_1"]} />
-            )}
-            {displayedPage === "dream_3" && scenes && (
-                <SceneManager currentSceneIndex="dream_3" scene={scenes["dream_3"]} />
-            )}
-            {displayedPage === "hub_2" && scenes && (
-                <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />
-            )}
-            {displayedPage === "falling" && (
-                <Player src="/videos/intro_prison.mp4" onEnd={() => changePage("hub_1")} />
-            )}
-            {displayedPage === "dark_world" && scenes && (
-                <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />
-            )} */
+    const changePageToGame = (to: Scenes, from: Scenes) => {
+        eventEmitterInstance.trigger("scene-change-game", [to, from]);
+        eventEmitterInstance.trigger(`zoom-${to}`, [true, 4]);
+        setPage(to);
+    };
 
     if (scenes)
         switch (displayedPage) {
@@ -88,8 +89,8 @@ export default function Pages() {
             case "intro_prison":
                 return (
                     <Player
-                        src="/videos/intro_prison.mov"
-                        onEnd={() => setPage("hub_1")}
+                        src="/videos/intro_prison.webm"
+                        onEnd={() => changePageToGame("hub_0", "intro_prison")}
                         subs={IntroPrisonSubs}
                         sounds={["closing_door", "ambient_prison"]}
                     />

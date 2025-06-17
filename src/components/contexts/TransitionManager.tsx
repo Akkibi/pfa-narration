@@ -3,6 +3,19 @@ import { createContext, ReactNode, useContext, useRef, useState } from "react";
 import gsap from "gsap";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 
+export const ScenesSequence: Scenes[] = [
+    "home",
+    "intro_prison",
+    "hub_0",
+    "hub_1",
+    "dream_3",
+    "hub_2",
+    "falling",
+    "dark_world",
+    "end",
+    "test",
+];
+
 export type Scenes =
     | "home"
     | "intro_prison"
