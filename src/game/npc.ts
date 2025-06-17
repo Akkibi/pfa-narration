@@ -30,7 +30,7 @@ class Npc {
             this.position.clone().add(charactersData[this.name].targetPosition),
         );
         this.characterPositionTarget = new THREE.Vector3().copy(this.characterPositionTransition);
-        this.characterPosition = new THREE.Vector3(0, 0, 0);
+        this.characterPosition = this.position.clone().add(new THREE.Vector3(1, 0, 1));
 
         this.instance.position.copy(this.position);
         // console.log("this.characterPositionTransition",charactersData[this.name].targetPosition, this.position, new THREE.Vector3(this.position.add(charactersData[this.name].targetPosition));
@@ -70,7 +70,9 @@ class Npc {
     }
 
     private isCharacterInInteractiveArea(pos: THREE.Vector3) {
-        this.characterPosition.copy(pos);
+        const characterPosition = new THREE.Vector3().copy(pos.clone());
+        this.characterPosition.x = characterPosition.x;
+        this.characterPosition.z = characterPosition.z;
         const distance = pos.distanceTo(this.position);
         if (distance < this.interactionDistance !== this.isActive) {
             eventEmitterInstance.trigger(`showInteractiveObjectControls`, [
@@ -90,7 +92,7 @@ class Npc {
                 this.characterPositionTransition = lerpVector3(
                     this.characterPositionTransition,
                     this.characterPosition,
-                    0.05,
+                    0.03,
                 );
                 this.instance.lookAt(this.characterPositionTransition);
             }
@@ -99,7 +101,7 @@ class Npc {
                 this.characterPositionTransition = lerpVector3(
                     this.characterPositionTransition,
                     this.characterPositionTarget,
-                    0.05,
+                    0.03,
                 );
                 this.instance.lookAt(this.characterPositionTransition);
             }

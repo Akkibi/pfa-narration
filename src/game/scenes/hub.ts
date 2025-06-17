@@ -11,19 +11,25 @@ export class Hub extends BaseScene {
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(6, 0, -3),
+                position: new THREE.Vector3(-4, 0, -0.5),
                 userData: {
                     to: "hub_2",
                 },
             },
             {
-                position: new THREE.Vector3(0, 3, 0),
+                position: new THREE.Vector3(-3.5, 0, -0.5),
+                userData: {
+                    from: "hub_2",
+                },
+            },
+            {
+                position: new THREE.Vector3(0, 1, 0),
                 userData: {
                     from: "intro_prison",
                 },
             },
             {
-                position: new THREE.Vector3(1, 3, 0),
+                position: new THREE.Vector3(0, 1, 0),
                 userData: {
                     from: "test",
                 },
@@ -32,16 +38,9 @@ export class Hub extends BaseScene {
 
         this.generateZoomZones([
             {
-                position: new THREE.Vector3(10, 0, -5),
+                position: new THREE.Vector3(0, 0, -5.5),
                 userData: {
                     size: 5,
-                    zoom: 0.5,
-                },
-            },
-            {
-                position: new THREE.Vector3(-30, 10, 5),
-                userData: {
-                    size: 10,
                     zoom: 0.5,
                 },
             },
@@ -63,9 +62,9 @@ export class Hub extends BaseScene {
                 console.log(this.gltfModel);
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.gltfModel) {
-                    this.gltfModel.position.set(10, 0, -3);
-                    this.gltfModel.scale.set(1, 1, 1);
-                    this.gltfModel.rotation.set(0, Math.PI, 0);
+                    this.gltfModel.position.set(0, 0, 0);
+                    this.gltfModel.scale.set(3, 3, 3);
+                    this.gltfModel.rotation.set(0, -Math.PI / 2, 0);
                 }
             },
             undefined,
@@ -83,9 +82,9 @@ export class Hub extends BaseScene {
                 this.instance.add(floor);
                 // Optionally, adjust the model's position, rotation, or scale
                 if (floor) {
-                    floor.position.set(10, 0, -3);
-                    floor.scale.set(1, 1, 1);
-                    floor.rotation.set(0, Math.PI, 0);
+                    floor.position.set(0, 0, 0);
+                    floor.scale.set(3, 3, 3);
+                    floor.rotation.set(0, -Math.PI / 2 + 0.1, 0);
                 }
                 this.createFloor(floor);
             },
