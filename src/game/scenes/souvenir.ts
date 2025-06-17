@@ -11,15 +11,21 @@ export class Souvenir extends BaseScene {
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(6, 0, -3),
+                position: new THREE.Vector3(-161, 10.3, 46.5),
                 userData: {
-                    to: "test",
+                    to: "hub_2",
                 },
             },
             {
                 position: new THREE.Vector3(20, 9, 13),
                 userData: {
                     from: "test",
+                },
+            },
+            {
+                position: new THREE.Vector3(20, 9, 13),
+                userData: {
+                    from: "hub_2",
                 },
             },
         ]);
@@ -33,10 +39,17 @@ export class Souvenir extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(-50, 10, 10),
+                position: new THREE.Vector3(-120, 7, 20),
                 userData: {
-                    size: 10,
-                    zoom: 0.5,
+                    size: 15,
+                    zoom: 0.1,
+                },
+            },
+            {
+                position: new THREE.Vector3(-92, 12, 5),
+                userData: {
+                    size: 5,
+                    zoom: 0.3,
                 },
             },
         ]);
@@ -48,10 +61,10 @@ export class Souvenir extends BaseScene {
                 "./souvenir/backgrounds/3.png",
                 "./souvenir/backgrounds/4.png",
             ],
-            new THREE.Vector3(-50, 0, 0),
+            new THREE.Vector3(-50, 20, 0),
         );
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
     }
 

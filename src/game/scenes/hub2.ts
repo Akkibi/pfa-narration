@@ -2,37 +2,49 @@ import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
+import Animation from "../../utils/animationManager";
 
 interface FloatingElement {
     object: THREE.Object3D;
     number: number;
     startPosition: THREE.Vector3;
 }
+interface FlamesElement {
+    object: THREE.Mesh;
+    number: number;
+}
 
 export class Hub2 extends BaseScene {
     public spawnArray: THREE.PolarGridHelper[] = [];
     private gltfModel: THREE.Group | null = null;
     private floatingElements: FloatingElement[] = [];
+    private flames: FlamesElement[] = [];
     constructor() {
         super("hub_2");
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(6, 0, -3),
+                position: new THREE.Vector3(-68.5, 0, 5),
                 userData: {
-                    to: "hub_1",
+                    to: "dream_3",
                 },
             },
             {
-                position: new THREE.Vector3(1, -0.1, 1),
+                position: new THREE.Vector3(-68, 0, 4.5),
                 userData: {
-                    from: "hub_1",
+                    from: "dream_3",
                 },
             },
             {
                 position: new THREE.Vector3(1, -0.1, 1),
                 userData: {
                     from: "hub_0",
+                },
+            },
+            {
+                position: new THREE.Vector3(-65, -0.1, 1),
+                userData: {
+                    from: "test",
                 },
             },
             {
@@ -108,6 +120,47 @@ export class Hub2 extends BaseScene {
         }
     }
 
+    private generateFlames() {
+        this.flames.forEach((element: FlamesElement, index: number): void => {
+            const material = new THREE.MeshBasicMaterial({
+                transparent: true,
+                opacity: 1,
+            });
+            if (index > 1) {
+                element.object.scale.z = 1;
+            } else {
+                element.object.scale.z = -1;
+            }
+            element.object.material = material;
+            const anim = new Animation(material, this.scene_id);
+            const name =
+                index === 0
+                    ? "flamegreen"
+                    : index === 1
+                      ? "flamered"
+                      : index === 2
+                        ? "flamepurple"
+                        : "flameyellow";
+            anim.set([
+                `./full-hub/flames/${name}/1.png`,
+                `./full-hub/flames/${name}/2.png`,
+                `./full-hub/flames/${name}/3.png`,
+                `./full-hub/flames/${name}/4.png`,
+                `./full-hub/flames/${name}/5.png`,
+                `./full-hub/flames/${name}/6.png`,
+                `./full-hub/flames/${name}/7.png`,
+                `./full-hub/flames/${name}/8.png`,
+                `./full-hub/flames/${name}/9.png`,
+                `./full-hub/flames/${name}/10.png`,
+                `./full-hub/flames/${name}/11.png`,
+                `./full-hub/flames/${name}/12.png`,
+                `./full-hub/flames/${name}/13.png`,
+                `./full-hub/flames/${name}/14.png`,
+                `./full-hub/flames/${name}/15.png`,
+            ]);
+        });
+    }
+
     private loadGLTFModel(): void {
         const loader = new GLTFLoader();
 
@@ -133,6 +186,13 @@ export class Hub2 extends BaseScene {
                                 startPosition: child.position.clone(),
                             });
                         }
+                        if (child.name.startsWith("flame")) {
+                            this.flames.push({
+                                object: child as THREE.Mesh,
+                                number: Math.random() * 10,
+                            });
+                        }
+                        this.generateFlames();
                     });
                     console.log(this.floatingElements);
                 }

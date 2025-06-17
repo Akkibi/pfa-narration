@@ -73,7 +73,7 @@ export default class BaseScene {
         this.character.addAxesHelper(this.axesHelper);
     }
 
-    private updateSceneChange(sceneTo: Scenes, sceneFrom: number, speed: THREE.Vector2) {
+    private updateSceneChange(sceneTo: Scenes, sceneFrom: number, speed?: THREE.Vector2) {
         if (sceneTo !== this.scene_id) return;
         console.log("teleport");
         this.spawnArray?.forEach((spawn) => {
@@ -85,7 +85,7 @@ export default class BaseScene {
             ) {
                 this.character.setPosition(new THREE.Vector2(spawn.position.x, spawn.position.z));
                 this.character.setFloor();
-                this.character.speed.copy(speed);
+                if (speed !== undefined) this.character.speed.copy(speed);
                 this.character.heightSpeed = 0;
                 this.character.height = spawn.position.y;
                 this.character.currentPosition.copy(spawn.position);
@@ -104,7 +104,7 @@ export default class BaseScene {
     private sceneChange(position: THREE.Vector3) {
         if (gameState.freezed === true) return;
         this.spawnArray?.forEach((spawn) => {
-            if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
+            if (position.distanceTo(spawn.position) < 0.5 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
                 eventEmitterInstance.trigger("scene-change", [
                     spawn.userData.to,

@@ -46,7 +46,7 @@ export class Hub extends BaseScene {
             },
         ]);
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
     }
 
