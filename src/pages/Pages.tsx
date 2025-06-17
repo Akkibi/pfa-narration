@@ -5,13 +5,14 @@ import Player from "./player/Player";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import SceneManager from "../components/SceneManager";
-import { Scene1 } from "../game/scenes/Scene1";
-import { Scene2 } from "../game/scenes/Scene2";
-import { Scene3 } from "../game/scenes/Scene3";
+import { Test } from "../game/scenes/test";
+import { Souvenir } from "../game/scenes/souvenir";
+import { Hub2 } from "../game/scenes/hub2";
 import { Hub0Subs, IntroPrisonSubs } from "../data/subsData";
+import { Hub } from "../game/scenes/hub";
 
 interface SceneListType {
-    [key: string]: Scene1 | Scene2 | Scene3;
+    [key: string]: Hub | Test | Souvenir | Hub2;
 }
 
 export default function Pages() {
@@ -20,9 +21,10 @@ export default function Pages() {
 
     useEffect(() => {
         const loaded_scenes: SceneListType = {
-            hub_1: new Scene1(),
-            dream_3: new Scene2(),
-            hub_2: new Scene3(),
+            test: new Test(),
+            dream_3: new Souvenir(),
+            hub_2: new Hub2(),
+            hub_0: new Hub(),
             // dark_world: new Scene1(),
         };
 
@@ -36,7 +38,7 @@ export default function Pages() {
     useEffect(() => {
         const handleSkip = (key: KeyboardEvent) => {
             if (key.key === "$") {
-                setPage("hub_1");
+                setPage("test");
             }
         };
         const sceneChangeHandler = (sceneId: Scenes) => {
@@ -92,6 +94,8 @@ export default function Pages() {
                         sounds={["closing_door", "ambient_prison"]}
                     />
                 );
+            case "test":
+                return <SceneManager currentSceneIndex="test" scene={scenes["test"]} />;
             case "hub_0":
                 return (
                     <SceneManager

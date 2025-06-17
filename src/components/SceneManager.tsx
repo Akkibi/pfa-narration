@@ -1,13 +1,12 @@
 import { useEffect, useRef } from "react";
-import { Scene1 } from "../game/scenes/Scene1";
-import { Scene2 } from "../game/scenes/Scene2";
-import { Scene3 } from "../game/scenes/Scene3";
+import { Test } from "../game/scenes/test";
+import { Hub2 } from "../game/scenes/hub2";
 import { Scenes } from "./contexts/TransitionManager";
 import { Game } from "../game/game";
-import { Subtitle } from "../data/subsData";
-import { eventEmitterInstance } from "../utils/eventEmitter";
+import { Souvenir } from "../game/scenes/souvenir";
+import { Hub } from "../game/scenes/hub";
 
-export type GameScenes = Scene1 | Scene2 | Scene3;
+export type GameScenes = Hub | Test | Souvenir | Hub2;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
@@ -26,7 +25,7 @@ export default function SceneManager({ currentSceneIndex, scene, subs }: SceneMa
         return () => {
             game.cleanup();
         };
-    }, []);
+    }, [game]);
 
     useEffect(() => {
         if (!mountRef.current) return;

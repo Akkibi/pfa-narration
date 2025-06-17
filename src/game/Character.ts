@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Floor } from "./floor";
 import { loadGLTFModel } from "./CharacterModel";
 import { Scenes } from "../components/contexts/TransitionManager";
+import { gameState } from "./gameState";
 
 const CharacterVars = {
     height: 1,
@@ -37,7 +38,6 @@ export class Character {
     private isOnGround: boolean = true;
     private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number;
-    private isGameFreeze: boolean;
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
     constructor(id: Scenes, floor: Floor) {
@@ -60,7 +60,7 @@ export class Character {
         this.maxGapSize = 0.25;
         this.instance = new THREE.Group();
         this.lastSpeed = new THREE.Vector2(this.speed.x, this.speed.y);
-        this.isGameFreeze = false;
+        gameState.freezed = false;
 
         this.loadObject("./character.glb");
         this.instance.scale.set(0.2, 0.2, 0.2);
@@ -68,7 +68,7 @@ export class Character {
         this.update();
 
         eventEmitterInstance.on(`updateScene-${this.id}`, this.update.bind(this));
-        eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => (this.isGameFreeze = status));
+        eventEmitterInstance.on(`toggleFreeze`, (status: boolean) => (gameState.freezed = status));
     }
 
     private updateCharacterModelSmooth() {
@@ -129,7 +129,7 @@ export class Character {
     }
 
     private update() {
-        if (this.isGameFreeze === false) {
+        if (gameState.freezed === false) {
             let moveSpeedFactor = this.vars.moveSpeed;
             if (Controls.keys.run) {
                 moveSpeedFactor *= 2;

@@ -8,6 +8,7 @@ import { charactersData } from "../../data/characters_data";
 import Npc from "../npc";
 import { loadImage } from "../../utils/loadImage";
 import { Scenes } from "../../components/contexts/TransitionManager";
+import { gameState } from "../gameState";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -101,6 +102,7 @@ export default class BaseScene {
     }
 
     private sceneChange(position: THREE.Vector3) {
+        if (gameState.freezed === true) return;
         this.spawnArray?.forEach((spawn) => {
             if (position.distanceTo(spawn.position) < 0.25 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
@@ -109,6 +111,7 @@ export default class BaseScene {
                     this.scene_id,
                     this.character?.speed,
                 ]);
+                eventEmitterInstance.trigger(`toggleFreeze`, [true]);
             }
         });
     }
@@ -166,7 +169,8 @@ export default class BaseScene {
         }
     }
 
-    protected generateBackgroundMaps(backgroundMaps: string[]) {
+    protected generateBackgroundMaps(backgroundMaps: string[], position?: THREE.Vector3) {
+        const group = new THREE.Group();
         backgroundMaps.map((backgroundMap, index) => {
             loadImage(backgroundMap, (texture) => {
                 const plane = new THREE.PlaneGeometry(
@@ -188,8 +192,10 @@ export default class BaseScene {
                 mesh.scale.set(scale, scale, scale);
                 mesh.lookAt(new THREE.Vector3(0, 1, -5).add(mesh.position));
                 // console.log("backgrounds position", mesh.position);
-                this.instance.add(mesh);
+                group.add(mesh);
             });
         });
+        group.position.copy(position ?? new THREE.Vector3(0, 0, 0));
+        this.instance.add(group);
     }
 }
