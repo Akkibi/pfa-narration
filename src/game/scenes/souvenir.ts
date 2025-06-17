@@ -64,7 +64,7 @@ export class Souvenir extends BaseScene {
             new THREE.Vector3(-50, 20, 0),
         );
 
-        // this.loadGLTFModel();
+        this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
     }
 
