@@ -13,13 +13,13 @@ export type CharacterDataType = {
 
 export const charactersData: CharactersDataType = {
     capitaine: {
-        sceneId: "hub_1",
-        position: new THREE.Vector3(1.5, -1, 5),
+        sceneId: "dream_3",
+        position: new THREE.Vector3(21, 6, 7),
         targetPosition: new THREE.Vector3(-1, 0, -1),
     },
     talua: {
-        sceneId: "dream_3",
-        position: new THREE.Vector3(10, 0, 0),
+        sceneId: "hub_1",
+        position: new THREE.Vector3(5, 0, -1),
         targetPosition: new THREE.Vector3(-1, 0, 1),
     },
 };
