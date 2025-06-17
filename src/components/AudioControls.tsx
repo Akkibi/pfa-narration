@@ -10,10 +10,11 @@ type ActivePlayer = {
 };
 
 export function AudioControls() {
-    const [isMute, setIsMute] = useState(false);
+    const isMuteRef = useRef<boolean>(false);
     const [isHowlerReady, setIsHowlerReady] = useState(false);
     const activePlayersRef = useRef<ActivePlayer[]>([]);
     const mouseRef = useRef<HTMLDivElement>(null);
+    const [isMute, setIsMute] = useState(false);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -41,6 +42,7 @@ export function AudioControls() {
         eventEmitterInstance.on("playSound", (name: string, volume?: number) =>
             toggleSound(name, volume),
         );
+        eventEmitterInstance.on("stopHowlers", (soundNames: string[]) => stopHowlers(soundNames));
         eventEmitterInstance.on("toggleSoundtrack", () => toggleSoundtrack());
     }, []);
 
@@ -60,7 +62,7 @@ export function AudioControls() {
             src: [sound.src],
             loop: sound.loop ?? false,
             volume: volume ?? sound.volume ?? 1,
-            mute: isMute,
+            mute: isMuteRef.current,
             onend: () => {
                 activePlayersRef.current = activePlayersRef.current.filter(
                     (p) => p.name !== soundName,
@@ -81,6 +83,17 @@ export function AudioControls() {
         }
     };
 
+    const stopHowlers = (soundNames: string[]) => {
+        soundNames.forEach((name) => {
+            const player = activePlayersRef.current.find((p) => p.name === name);
+            if (player) {
+                player.player.stop();
+                activePlayersRef.current = activePlayersRef.current.filter((p) => p.name !== name);
+                console.log(`Stopped sound: ${name}`);
+            }
+        });
+    };
+
     const toggleSoundtrack = () => {
         console.log("Toggling soundtrack");
         const soundTrack = activePlayersRef.current.find((p) => p.name.includes("soundtrack"));
@@ -95,30 +108,29 @@ export function AudioControls() {
 
     const toggleMuteAudio = () => {
         // Update mute state for existing players
-        activePlayersRef.current.forEach(({ player }) => player.mute(!isMute));
+        activePlayersRef.current.forEach(({ player }) => player.mute(!isMuteRef.current));
         // Update global mute state so new players will be created with this mute state
-        setIsMute(!isMute);
+        isMuteRef.current = !isMuteRef.current;
+        setIsMute(isMuteRef.current);
     };
 
-    return !isHowlerReady ? (
-        <div ref={mouseRef} className="move">
-            click to play soundtrack
-        </div>
-    ) : (
-        <div id="audio-controls">
-            <button className="audio-wave-button" tabIndex={-1} onClick={toggleMuteAudio}>
-                {!isMute ? (
-                    <img
-                        src="/images/audio_wave.gif"
-                        className="audio-wave-playing"
-                        alt="audio_wave"
-                    />
-                ) : (
-                    <div className="audio-wave-not-playing">
-                        <div />
-                    </div>
-                )}
-            </button>
-        </div>
+    return (
+        isHowlerReady && (
+            <div id="audio-controls">
+                <button className="audio-wave-button" tabIndex={-1} onClick={toggleMuteAudio}>
+                    {!isMute ? (
+                        <img
+                            src="/images/audio_wave.gif"
+                            className="audio-wave-playing"
+                            alt="audio_wave"
+                        />
+                    ) : (
+                        <div className="audio-wave-not-playing">
+                            <div />
+                        </div>
+                    )}
+                </button>
+            </div>
+        )
     );
 }

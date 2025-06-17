@@ -5,6 +5,8 @@ import { Scenes } from "./contexts/TransitionManager";
 import { Game } from "../game/game";
 import { Souvenir } from "../game/scenes/souvenir";
 import { Hub } from "../game/scenes/hub";
+import { eventEmitterInstance } from "../utils/eventEmitter";
+import { Subtitle } from "../data/subsData";
 
 export type GameScenes = Hub | Test | Souvenir | Hub2;
 export type SceneManagerProps = {
@@ -20,8 +22,7 @@ export default function SceneManager({ currentSceneIndex, scene, subs }: SceneMa
     useEffect(() => {
         if (!mountRef.current) return;
         game.start(mountRef.current);
-        console.log("subtitles", subs);
-        // eventEmitterInstance.trigger("triggerSubs", [subs]);
+        eventEmitterInstance.trigger("triggerSubs", [subs]);
         return () => {
             game.cleanup();
         };

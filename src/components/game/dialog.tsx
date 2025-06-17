@@ -36,7 +36,8 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     const lineRef = useRef<HTMLDivElement>(null);
     const { contextSafe } = useGSAP({ scope: clipRef });
     const [activeButton, setActiveButton] = useState<number>(0);
-    const [animationDelay, setAnimationDelay] = useState<number>(0);
+    const [letterAnimationDelay, setLetterAnimationDelay] = useState<number>(0);
+    const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
 
     const close = contextSafe(() => {
         const tl = gsap.timeline({ defaults: { duration: 0.5 } });
@@ -140,8 +141,8 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             };
             setCurrentLine(line);
             const delay = dialog.duration ? (dialog.duration * 1000) / dialog.text.length : 500;
-            setAnimationDelay(delay);
-            eventEmitterInstance.trigger("playSound", [dialog.audio]);
+            setLetterAnimationDelay(delay);
+            if (!currentDialogData.done) eventEmitterInstance.trigger("playSound", [dialog.audio]);
         }
     }, [showDialog, currentDialogData, dialogName]);
 
@@ -184,7 +185,9 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                                     key={index + letter + isVisible.toString()}
                                                     style={{
                                                         animationDelay:
-                                                            500 + index * animationDelay + "ms",
+                                                            500 +
+                                                            index * letterAnimationDelay +
+                                                            "ms",
                                                     }}
                                                 >
                                                     {letter}
@@ -204,7 +207,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                       animationDelay: currentLine
                                           ? 500 +
                                             currentLine.text.split("").length *
-                                                dialogData.textSpeed +
+                                                letterAnimationDelay +
                                             "ms"
                                           : "500ms",
                                   }
@@ -243,12 +246,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
                                 }}
                             >
-                                {activeButton === 0 && (
-                                    <img
-                                        src="/images/arrow.png"
-                                        className="active-button-indicator"
-                                    />
-                                )}
+                                <img src="/images/arrow.png" className="active-button-indicator" />
                                 <span>Next</span>
                             </button>
                         ) : (
@@ -259,12 +257,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     if (currentDialogData) currentDialogData.done = true;
                                 }}
                             >
-                                {activeButton === 0 && (
-                                    <img
-                                        src="/images/arrow.png"
-                                        className="active-button-indicator"
-                                    />
-                                )}
+                                <img src="/images/arrow.png" className="active-button-indicator" />
                                 <span>Leave Dialog</span>
                             </button>
                         )}

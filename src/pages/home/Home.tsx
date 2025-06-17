@@ -60,7 +60,9 @@ export default function Home() {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     // setPage("intro_prison");
-                                    eventEmitterInstance.trigger("scene-change", ["intro_prison"]);
+                                    eventEmitterInstance.trigger("scene-change-ui", [
+                                        "intro_prison",
+                                    ]);
                                 }}
                                 className="button"
                             >
