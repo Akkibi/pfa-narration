@@ -11,6 +11,7 @@ export interface InteractiveObjectType {
     position: THREE.Vector3;
     rotation: THREE.Euler;
     scale: THREE.Vector3;
+    isVisible: boolean;
     // Active Object View
     activePosition: THREE.Vector3;
     hiddenPosition: THREE.Vector3;
@@ -21,11 +22,13 @@ export interface InteractiveObjectType {
 
 export const InteractiveObjects: InteractiveObjectsType = {
     chevaletEnfer: {
-        id: 3,
+        id: 2,
         gltf_src: "./objects/chevalet-enfer.glb",
         position: new THREE.Vector3(-31.4, 2.5, -9.5),
         rotation: new THREE.Euler(0, Math.PI / 1.5, 0),
         scale: new THREE.Vector3(0.3, 0.3, 0.3),
+        isVisible: true,
+
         // Active Object View
         activePosition: new THREE.Vector3(0, 1.2, -2),
         hiddenPosition: new THREE.Vector3(0, 4, 0),
@@ -44,6 +47,8 @@ export const InteractiveObjects: InteractiveObjectsType = {
         position: new THREE.Vector3(7, 0.2, -13),
         rotation: new THREE.Euler(0, Math.PI / 3, 0),
         scale: new THREE.Vector3(0.1, 0.1, 0.1),
+        isVisible: true,
+
         // Active Object View
         activePosition: new THREE.Vector3(0, 2, -1),
         hiddenPosition: new THREE.Vector3(0, 4, 0),
@@ -61,6 +66,7 @@ export const InteractiveObjects: InteractiveObjectsType = {
         position: new THREE.Vector3(-64.7, -5, -29.5),
         rotation: new THREE.Euler(0, Math.PI / 3, 0),
         scale: new THREE.Vector3(0.2, 0.2, 0.2),
+        isVisible: true,
         // Active Object View
         activePosition: new THREE.Vector3(0, 1.5, -2),
         hiddenPosition: new THREE.Vector3(0, 4, 0),
@@ -69,6 +75,25 @@ export const InteractiveObjects: InteractiveObjectsType = {
             name: "object_02",
             text: "Les gens d'ici en ont rien à foutre de mon art. Pas un rond en un mois.",
             audio: "object_02",
+            duration: 6,
+        },
+    },
+    chevaletDarkWorld: {
+        id: 5,
+        gltf_src: "./objects/chevalet-enfer.glb",
+        position: new THREE.Vector3(16, 6, -50),
+        rotation: new THREE.Euler(0, Math.PI / 1.5, 0),
+        isVisible: false,
+        scale: new THREE.Vector3(0.3, 0.3, 0.3),
+        // Active Object View
+        activePosition: new THREE.Vector3(0, 1.2, -2),
+        hiddenPosition: new THREE.Vector3(0, 4, 0),
+        activeRotation: new THREE.Euler(0, Math.PI, 0),
+        activeScale: new THREE.Vector3(0.3, 0.3, 0.3),
+        subtitle: {
+            name: "object_01",
+            text: "Peindre, c'est tout c'que j'sais faire pour gagner ma vie.",
+            audio: "object_01",
             duration: 6,
         },
     },
