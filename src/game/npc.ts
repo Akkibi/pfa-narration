@@ -6,6 +6,7 @@ import { lerpVector3 } from "../utils/lerp";
 import { dialogData } from "../data/dialogData";
 import { InteractionIcon } from "./inrecationIcon";
 import BaseScene from "./scenes/BaseScene";
+import { NpcMaterial } from "./npcMaterial";
 
 class Npc {
     private name: string;
@@ -60,9 +61,18 @@ class Npc {
                 // `./characters/${this.name}.glb`,
                 "./characters/npccharacter.glb",
                 (gltf: { scene: THREE.Group }) => {
-                    const GLTFGroup = gltf.scene as THREE.Group;
-                    this.instance.add(GLTFGroup);
-                    resolve(GLTFGroup);
+                    const gltfGroup = gltf.scene as THREE.Group;
+                    const camera = this.scene.camera?.camera;
+                    gltfGroup.traverse((child) => {
+                        if (child.name.startsWith("shader") && camera) {
+                            const npcMaterial = new NpcMaterial(this.scene.scene_id);
+                            (child as THREE.Mesh).material = npcMaterial.getMaterial();
+                            console.log("npcMaterial", npcMaterial);
+                        }
+                    });
+
+                    this.instance.add(gltfGroup);
+                    resolve(gltfGroup);
                 },
                 undefined,
                 (error) => {

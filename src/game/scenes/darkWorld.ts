@@ -61,7 +61,7 @@ export class DarkWorld extends BaseScene {
             new THREE.Vector3(0, 50, -100),
         );
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
     }
 
