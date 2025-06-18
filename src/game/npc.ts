@@ -33,8 +33,6 @@ class Npc {
         this.characterPosition = this.position.clone().add(new THREE.Vector3(1, 0, 1));
 
         this.instance.position.copy(this.position);
-        // console.log("this.characterPositionTransition",charactersData[this.name].targetPosition, this.position, new THREE.Vector3(this.position.add(charactersData[this.name].targetPosition));
-        console.log("this.characterPositionTransition", this.characterPositionTransition);
         this.instance.lookAt(this.characterPositionTransition);
 
         this.gltfLoader();

@@ -14,7 +14,7 @@ export type Subtitle = {
 export const IntroPrisonSubs: Subtitle[] = [
     {
         delay: 3,
-        name: "[POLICIERÉ]",
+        name: "[POLICIÈRE]",
         text: "Allez mon gars, installe toi confortablement. On va jeter un oeil à ton dossier, ça risque de prendre un moment.",
         audio: "intro_prison_01",
         duration: 6,

@@ -14,7 +14,6 @@ interface FlamesElement {
 }
 
 export class HubEnd extends BaseScene {
-    public spawnArray: THREE.PolarGridHelper[] = [];
     private gltfModel: THREE.Group | null = null;
     private floatingElements: FloatingElement[] = [];
     private flames: FlamesElement[] = [];

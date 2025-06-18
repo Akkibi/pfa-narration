@@ -39,7 +39,6 @@ export default function Pages() {
     }, []);
 
     useEffect(() => {
-        console.log("displayedPage", displayedPage);
         displayedPageRef.current = displayedPage;
     }, [displayedPage]);
 
@@ -47,12 +46,15 @@ export default function Pages() {
         const handleSkip = (key: KeyboardEvent) => {
             if (key.key === "$") {
                 setPage("test");
+                eventEmitterInstance.trigger("scene-change-game", [
+                    "test",
+                    displayedPageRef.current,
+                ]);
             } else if (key.key === "[") {
                 const currentIndex = ScenesSequence.findIndex(
                     (scene) => scene === displayedPageRef.current,
                 );
                 if (currentIndex !== -1 && currentIndex < ScenesSequence.length - 1) {
-                    console.log(ScenesSequence[currentIndex + 1], ScenesSequence[currentIndex]);
                     setPage(ScenesSequence[currentIndex + 1]);
                     eventEmitterInstance.trigger("stopHowlers", [
                         ["ambient_prison", "closing_door"],
@@ -66,7 +68,6 @@ export default function Pages() {
             } else {
                 setPage(to);
             }
-            console.log("changeSceneIndex", to);
         };
 
         document.addEventListener("keydown", handleSkip);

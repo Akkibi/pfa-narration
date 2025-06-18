@@ -83,6 +83,9 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             duration: 0.5,
             backgroundColor: "transparent",
             ease: "power1.inOut",
+            onStart: () => {
+                eventEmitterInstance.trigger(`toggleFreeze`, [false]);
+            },
         });
 
         tl.progress(0).play();

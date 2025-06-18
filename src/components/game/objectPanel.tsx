@@ -23,7 +23,6 @@ export function ObjectPanel({ active, object }: ObjectPanelProps) {
 
     useEffect(() => {
         if (!active) return;
-        console.log("ObjectPanel active", object);
         setCurrentLine(object?.subtitle || null);
         eventEmitterInstance.trigger("playSound", [object?.subtitle?.audio || ""]);
         if (object?.subtitle) {

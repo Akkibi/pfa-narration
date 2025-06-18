@@ -3,7 +3,6 @@ import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 export class HubPano extends BaseScene {
-    public spawnArray: THREE.PolarGridHelper[] = [];
     private gltfModel: THREE.Group | null = null;
 
     constructor() {

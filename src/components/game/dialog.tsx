@@ -68,7 +68,6 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                     if (currentDialogData) currentDialogData.done = true;
                 }
             }
-            console.log("activeButton", activeButton);
         };
 
         document.addEventListener("keydown", handleKeyPress);
@@ -78,16 +77,11 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         };
     }, [currentDialogData, dialogName, activeButton, showDialog]);
 
-    useEffect(() => {
-        console.log("isVisible", isVisible);
-    }, [isVisible]);
-
     const reOpen = contextSafe((dialog: string) => {
         const tl = gsap.timeline({
             defaults: { duration: 0.5 },
             onStart: () => {
                 setIsVisible(false);
-                console.log("start");
             },
         });
         tl.to(lineRef.current, {
@@ -152,10 +146,6 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             setCurrentLine(null);
         }
     }, [currentDialogData]);
-
-    console.log(
-        currentLine && 500 + currentLine.text.split("").length * dialogData.textSpeed + "ms",
-    );
 
     return (
         <div id="dialog">

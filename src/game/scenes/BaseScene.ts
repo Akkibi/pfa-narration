@@ -52,7 +52,6 @@ export default class BaseScene {
         this.floor = null;
         this.character = null;
         this.camera = null;
-        // console.log(this.character.id, " position: ", this.character.getPosition());
 
         // Add AxesHelper
         const axesHelper = new THREE.AxesHelper(5);
@@ -81,6 +80,7 @@ export default class BaseScene {
     }
 
     private updateSceneChange(sceneTo: Scenes, sceneFrom: Scenes, speed?: THREE.Vector2) {
+        console.log("updateSceneChange", sceneTo, sceneFrom, this.scene_id);
         if (sceneTo !== this.scene_id) return;
         this.spawnArray?.forEach((spawn) => {
             if (
@@ -89,6 +89,7 @@ export default class BaseScene {
                 this.character !== null &&
                 this.camera !== null
             ) {
+                console.log("spawn userData", this.scene_id, spawn.userData, spawn.position);
                 this.character.setPosition(new THREE.Vector2(spawn.position.x, spawn.position.z));
                 this.character.setFloor();
                 this.character.speed.copy(speed ?? new THREE.Vector2(0, 0));
@@ -96,8 +97,8 @@ export default class BaseScene {
                 this.character.height = spawn.position.y;
                 this.character.currentPosition.copy(spawn.position);
                 this.camera.currentPosition.copy(spawn.position);
-                console.log("character pos ", this.character.getPosition());
-                console.log("character speed ", this.character.getSpeed());
+                // console.log("character pos ", this.character.getPosition());
+                // console.log("character speed ", this.character.getSpeed());
             }
         });
     }
@@ -113,11 +114,7 @@ export default class BaseScene {
         this.spawnArray?.forEach((spawn) => {
             if (position.distanceTo(spawn.position) < 0.5 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
-                eventEmitterInstance.trigger("scene-change-game", [
-                    spawn.userData.to,
-                    this.scene_id,
-                    this.character?.speed,
-                ]);
+                this.updateSceneChange(spawn.userData.to, this.scene_id, this.character?.speed);
                 eventEmitterInstance.trigger("scene-change-ui", [
                     spawn.userData.to,
                     spawn.userData.subtitle,
@@ -129,7 +126,6 @@ export default class BaseScene {
 
     private zoomChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
         this.zoomZoneArray?.forEach((zoomZone) => {
-            // console.log(zoomZone.userData);
             if (zoomZone.userData.zoom !== undefined && zoomZone.userData.size !== undefined) {
                 if (
                     position.distanceTo(zoomZone.position) < zoomZone.userData.size !==
@@ -170,6 +166,7 @@ export default class BaseScene {
             spawn.position.copy(spawnData.position);
             spawn.userData = spawnData.userData;
             this.instance.add(spawn);
+            console.log("spawn position", spawn, this.scene_id);
             this.spawnArray.push(spawn);
         });
     }

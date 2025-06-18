@@ -68,7 +68,6 @@ export class Game {
 
     public cleanup = () => {
         if (!this.mount || !this.renderer) return;
-        console.log("EXIT", this.sceneIndex);
         window.removeEventListener("resize", this.handleResize);
         this.renderer.dispose();
         if (this.animRef) cancelAnimationFrame(this.animRef);

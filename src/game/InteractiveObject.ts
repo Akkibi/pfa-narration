@@ -152,7 +152,6 @@ export class InteractiveObject {
             console.error("Camera is null");
             return;
         }
-        console.log("hideObject");
         const starting_position = this.scene.camera.instance.position
             .clone()
             .add(this.baseObject.activePosition);
@@ -179,7 +178,6 @@ export class InteractiveObject {
             console.error("Camera is null");
             return;
         }
-        console.log("showObject");
         this.is_active = true;
         this.is_shown = true;
 
@@ -191,7 +189,6 @@ export class InteractiveObject {
             .clone()
             .add(this.baseObject.activePosition);
 
-        console.log(starting_position, targetPosition);
         this.activeInstance.rotation.copy(this.baseObject.activeRotation);
         this.activeInstance.scale.set(0.5, 0.5, 0.5);
         this.activeInstance.position.copy(starting_position);

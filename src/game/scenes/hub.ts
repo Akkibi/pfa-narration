@@ -16,7 +16,6 @@ interface FlamesElement {
 }
 
 export class Hub extends BaseScene {
-    public spawnArray: THREE.PolarGridHelper[] = [];
     private gltfModel: THREE.Group | null = null;
     private floatingElements: FloatingElement[] = [];
     private flames: FlamesElement[] = [];
@@ -39,11 +38,11 @@ export class Hub extends BaseScene {
             {
                 position: new THREE.Vector3(1, -0.1, 1),
                 userData: {
-                    from: "hub_pano",
+                    to: "hub_pano",
                 },
             },
             {
-                position: new THREE.Vector3(-65, -0.1, 1),
+                position: new THREE.Vector3(-70, -0.1, 5),
                 userData: {
                     from: "test",
                 },
@@ -51,7 +50,7 @@ export class Hub extends BaseScene {
             {
                 position: new THREE.Vector3(1.5, -0.1, 1),
                 userData: {
-                    to: "hub_pano",
+                    from: "hub_pano",
                 },
             },
         ]);

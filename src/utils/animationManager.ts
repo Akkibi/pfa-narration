@@ -32,7 +32,6 @@ class Animation {
     };
 
     public setSpeed = (speed: number) => {
-        console.log("set animation speed", speed);
         this.speed = speed;
     };
 

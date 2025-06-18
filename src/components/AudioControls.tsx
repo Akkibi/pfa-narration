@@ -59,8 +59,6 @@ export function AudioControls() {
             return;
         }
 
-        console.log("toggleSound", soundName, sound);
-
         const howl = new Howl({
             src: [sound.src],
             loop: sound.loop ?? false,

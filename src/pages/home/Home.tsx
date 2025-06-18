@@ -8,7 +8,7 @@ export default function Home() {
     const [isCredits, setIsCredits] = useState(false);
 
     useEffect(() => {
-        eventEmitterInstance.trigger("playSound", ["soundtrack_0"]);
+        eventEmitterInstance.trigger("playSound", ["hub"]);
     }, []);
 
     return (

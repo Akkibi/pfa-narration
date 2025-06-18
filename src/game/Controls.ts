@@ -5,7 +5,6 @@ const Controls = {
     scroll: window.scrollY,
 
     init() {
-        console.log("Controls initialized");
         window.addEventListener("keydown", (e) => this.handleKeyUpDown(e, true));
         window.addEventListener("keyup", (e) => this.handleKeyUpDown(e, false));
         window.addEventListener("wheel", (e) => this.handleScroll(e));
@@ -53,12 +52,10 @@ const Controls = {
                 break;
             case "Space":
                 this.keys.space = pressed;
-                console.log(`Space: ${pressed}`);
                 break;
             case "KeyE":
                 if (pressed === true) {
                     eventEmitterInstance.trigger("userInterractButtonPressed");
-                    console.log(`KeyE: ${pressed}`);
                 }
                 break;
         }

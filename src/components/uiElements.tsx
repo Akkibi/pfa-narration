@@ -27,7 +27,6 @@ const UiElements = () => {
         eventEmitterInstance.on("openDialog", (data: DialogDataType) => {
             setShowDialog(true);
             setDialogData(data);
-            console.log(data);
         });
         eventEmitterInstance.on("closeDialog", () => {
             setShowDialog(false);
