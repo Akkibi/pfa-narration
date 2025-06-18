@@ -4,11 +4,12 @@ import { charactersData } from "../data/characters_data";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { lerpVector3 } from "../utils/lerp";
 import { dialogData } from "../data/dialogData";
-import { Scenes } from "../components/contexts/TransitionManager";
+import { InteractionIcon } from "./inrecationIcon";
+import BaseScene from "./scenes/BaseScene";
 
 class Npc {
     private name: string;
-    private sceneId: Scenes;
+    private scene: BaseScene;
     public instance: THREE.Group;
     private position: THREE.Vector3;
     private isActive: boolean;
@@ -17,15 +18,16 @@ class Npc {
     private characterPositionTarget: THREE.Vector3;
     private interactionDistance: number;
     private isDialogOpened: boolean;
-    constructor(name: string, sceneId: Scenes) {
+
+    constructor(name: string, scene: BaseScene) {
         this.isDialogOpened = false;
         this.interactionDistance = 1;
         this.name = name;
-        this.sceneId = sceneId;
+        this.scene = scene;
         this.isActive = false;
         this.instance = new THREE.Group();
 
-        this.position = new THREE.Vector3(0, 0, 0).copy(charactersData[this.name].position);
+        this.position = charactersData[this.name].position;
         this.characterPositionTransition = new THREE.Vector3().copy(
             this.position.clone().add(charactersData[this.name].targetPosition),
         );
@@ -35,12 +37,16 @@ class Npc {
         this.instance.position.copy(this.position);
         this.instance.lookAt(this.characterPositionTransition);
 
+        // create icon
+        const icon = new InteractionIcon(this.position, this.scene.scene_id);
+        this.scene.instance.add(icon.instance);
+
         this.gltfLoader();
         this.instance.scale.set(0.2, 0.2, 0.2);
 
-        eventEmitterInstance.on(`updateScene-${this.sceneId}`, this.update.bind(this));
+        eventEmitterInstance.on(`updateScene-${this.scene.scene_id}`, this.update.bind(this));
         eventEmitterInstance.on(
-            `characterPositionChanged-${this.sceneId}`,
+            `characterPositionChanged-${this.scene.scene_id}`,
             this.isCharacterInInteractiveArea.bind(this),
         );
         eventEmitterInstance.on("userInterractButtonPressed", this.interract.bind(this));
@@ -76,7 +82,7 @@ class Npc {
             eventEmitterInstance.trigger(`showInteractiveObjectControls`, [
                 distance < this.interactionDistance,
             ]);
-            eventEmitterInstance.trigger(`zoom-${this.sceneId}`, [
+            eventEmitterInstance.trigger(`zoom-${this.scene.scene_id}`, [
                 distance < this.interactionDistance,
                 2,
             ]);
