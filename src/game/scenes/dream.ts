@@ -6,7 +6,7 @@ import { InteractiveObjects } from "../../data/objectsData";
 
 export class Dream extends BaseScene {
     private gltfModel: THREE.Group | null = null;
-
+    private eye: THREE.Mesh;
     constructor() {
         super("dream");
 
@@ -98,7 +98,7 @@ export class Dream extends BaseScene {
         const bowl = new InteractiveObject(InteractiveObjects.bowl, this);
         this.instance.add(bowl.instance);
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
     }
 

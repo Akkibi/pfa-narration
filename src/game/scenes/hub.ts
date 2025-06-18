@@ -3,7 +3,6 @@ import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import Animation from "../../utils/animationManager";
-import { sub } from "three/tsl";
 
 interface FloatingElement {
     object: THREE.Object3D;
@@ -103,14 +102,14 @@ export class Hub extends BaseScene {
             ],
             new THREE.Vector3(-50, 0, 0),
         );
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
 
-        const imagePlane = new THREE.PlaneGeometry(10, 3);
+        const imagePlane = new THREE.PlaneGeometry(9.5, 2.1);
         const imageMaterial = new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load("./full-hub/logo.png"),
+            color: 0x000000,
             side: THREE.DoubleSide,
             transparent: true,
-            alphaMap: new THREE.TextureLoader().load("./full-hub/logo-blend.png"),
+            alphaMap: new THREE.TextureLoader().load("./logo.jpg"),
         });
         const imageMesh = new THREE.Mesh(imagePlane, imageMaterial);
         imageMesh.position.set(-30, 5, 5);
@@ -153,6 +152,8 @@ export class Hub extends BaseScene {
             } else {
                 element.object.scale.z = -1;
             }
+            element.object.scale.multiplyScalar(0.75);
+            element.object.position.y -= 0.25;
             element.object.material = material;
             const anim = new Animation(material, this.scene_id);
             const name =
@@ -213,9 +214,10 @@ export class Hub extends BaseScene {
                                 object: child as THREE.Mesh,
                                 number: Math.random() * 10,
                             });
+                            console.log("child.name, flame", child.name);
                         }
-                        this.generateFlames();
                     });
+                    this.generateFlames();
                 }
             },
             undefined,

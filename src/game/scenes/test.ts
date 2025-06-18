@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { InteractiveObject } from "../InteractiveObject";
-import { InteractiveObjects } from "../../data/objectsData";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 export class Test extends BaseScene {
@@ -70,6 +68,12 @@ export class Test extends BaseScene {
                 position: new THREE.Vector3(2, -0.99, 3.25),
                 userData: {
                     from: "hub",
+                },
+            },
+            {
+                position: new THREE.Vector3(0, -0.99, 3.25),
+                userData: {
+                    to: "dark_world",
                 },
             },
         ]);

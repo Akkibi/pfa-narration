@@ -8,16 +8,17 @@ import Home from "./home/Home";
 import Player from "./player/Player";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
-import SceneManager from "../components/SceneManager";
+import SceneManager, { GameScenes } from "../components/SceneManager";
 import { Test } from "../game/scenes/test";
 import { Dream3Subs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
 import { Dream } from "../game/scenes/dream";
 import { HubEnd } from "../game/scenes/hubEnd";
 import { Hub } from "../game/scenes/hub";
 import { HubPano } from "../game/scenes/hubPano";
+import { DarkWorld } from "../game/scenes/darkWorld";
 
 interface SceneListType {
-    [key: string]: Hub | Test | Dream | HubPano | HubEnd;
+    [key: string]: GameScenes;
 }
 
 export default function Pages() {
@@ -32,7 +33,7 @@ export default function Pages() {
             hubEnd: new HubEnd(),
             hub: new Hub(),
             hubPano: new HubPano(),
-            // dark_world: new Scene1(),
+            darkWorld: new DarkWorld(),
         };
 
         setScenes(loaded_scenes);
@@ -155,7 +156,7 @@ export default function Pages() {
                     />
                 );
             case "dark_world":
-                return <SceneManager currentSceneIndex="dark_world" scene={scenes["dark_world"]} />;
+                return <SceneManager currentSceneIndex="dark_world" scene={scenes["darkWorld"]} />;
             // case "stairs":
             //     return (
             //         <Player
@@ -171,7 +172,7 @@ export default function Pages() {
                 return (
                     <Player
                         src="/videos/intro_prison.mp4"
-                        onEnd={() => setPage("hub_1")}
+                        onEnd={() => setPage("hub_pano")}
                         subs={IntroPrisonSubs}
                     />
                 );

@@ -2,12 +2,11 @@ import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
-export class HubPano extends BaseScene {
+export class DarkWorld extends BaseScene {
     private gltfModel: THREE.Group | null = null;
 
     constructor() {
-        super("hub_pano");
-
+        super("dark_world");
         this.generateSpawns([
             {
                 position: new THREE.Vector3(-4, 0, -0.5),
@@ -28,7 +27,7 @@ export class HubPano extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(0, 1, 0),
+                position: new THREE.Vector3(-10, 5, -105),
                 userData: {
                     from: "test",
                 },
@@ -52,24 +51,32 @@ export class HubPano extends BaseScene {
             },
         ]);
 
-        // this.loadGLTFModel();
+        this.generateBackgroundMaps(
+            [
+                "./dark-world/backgrounds/1.png",
+                "./dark-world/backgrounds/2.png",
+                "./dark-world/backgrounds/3.png",
+                "./dark-world/backgrounds/4.png",
+            ],
+            new THREE.Vector3(0, 50, -100),
+        );
+
+        this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
     }
 
     private loadGLTFModel(): void {
         const loader = new GLTFLoader();
-
-        // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
         loader.load(
-            "./hub/hub.glb",
+            "./dark-world/dunes.glb",
             (gltf: { scene: THREE.Group }) => {
                 this.gltfModel = gltf.scene; // Store the loaded model
                 this.instance.add(this.gltfModel); // Add the model to the scene
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);
-                    this.gltfModel.scale.set(3, 3, 3);
-                    this.gltfModel.rotation.set(0, -Math.PI / 2, 0);
+                    this.gltfModel.scale.multiplyScalar(20);
+                    this.gltfModel.rotation.set(0, Math.PI / 2, 0);
                 }
             },
             undefined,
@@ -78,7 +85,7 @@ export class HubPano extends BaseScene {
             },
         );
         loader.load(
-            "./hub/floor.glb",
+            "./dark-world/dunes-floor.glb",
             (gltf: { scene: THREE.Group }) => {
                 // this.instance.add(this.floor); // Add the model to the scene
                 const floor = gltf.scene.children[0] as THREE.Mesh;
@@ -88,8 +95,8 @@ export class HubPano extends BaseScene {
                 // Optionally, adjust the model's position, rotation, or scale
                 if (floor) {
                     floor.position.set(0, 0, 0);
-                    floor.scale.set(3, 3, 3);
-                    floor.rotation.set(0, -Math.PI / 2 + 0.1, 0);
+                    floor.scale.multiplyScalar(20);
+                    floor.rotation.set(0, Math.PI / 2, 0);
                 }
                 this.createFloor(floor);
             },
