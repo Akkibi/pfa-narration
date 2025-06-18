@@ -29,4 +29,11 @@ export class InteractionIcon {
         this.instance.rotation.set(0, Math.PI, 0);
         this.instance.position.copy(this.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
     }
+
+    public remove() {
+        if (this.instance) {
+            this.instance.geometry.dispose();
+            this.instance = null;
+        }
+    }
 }

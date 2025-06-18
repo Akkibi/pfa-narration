@@ -23,7 +23,7 @@ export class InteractiveObject {
     private material: THREE.MeshBasicMaterial;
     private scene: BaseScene;
     private lerpFromTo: LerpFromTo | null;
-    private interactionIcon: THREE.Mesh;
+    private icon: InteractionIcon;
 
     constructor(object: InteractiveObjectType, scene: BaseScene) {
         this.id = object.id;
@@ -41,8 +41,8 @@ export class InteractiveObject {
         this.lerpFromTo = null;
 
         // create icon
-        const icon = new InteractionIcon(this.position, this.scene.scene_id);
-        this.scene.instance.add(icon.instance);
+        this.icon = new InteractionIcon(this.position, this.scene.scene_id);
+        this.scene.instance.add(this.icon.instance);
 
         this.loadObject(this.baseObject.gltf_src);
 
@@ -58,6 +58,7 @@ export class InteractiveObject {
                     this.hideObject();
                 } else {
                     this.showObject();
+                    this.icon.instance.visible = false;
                 }
             }
         });
