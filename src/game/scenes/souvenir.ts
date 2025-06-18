@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { sub } from "three/tsl";
+import { InteractiveObject } from "../InteractiveObject";
+import { InteractiveObjects } from "../../data/objectsData";
 
 export class Souvenir extends BaseScene {
     public spawnArray: THREE.PolarGridHelper[] = [];
@@ -12,13 +13,13 @@ export class Souvenir extends BaseScene {
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(-161, 10.3, 46.5),
+                position: new THREE.Vector3(-161, 11, 46.5),
                 userData: {
                     to: "hub_2",
                 },
             },
             {
-                position: new THREE.Vector3(20, 9, 13),
+                position: new THREE.Vector3(0, 0, 0),
                 userData: {
                     from: "test",
                 },
@@ -91,6 +92,12 @@ export class Souvenir extends BaseScene {
                 },
             },
         ]);
+        const chevaleret = new InteractiveObject(InteractiveObjects.chevaletEnfer, this);
+        this.instance.add(chevaleret.instance);
+        const bottle = new InteractiveObject(InteractiveObjects.bottleGlass, this);
+        this.instance.add(bottle.instance);
+        const bowl = new InteractiveObject(InteractiveObjects.bowl, this);
+        this.instance.add(bowl.instance);
 
         this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
