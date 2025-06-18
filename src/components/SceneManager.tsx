@@ -12,10 +12,10 @@ export type GameScenes = Hub | Test | Souvenir | Hub2;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
-    subs: Subtitle[];
+    subs?: Subtitle[];
 };
 
-export default function SceneManager({ currentSceneIndex, scene, subs }: SceneManagerProps) {
+export default function SceneManager({ currentSceneIndex, scene, subs = [] }: SceneManagerProps) {
     const mountRef = useRef<HTMLDivElement>(null);
     const game = Game.getInstance(currentSceneIndex, scene);
 

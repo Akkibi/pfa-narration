@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./style.css";
 import { useGSAP } from "@gsap/react";
-import { InteractiveObjectType } from "../../data/interactive_objects";
+import { InteractiveObjectType } from "../../data/objectsData";
 import { Subtitle } from "../../data/subsData";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { gsap } from "gsap";

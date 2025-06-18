@@ -5,7 +5,7 @@ import { DialogDataType } from "../data/dialogData";
 import { InteractiveObject } from "../game/InteractiveObject";
 import { ObjectPanel } from "./game/objectPanel";
 import Dialog from "./game/dialog";
-import { InteractiveObjectType } from "../data/interactive_objects";
+import { InteractiveObjectType } from "../data/objectsData";
 
 const UiElements = () => {
     const [isObjectActive, setIsObjectActive] = useState<boolean>(false);

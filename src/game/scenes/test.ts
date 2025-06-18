@@ -2,7 +2,7 @@ import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObject } from "../InteractiveObject";
-import { InteractiveObjects } from "../../data/interactive_objects";
+import { InteractiveObjects } from "../../data/objectsData";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 export class Test extends BaseScene {
@@ -23,10 +23,10 @@ export class Test extends BaseScene {
 
         this.instance.add(new THREE.HemisphereLight(0xffffff, 0x000000, 0.5));
 
-        const object_1 = new InteractiveObject(InteractiveObjects[0], this);
+        const object_1 = new InteractiveObject(InteractiveObjects.susane, this);
         this.instance.add(object_1.instance);
 
-        const object_2 = new InteractiveObject(InteractiveObjects[1], this);
+        const object_2 = new InteractiveObject(InteractiveObjects.chevalet, this);
         this.instance.add(object_2.instance);
 
         this.generateSpawns([
