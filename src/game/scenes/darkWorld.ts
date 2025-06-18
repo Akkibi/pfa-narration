@@ -47,9 +47,6 @@ export class DarkWorld extends BaseScene {
 
         this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
-        eventEmitterInstance.on(`characterPositionChanged-${this.scene_id}`, (pos: THREE.Vector3) =>
-            console.log(pos),
-        );
 
         const chevaleret = new InteractiveObject(InteractiveObjects.chevaletDarkWorld, this);
         this.instance.add(chevaleret.instance);
