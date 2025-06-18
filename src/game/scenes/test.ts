@@ -23,12 +23,6 @@ export class Test extends BaseScene {
 
         this.instance.add(new THREE.HemisphereLight(0xffffff, 0x000000, 0.5));
 
-        const object_1 = new InteractiveObject(InteractiveObjects.susane, this);
-        this.instance.add(object_1.instance);
-
-        const object_2 = new InteractiveObject(InteractiveObjects.chevalet, this);
-        this.instance.add(object_2.instance);
-
         this.generateSpawns([
             {
                 position: new THREE.Vector3(3, -0.99, 1),

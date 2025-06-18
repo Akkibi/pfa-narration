@@ -154,7 +154,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                     <div
                         className="profile-pic"
                         style={{
-                            background: `center / contain no-repeat url(/characters/${currentLine && currentLine.name.toLowerCase()}.png)`,
+                            background: `center / contain no-repeat url(/characters/images_dialogues/${currentLine && currentLine.name.toLowerCase()}.png)`,
                         }}
                     ></div>
                 </div>

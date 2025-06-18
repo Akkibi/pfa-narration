@@ -65,7 +65,6 @@ export class HubPano extends BaseScene {
             (gltf: { scene: THREE.Group }) => {
                 this.gltfModel = gltf.scene; // Store the loaded model
                 this.instance.add(this.gltfModel); // Add the model to the scene
-                console.log(this.gltfModel);
                 // Optionally, adjust the model's position, rotation, or scale
                 if (this.gltfModel) {
                     this.gltfModel.position.set(0, 0, 0);

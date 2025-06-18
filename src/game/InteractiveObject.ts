@@ -166,7 +166,11 @@ export class InteractiveObject {
             .add(this.baseObject.activePosition);
 
         this.activeInstance.rotation.copy(this.baseObject.activeRotation);
-        this.activeInstance.scale.set(0.5, 0.5, 0.5);
+        if (this.baseObject.activeScale) {
+            this.activeInstance.scale.copy(this.baseObject.activeScale);
+        } else {
+            this.activeInstance.scale.set(0.5, 0.5, 0.5);
+        }
         this.activeInstance.position.copy(starting_position);
         this.activeInstance.visible = true;
 
