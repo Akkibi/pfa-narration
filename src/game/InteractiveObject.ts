@@ -4,14 +4,15 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObjectType } from "../data/objectsData";
 import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
-import { lerp } from "three/src/math/MathUtils.js";
 import checkDistance from "../utils/utils";
+import { lerp } from "../utils/lerp";
+import Animation from "../utils/animationManager";
 
 export class InteractiveObject {
     private id: number;
     public loaded: boolean;
     public instance: THREE.Mesh;
-    public activeInstance: THREE.Mesh;
+    public activeInstance: THREE.Mesh | null;
     public position: THREE.Vector3;
     public baseObject: InteractiveObjectType;
     private rotation: THREE.Euler;
@@ -20,13 +21,15 @@ export class InteractiveObject {
     private is_shown: boolean;
     private material: THREE.MeshBasicMaterial;
     private scene: BaseScene;
+    private lerpFromTo: LerpFromTo | null;
+    private interactionIcon: THREE.Mesh;
 
     constructor(object: InteractiveObjectType, scene: BaseScene) {
         this.id = object.id;
         this.loaded = false;
         this.baseObject = object;
         this.instance = new THREE.Mesh();
-        this.activeInstance = new THREE.Mesh();
+        this.activeInstance = null;
         this.position = object.position;
         this.rotation = object.rotation;
         this.scale = object.scale;
@@ -34,13 +37,38 @@ export class InteractiveObject {
         this.is_shown = false;
         this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color("red") });
         this.scene = scene;
+        this.lerpFromTo = null;
 
-        this.instance.position.copy(object.position);
-        this.instance.rotation.copy(object.rotation);
-        this.instance.scale.copy(object.scale);
-        // this.instance.material = this.material;
+        // generate icon ping
+        const iconMaterial = new THREE.MeshBasicMaterial({
+            transparent: true,
+            opacity: 1,
+        });
+        const iconPlane = new THREE.PlaneGeometry(0.5, 0.5);
+        this.interactionIcon = new THREE.Mesh(iconPlane, iconMaterial);
+        const anim = new Animation(iconMaterial, this.scene.scene_id);
+        anim.set([
+            "./full-hub/flames/flamegreen/1.png",
+            "./full-hub/flames/flamegreen/2.png",
+            "./full-hub/flames/flamegreen/3.png",
+            "./full-hub/flames/flamegreen/4.png",
+            "./full-hub/flames/flamegreen/5.png",
+            "./full-hub/flames/flamegreen/6.png",
+            "./full-hub/flames/flamegreen/7.png",
+            "./full-hub/flames/flamegreen/8.png",
+            "./full-hub/flames/flamegreen/9.png",
+            "./full-hub/flames/flamegreen/10.png",
+            "./full-hub/flames/flamegreen/11.png",
+            "./full-hub/flames/flamegreen/12.png",
+            "./full-hub/flames/flamegreen/13.png",
+            "./full-hub/flames/flamegreen/14.png",
+            "./full-hub/flames/flamegreen/15.png",
+        ]);
+        this.interactionIcon.rotation.set(0, Math.PI, 0);
+        this.interactionIcon.position.copy(this.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
+        this.scene.instance.add(this.interactionIcon);
 
-        this.loadObject(this.baseObject.gltf_src, this.instance);
+        this.loadObject(this.baseObject.gltf_src);
 
         // Listeners
         eventEmitterInstance.on(`updateScene-${this.scene.scene_id}`, this.update.bind(this));
@@ -59,11 +87,21 @@ export class InteractiveObject {
         });
     }
 
-    private async loadObject(gltf_src: string, instance: THREE.Mesh) {
+    private async loadObject(gltf_src: string) {
         try {
             const mesh = await this.loadGLTFModel(gltf_src);
 
-            instance.add(mesh);
+            this.instance = mesh;
+            this.instance.position.copy(this.position);
+            this.instance.rotation.copy(this.rotation);
+            this.instance.scale.copy(this.scale);
+            this.scene.instance.add(this.instance);
+
+            this.activeInstance = mesh.clone();
+            this.activeInstance.position.set(0, 0, 0);
+            this.scene.instance.add(this.activeInstance);
+            this.lerpFromTo = new LerpFromTo(this.activeInstance, this.position);
+            this.activeInstance.visible = false;
 
             return true;
         } catch (error) {
@@ -72,7 +110,6 @@ export class InteractiveObject {
             return false;
         }
     }
-
     private loadGLTFModel(src: string): Promise<THREE.Mesh> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
@@ -98,87 +135,139 @@ export class InteractiveObject {
         const distance = checkDistance(pos, this.position);
         if (distance < 1 !== this.is_active)
             eventEmitterInstance.trigger(`showInteractiveObjectControls`, [distance < 1]);
+        if (this.is_shown && this.lerpFromTo && this.scene.camera) {
+            const targetPosition = this.scene.camera.instance.position
+                .clone()
+                .add(this.baseObject.activePosition);
+            this.lerpFromTo.setTarget(targetPosition);
+        }
         this.is_active = distance < 1;
     }
 
-    private async showObject() {
-        const res = await this.loadObject(this.baseObject.gltf_src, this.activeInstance);
-        // Prevent character from moving when the object is active
-        eventEmitterInstance.trigger(`toggleFreeze`, [true]);
-
-        if (res) {
-            this.scene.instance.add(this.activeInstance);
-            // this.activeInstance.material = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') });
-            if (!this.scene.camera) {
-                console.error("Camera is null");
-                return;
-            }
-
-            const starting_position = this.scene.camera.instance.position
-                .clone()
-                .add(this.baseObject.hiddenPosition);
-            this.activeInstance.scale.set(0.5, 0.5, 0.5);
-            this.activeInstance.rotation.copy(this.baseObject.activeRotation);
-            this.activeInstance.position.copy(starting_position);
-            this.is_shown = true;
-            eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [this.baseObject]);
-        } else {
-            console.error("InteractiveObject couldn't load.");
-        }
-    }
-
-    private async moveObject() {
-        let targetPosition = undefined;
+    private hideObject() {
+        if (!this.activeInstance) return;
+        this.is_shown = false;
 
         if (!this.scene.camera) {
             console.error("Camera is null");
             return;
         }
+        console.log("hideObject");
+        const starting_position = this.scene.camera.instance.position
+            .clone()
+            .add(this.baseObject.activePosition);
 
-        if (this.is_shown) {
-            targetPosition = this.scene.camera.instance.position
-                .clone()
-                .add(this.baseObject.activePosition);
-        } else {
-            targetPosition = this.scene.camera.instance.position
-                .clone()
-                .add(this.baseObject.hiddenPosition);
+        const targetPosition = this.scene.camera.instance.position
+            .clone()
+            .add(this.baseObject.hiddenPosition);
+
+        if (this.lerpFromTo) {
+            this.lerpFromTo.setCurrentPosition(starting_position);
+            this.lerpFromTo.setTarget(targetPosition);
+            this.lerpFromTo.setAction(() => {
+                if (this.activeInstance) this.activeInstance.visible = false;
+                this.is_active = false;
+            });
         }
-
-        if (targetPosition && this.activeInstance.position.distanceTo(targetPosition) > 0.1) {
-            const lerpPosition = new THREE.Vector3(
-                lerp(this.activeInstance.position.x, targetPosition.x, 0.09),
-                lerp(this.activeInstance.position.y, targetPosition.y, 0.09),
-                lerp(this.activeInstance.position.z, targetPosition.z, 0.09),
-            );
-
-            this.activeInstance.position.copy(lerpPosition);
-        } else if (targetPosition && !this.is_shown) {
-            this.scene.instance.remove(this.activeInstance);
-        }
-    }
-
-    private hideObject() {
-        this.is_shown = false;
         eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [undefined]);
         eventEmitterInstance.trigger(`toggleFreeze`, [false]);
     }
 
-    private update() {
-        if (this.is_active) {
-            this.moveObject();
-
-            if (this.is_shown) {
-                let rotationSpeed = 0.01;
-
-                // Adjust rotation speed based on scroll
-                if (Controls.scroll !== 0) {
-                    rotationSpeed += Controls.scroll * 0.005;
-                    Controls.scroll *= 0.9; // Reduce scroll effect over time
-                }
-
-                this.activeInstance.rotation.y += rotationSpeed;
-            }
+    private showObject() {
+        if (!this.activeInstance) return;
+        if (!this.scene.camera) {
+            console.error("Camera is null");
+            return;
         }
+        console.log("showObject");
+        this.is_active = true;
+        this.is_shown = true;
+
+        const starting_position = this.scene.camera.instance.position
+            .clone()
+            .add(this.baseObject.hiddenPosition);
+
+        const targetPosition = this.scene.camera.instance.position
+            .clone()
+            .add(this.baseObject.activePosition);
+
+        console.log(starting_position, targetPosition);
+        this.activeInstance.rotation.copy(this.baseObject.activeRotation);
+        this.activeInstance.scale.set(0.5, 0.5, 0.5);
+        this.activeInstance.position.copy(starting_position);
+        this.activeInstance.visible = true;
+
+        if (this.lerpFromTo) {
+            this.lerpFromTo.setCurrentPosition(starting_position);
+            this.lerpFromTo.setTarget(targetPosition);
+        }
+        eventEmitterInstance.trigger(`toggleFreeze`, [true]);
+        eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [this.baseObject]);
+    }
+
+    private update() {
+        if (this.lerpFromTo) {
+            this.lerpFromTo.update();
+        }
+        if (this.is_shown && this.activeInstance) {
+            let rotationSpeed = 0.01;
+
+            if (Controls.scroll !== 0) {
+                rotationSpeed += Controls.scroll * 0.005;
+                Controls.scroll *= 0.9;
+            }
+
+            this.activeInstance.rotation.y += rotationSpeed;
+        }
+    }
+}
+
+class LerpFromTo {
+    private object: THREE.Mesh;
+    private currentPosition: THREE.Vector3;
+    private targetPosition: THREE.Vector3;
+    private isMoving: boolean;
+    private action: null | (() => void);
+
+    constructor(object: THREE.Mesh, startPosition: THREE.Vector3) {
+        this.object = object;
+        this.currentPosition = startPosition;
+        this.targetPosition = startPosition;
+        this.isMoving = false;
+        this.action = null;
+    }
+
+    public setTarget(targetPosition: THREE.Vector3) {
+        this.targetPosition = targetPosition;
+        this.isMoving = true;
+    }
+
+    public setAction(action: () => void) {
+        this.action = action;
+    }
+
+    public setCurrentPosition(position: THREE.Vector3) {
+        this.currentPosition = position;
+    }
+
+    public update() {
+        if (!this.isMoving) return;
+        const lerpPosition = new THREE.Vector3(
+            lerp(this.currentPosition.x, this.targetPosition.x, 0.09),
+            lerp(this.currentPosition.y, this.targetPosition.y, 0.09),
+            lerp(this.currentPosition.z, this.targetPosition.z, 0.09),
+        );
+
+        if (lerpPosition.distanceTo(this.targetPosition) < 0.1) {
+            this.isMoving = false;
+            if (this.action) {
+                this.action();
+                this.action = null;
+            }
+            return;
+        }
+
+        this.object.position.copy(lerpPosition);
+        this.currentPosition = lerpPosition;
     }
 }

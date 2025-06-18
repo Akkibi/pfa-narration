@@ -81,7 +81,7 @@ export class Hub2 extends BaseScene {
             ],
             new THREE.Vector3(-50, 0, 0),
         );
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
 
         const imagePlane = new THREE.PlaneGeometry(10, 3);
         const imageMaterial = new THREE.MeshBasicMaterial({
