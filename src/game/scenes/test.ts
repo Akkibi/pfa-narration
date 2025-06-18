@@ -43,28 +43,39 @@ export class Test extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(3, -0.99, 2),
+                position: new THREE.Vector3(3, -0.99, 1.75),
                 userData: {
                     to: "hub_2",
                 },
             },
             {
-                position: new THREE.Vector3(2, -0.99, 2),
+                position: new THREE.Vector3(2, -0.99, 1.75),
                 userData: {
                     from: "hub_2",
                 },
             },
-
             {
-                position: new THREE.Vector3(3, -0.99, 3),
+                position: new THREE.Vector3(3, -0.99, 2.5),
                 userData: {
                     to: "hub_0",
                 },
             },
             {
-                position: new THREE.Vector3(2, -0.99, 3),
+                position: new THREE.Vector3(2, -0.99, 2.5),
                 userData: {
                     from: "hub_0",
+                },
+            },
+            {
+                position: new THREE.Vector3(3, -0.99, 3.25),
+                userData: {
+                    to: "hub_1",
+                },
+            },
+            {
+                position: new THREE.Vector3(2, -0.99, 3.25),
+                userData: {
+                    from: "hub_1",
                 },
             },
         ]);
