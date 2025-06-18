@@ -42,7 +42,7 @@ class Npc {
         this.scene.instance.add(icon.instance);
 
         this.gltfLoader();
-        this.instance.scale.set(0.2, 0.2, 0.2);
+        this.instance.scale.setScalar(0.15);
 
         eventEmitterInstance.on(`updateScene-${this.scene.scene_id}`, this.update.bind(this));
         eventEmitterInstance.on(
@@ -58,7 +58,7 @@ class Npc {
             const loader = new GLTFLoader();
             loader.load(
                 // `./characters/${this.name}.glb`,
-                "./characters/character.glb",
+                "./characters/npccharacter.glb",
                 (gltf: { scene: THREE.Group }) => {
                     const GLTFGroup = gltf.scene as THREE.Group;
                     this.instance.add(GLTFGroup);

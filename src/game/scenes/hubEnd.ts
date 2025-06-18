@@ -45,7 +45,7 @@ export class HubEnd extends BaseScene {
             },
         ]);
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
 
         const imagePlane = new THREE.PlaneGeometry(10, 10);
         const imageMaterial = new THREE.MeshBasicMaterial({

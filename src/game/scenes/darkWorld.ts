@@ -7,7 +7,6 @@ export class DarkWorld extends BaseScene {
 
     constructor() {
         super("dark_world");
-
         this.generateSpawns([
             {
                 position: new THREE.Vector3(-4, 0, -0.5),
@@ -28,7 +27,7 @@ export class DarkWorld extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(-10, 10, -110),
+                position: new THREE.Vector3(-10, 5, -105),
                 userData: {
                     from: "test",
                 },
