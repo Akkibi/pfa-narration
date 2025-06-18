@@ -7,6 +7,7 @@ import Controls from "./Controls";
 import checkDistance from "../utils/utils";
 import { lerp } from "../utils/lerp";
 import Animation from "../utils/animationManager";
+import { InteractionIcon } from "./inrecationIcon";
 
 export class InteractiveObject {
     private id: number;
@@ -39,34 +40,9 @@ export class InteractiveObject {
         this.scene = scene;
         this.lerpFromTo = null;
 
-        // generate icon ping
-        const iconMaterial = new THREE.MeshBasicMaterial({
-            transparent: true,
-            opacity: 1,
-        });
-        const iconPlane = new THREE.PlaneGeometry(0.5, 0.5);
-        this.interactionIcon = new THREE.Mesh(iconPlane, iconMaterial);
-        const anim = new Animation(iconMaterial, this.scene.scene_id);
-        anim.set([
-            "./full-hub/flames/flamegreen/1.png",
-            "./full-hub/flames/flamegreen/2.png",
-            "./full-hub/flames/flamegreen/3.png",
-            "./full-hub/flames/flamegreen/4.png",
-            "./full-hub/flames/flamegreen/5.png",
-            "./full-hub/flames/flamegreen/6.png",
-            "./full-hub/flames/flamegreen/7.png",
-            "./full-hub/flames/flamegreen/8.png",
-            "./full-hub/flames/flamegreen/9.png",
-            "./full-hub/flames/flamegreen/10.png",
-            "./full-hub/flames/flamegreen/11.png",
-            "./full-hub/flames/flamegreen/12.png",
-            "./full-hub/flames/flamegreen/13.png",
-            "./full-hub/flames/flamegreen/14.png",
-            "./full-hub/flames/flamegreen/15.png",
-        ]);
-        this.interactionIcon.rotation.set(0, Math.PI, 0);
-        this.interactionIcon.position.copy(this.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
-        this.scene.instance.add(this.interactionIcon);
+        // create icon
+        const icon = new InteractionIcon(this.position, this.scene.scene_id);
+        this.scene.instance.add(icon.instance);
 
         this.loadObject(this.baseObject.gltf_src);
 

@@ -203,7 +203,7 @@ export default class BaseScene {
         for (const [key, value] of Object.entries(charactersData)) {
             if (value.sceneId === this.scene_id) {
                 console.log(`generate character ${key} in ${value.sceneId}`);
-                const npc = new Npc(key, value.sceneId);
+                const npc = new Npc(key, this);
                 this.instance.add(npc.instance);
             }
         }
