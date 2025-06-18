@@ -22,9 +22,14 @@ export const charactersData: CharactersDataType = {
         position: new THREE.Vector3(4, 1.5, 2),
         targetPosition: new THREE.Vector3(-1, 0, -2),
     },
-    tahani: {
+    tehani: {
         sceneId: "dream",
-        position: new THREE.Vector3(-4, 1.5, -5),
+        position: new THREE.Vector3(-1.5, 0, -10),
+        targetPosition: new THREE.Vector3(-1, 0, -2),
+    },
+    manahia: {
+        sceneId: "dream",
+        position: new THREE.Vector3(-80, 7, -3),
         targetPosition: new THREE.Vector3(-1, 0, -2),
     },
 };

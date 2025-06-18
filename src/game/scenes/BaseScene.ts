@@ -44,7 +44,7 @@ export default class BaseScene {
     protected backgroundMaps: string[] = [];
 
     constructor(scene_id: Scenes) {
-        console.log("Scene Id", scene_id);
+        console.log("Initiating Scene:", scene_id);
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
         this.scene_id = scene_id;
@@ -80,9 +80,14 @@ export default class BaseScene {
     }
 
     private updateSceneChange(sceneTo: Scenes, sceneFrom: Scenes, speed?: THREE.Vector2) {
-        console.log("updateSceneChange", sceneTo, sceneFrom, this.scene_id);
+        console.log(
+            `scene-change-game: Changing scene from ${this.scene_id} to ${sceneTo} with speed`,
+            speed,
+            this.spawnArray,
+        );
         if (sceneTo !== this.scene_id) return;
         this.spawnArray?.forEach((spawn) => {
+            console.log(`Checking spawn:`, spawn.userData.from, spawn.userData.to);
             if (
                 spawn.userData.from !== undefined &&
                 spawn.userData.from === sceneFrom &&
@@ -114,7 +119,11 @@ export default class BaseScene {
         this.spawnArray?.forEach((spawn) => {
             if (position.distanceTo(spawn.position) < 0.5 && spawn.userData.to !== undefined) {
                 console.log(spawn.userData.to);
-                this.updateSceneChange(spawn.userData.to, this.scene_id, this.character?.speed);
+                eventEmitterInstance.trigger(`scene-change-game`, [
+                    spawn.userData.to,
+                    this.scene_id,
+                    spawn.userData.speed ?? new THREE.Vector2(0, 0),
+                ]);
                 eventEmitterInstance.trigger("scene-change-ui", [
                     spawn.userData.to,
                     spawn.userData.subtitle,
@@ -166,7 +175,6 @@ export default class BaseScene {
             spawn.position.copy(spawnData.position);
             spawn.userData = spawnData.userData;
             this.instance.add(spawn);
-            console.log("spawn position", spawn, this.scene_id);
             this.spawnArray.push(spawn);
         });
     }
@@ -186,23 +194,20 @@ export default class BaseScene {
 
     protected generateSubtitlesTriggerZones(subTriggerZones: subTriggerZone[]) {
         subTriggerZones.forEach((subTriggerZone) => {
-            console.log("generateSubtitlesTriggerZones", subTriggerZone);
             const size = subTriggerZone.userData.size ?? 1;
             const color = new THREE.Color(0xffa500);
-            console.log("size", size);
             const spawn = new THREE.PolarGridHelper(Number(size), 0, 2, 32, color, color);
             spawn.position.copy(subTriggerZone.position);
             this.instance.add(spawn);
             spawn.userData = subTriggerZone.userData;
             this.subTriggerZones.push(spawn);
-            console.log("add zoom zones", this.subTriggerZones);
         });
     }
 
     protected generateNpcs() {
         for (const [key, value] of Object.entries(charactersData)) {
             if (value.sceneId === this.scene_id) {
-                console.log(`generate character ${key} in ${value.sceneId}`);
+                // console.log(`generate character ${key} in ${value.sceneId}`);
                 const npc = new Npc(key, value.sceneId);
                 this.instance.add(npc.instance);
             }

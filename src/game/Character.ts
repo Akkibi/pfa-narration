@@ -322,6 +322,7 @@ export class Character {
         this.position.copy(position);
 
         const newPos = new THREE.Vector3(position.x, this.height, position.y);
+        console.log("newPos", newPos);
         this.instance.position.copy(newPos);
 
         if (rotation) {

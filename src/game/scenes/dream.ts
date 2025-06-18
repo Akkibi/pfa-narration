@@ -18,7 +18,7 @@ export class Dream extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(0, 0, 0),
+                position: new THREE.Vector3(-64.7, -5, -29.5),
                 userData: {
                     from: "test",
                 },
@@ -120,7 +120,7 @@ export class Dream extends BaseScene {
             },
             undefined,
             (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
+                console.error("An error occuerred while loading the GLTF model:", error);
             },
         );
         loader.load(

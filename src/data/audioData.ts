@@ -24,7 +24,7 @@ const SoundEffects: PlayerType[] = [
         delay: 2,
         volume: 0.2,
     },
-    { name: "sail_boat", src: "/sounds/effects/sail_boat.mp3", fadeIn: 0.5 },
+    { name: "sail_boat", src: "/sounds/effects/sail_boat.mp3", fadeIn: 0.5, volume: 0.2 },
     { name: "walking", src: "/sounds/effects/walking_short.mp3", fadeIn: 0.5 },
 ];
 
@@ -40,6 +40,12 @@ const Dialogues: PlayerType[] = [
     { name: "talua_02_B", src: "/sounds/dialogues/talua/talua_02_B.mp3" },
     { name: "talua_03_A", src: "/sounds/dialogues/talua/talua_03_A.mp3" },
     { name: "talua_03_B", src: "/sounds/dialogues/talua/talua_03_B.mp3" },
+    { name: "tehani_00", src: "/sounds/dialogues/tehani/tehani_00.mp3" },
+    { name: "tehani_01", src: "/sounds/dialogues/tehani/tehani_01.mp3" },
+    { name: "tehani_02_A", src: "/sounds/dialogues/tehani/tehani_02.mp3" },
+    { name: "tehani_02_B", src: "/sounds/dialogues/tehani/tehani_02_B.mp3" },
+    { name: "tehani_03_A", src: "/sounds/dialogues/tehani/tehani_03_A.mp3" },
+    { name: "tehani_03_B", src: "/sounds/dialogues/tehani/tehani_03_B.mp3" },
 ];
 
 const VoiceOff: PlayerType[] = [
@@ -55,6 +61,8 @@ const VoiceOff: PlayerType[] = [
     { name: "dream_3_01", src: "/sounds/voice_off/dream_3/dream_01.mp3" },
     { name: "dream_3_02", src: "/sounds/voice_off/dream_3/dream_02.mp3" },
     { name: "object_00", src: "/sounds/voice_off/objects/object_00.mp3" },
+    { name: "object_01", src: "/sounds/voice_off/objects/object_01.mp3" },
+    { name: "object_02", src: "/sounds/voice_off/objects/object_02.mp3" },
 ];
 
 export const AudioData: PlayerType[] = [...SoundEffects, ...SoundTracks, ...Dialogues, ...VoiceOff];
