@@ -1,15 +1,16 @@
 import { useEffect, useRef } from "react";
 import { Test } from "../game/scenes/test";
-import { Hub2 } from "../game/scenes/hub";
+import { Hub } from "../game/scenes/hub";
 import { Scenes } from "./contexts/TransitionManager";
 import { Game } from "../game/game";
-import { Souvenir } from "../game/scenes/dream";
-import { Hub } from "../game/scenes/hubPano";
+import { Dream } from "../game/scenes/dream";
+import { HubPano } from "../game/scenes/hubPano";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { Subtitle } from "../data/subsData";
 import { HubEnd } from "../game/scenes/hubEnd";
+import { DarkWorld } from "../game/scenes/darkWorld";
 
-export type GameScenes = Hub | Test | Souvenir | Hub2 | HubEnd;
+export type GameScenes = HubPano | Test | Dream | Hub | HubEnd | DarkWorld;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
@@ -49,7 +50,7 @@ export default function SceneManager({
     return (
         <>
             <div className="scene" ref={mountRef}></div>
-            <div
+            {/* <div
                 className="scene-info"
                 style={{
                     position: "absolute",
@@ -62,7 +63,7 @@ export default function SceneManager({
                 }}
             >
                 Current Scene: {currentSceneIndex}
-            </div>
+            </div> */}
         </>
     );
 }

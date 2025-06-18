@@ -6,7 +6,7 @@ import { InteractiveObjects } from "../../data/objectsData";
 
 export class Dream extends BaseScene {
     private gltfModel: THREE.Group | null = null;
-
+    private eye: THREE.Mesh;
     constructor() {
         super("dream");
 

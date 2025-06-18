@@ -224,6 +224,7 @@ export default class BaseScene {
                     1,
                     1,
                 );
+                texture.colorSpace = THREE.SRGBColorSpace;
                 const material = new THREE.MeshBasicMaterial({
                     transparent: true,
                     map: texture,

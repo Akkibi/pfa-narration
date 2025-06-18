@@ -1,4 +1,4 @@
 export const gameState = {
-    currentScene: "hub_1",
+    currentScene: "hub_pano",
     freezed: false,
 };
