@@ -45,7 +45,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
             duration: 0.5,
             ease: "power1.inOut",
-        })
+        });
     });
 
     useEffect(() => {

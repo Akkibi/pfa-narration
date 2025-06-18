@@ -7,12 +7,14 @@ import { Subtitle } from "../../data/subsData";
 export const ScenesSequence: Scenes[] = [
     "home",
     "intro_prison",
-    "hub_0",
-    "hub_1",
-    "dream_3",
-    "hub_2",
+    "hub_pano",
+    "hub",
+    "dream",
+    "hub_end",
     "falling",
     "dark_world",
+    "stairs",
+    "dark_world_2",
     "end",
     "test",
 ];
@@ -20,12 +22,14 @@ export const ScenesSequence: Scenes[] = [
 export type Scenes =
     | "home"
     | "intro_prison"
-    | "hub_0"
-    | "hub_1"
-    | "dream_3"
-    | "hub_2"
+    | "hub_pano"
+    | "hub"
+    | "dream"
+    | "hub_end"
     | "falling"
     | "dark_world"
+    | "stairs"
+    | "dark_world_2"
     | "end"
     | "test";
 
@@ -40,8 +44,8 @@ const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
     const fadeRef = useRef<HTMLDivElement>(null);
-    const [displayedPage, setDisplayedPage] = useState<Scenes>("dream_3");
-    const [page, setPage] = useState<Scenes>("dream_3");
+    const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
+    const [page, setPage] = useState<Scenes>("home");
     const [subtitle, setSubtitle] = useState<Subtitle | null>(null);
 
     useGSAP(() => {
@@ -58,6 +62,10 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             onComplete: () => {
                 if (subtitle) {
                     eventEmitterInstance.trigger(`triggerSubs`, [[subtitle], true]);
+                    eventEmitterInstance.trigger("playSound", ["sail_boat"]);
+                    eventEmitterInstance.trigger("stopHowlers", [
+                        ["hub", "souvenir", "monde_noir", "outro"],
+                    ]);
                 } else if (!subtitle) {
                     setDisplayedPage(page);
                 }

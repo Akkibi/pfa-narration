@@ -24,6 +24,7 @@ const SoundEffects: PlayerType[] = [
         delay: 2,
         volume: 0.2,
     },
+    { name: "sail_boat", src: "/sounds/effects/sail_boat.mp3", fadeIn: 0.5 },
     { name: "walking", src: "/sounds/effects/walking_short.mp3", fadeIn: 0.5 },
 ];
 

@@ -19,13 +19,13 @@ export class HubEnd extends BaseScene {
     private floatingElements: FloatingElement[] = [];
     private flames: FlamesElement[] = [];
     constructor() {
-        super("hub_1");
+        super("hub_end");
 
         this.generateSpawns([
             {
                 position: new THREE.Vector3(-68.5, 0, 5),
                 userData: {
-                    from: "dream_3",
+                    from: "dream",
                 },
             },
             {

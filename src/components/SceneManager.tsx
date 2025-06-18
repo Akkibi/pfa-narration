@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Test } from "../game/scenes/test";
-import { Hub2 } from "../game/scenes/hub2";
+import { Hub2 } from "../game/scenes/hub";
 import { Scenes } from "./contexts/TransitionManager";
 import { Game } from "../game/game";
-import { Souvenir } from "../game/scenes/souvenir";
-import { Hub } from "../game/scenes/hub";
+import { Souvenir } from "../game/scenes/dream";
+import { Hub } from "../game/scenes/hubPano";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { Subtitle } from "../data/subsData";
 import { HubEnd } from "../game/scenes/hubEnd";

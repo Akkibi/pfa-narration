@@ -10,14 +10,14 @@ import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import SceneManager from "../components/SceneManager";
 import { Test } from "../game/scenes/test";
-import { Souvenir } from "../game/scenes/souvenir";
-import { Hub2 } from "../game/scenes/hub2";
 import { Dream3Subs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
-import { Hub } from "../game/scenes/hub";
+import { Dream } from "../game/scenes/dream";
 import { HubEnd } from "../game/scenes/hubEnd";
+import { Hub } from "../game/scenes/hub";
+import { HubPano } from "../game/scenes/hubPano";
 
 interface SceneListType {
-    [key: string]: Hub | Test | Souvenir | Hub2 | HubEnd;
+    [key: string]: Hub | Test | Dream | HubPano | HubEnd;
 }
 
 export default function Pages() {
@@ -28,10 +28,10 @@ export default function Pages() {
     useEffect(() => {
         const loaded_scenes: SceneListType = {
             test: new Test(),
-            dream_3: new Souvenir(),
-            hub_2: new Hub2(),
-            hub_0: new Hub(),
-            hub_1: new HubEnd(),
+            dream: new Dream(),
+            hubEnd: new HubEnd(),
+            hub: new Hub(),
+            hubPano: new HubPano(),
             // dark_world: new Scene1(),
         };
 
@@ -89,57 +89,83 @@ export default function Pages() {
 
     if (scenes)
         switch (displayedPage) {
+            case "test":
+                return (
+                    <SceneManager
+                        currentSceneIndex="test"
+                        scene={scenes["test"]}
+                        subs={[]}
+                        sounds={[]}
+                    />
+                );
             case "home":
                 return <Home />;
             case "intro_prison":
                 return (
                     <Player
                         src="/videos/intro_prison.webm"
-                        onEnd={() => changePageToGame("hub_0", "intro_prison")}
+                        onEnd={() => changePageToGame("hub_pano", "intro_prison")}
                         subs={IntroPrisonSubs}
                         sounds={["closing_door", "ambient_prison"]}
                     />
                 );
-            case "test":
-                return <SceneManager currentSceneIndex="test" scene={scenes["test"]} />;
-            case "hub_0":
+            case "hub_pano":
                 return (
                     <SceneManager
-                        currentSceneIndex="hub_0"
-                        scene={scenes["hub_0"]}
+                        currentSceneIndex="hub_pano"
+                        scene={scenes["hubPano"]}
                         soundTrack="hub"
                         subs={Hub0Subs}
                     />
                 );
-            // case "hub_1":
-            //     return (
-            //         <SceneManager
-            //             currentSceneIndex="hub_1"
-            //             scene={scenes["hub_1"]}
-            //             subs={Hub0Subs}
-            //         />
-            //     );
-            case "dream_3":
+            case "hub":
                 return (
                     <SceneManager
-                        currentSceneIndex="dream_3"
-                        scene={scenes["dream_3"]}
+                        currentSceneIndex="hub"
+                        scene={scenes["hub"]}
+                        subs={Hub0Subs}
+                        soundTrack="hub"
+                    />
+                );
+            case "dream":
+                return (
+                    <SceneManager
+                        currentSceneIndex="dream"
+                        scene={scenes["dream"]}
                         subs={Dream3Subs}
                         soundTrack="souvenir"
                     />
                 );
-            case "hub_2":
-                return <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />;
+            case "hub_end":
+                return (
+                    <SceneManager
+                        currentSceneIndex="hub_end"
+                        scene={scenes["hubEnd"]}
+                        soundTrack="hub_end"
+                    />
+                );
             case "falling":
                 return (
                     <Player
                         src="/videos/intro_prison.mp4"
-                        onEnd={() => setPage("hub_1")}
+                        onEnd={() => setPage("falling")}
                         subs={IntroPrisonSubs}
+                        sounds={[]}
                     />
                 );
             case "dark_world":
-                return <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />;
+                return <SceneManager currentSceneIndex="dark_world" scene={scenes["dark_world"]} />;
+            // case "stairs":
+            //     return (
+            //         <Player
+            //             src="/videos/intro_prison.mp4"
+            //             onEnd={() => setPage("falling")}
+            //             subs={IntroPrisonSubs}
+            //             sounds={[]}
+            //         />
+            //     );
+            // case "dark_world_2":
+            //     return <SceneManager currentSceneIndex="dark_world_2" scene={scenes["dark_world_2"]} />;
             case "end":
                 return (
                     <Player

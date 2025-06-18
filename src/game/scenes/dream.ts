@@ -4,18 +4,18 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObject } from "../InteractiveObject";
 import { InteractiveObjects } from "../../data/objectsData";
 
-export class Souvenir extends BaseScene {
+export class Dream extends BaseScene {
     public spawnArray: THREE.PolarGridHelper[] = [];
     private gltfModel: THREE.Group | null = null;
 
     constructor() {
-        super("dream_3");
+        super("dream");
 
         this.generateSpawns([
             {
                 position: new THREE.Vector3(-161, 11, 46.5),
                 userData: {
-                    to: "hub_2",
+                    to: "hub_end",
                 },
             },
             {
@@ -27,7 +27,7 @@ export class Souvenir extends BaseScene {
             {
                 position: new THREE.Vector3(20, 9, 13),
                 userData: {
-                    from: "hub_2",
+                    from: "hub",
                 },
             },
         ]);
