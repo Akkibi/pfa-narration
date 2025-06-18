@@ -9,6 +9,7 @@ import Npc from "../npc";
 import { loadImage } from "../../utils/loadImage";
 import { Scenes } from "../../components/contexts/TransitionManager";
 import { gameState } from "../gameState";
+import { Subtitle } from "../../data/subsData";
 
 interface spawnData {
     position: THREE.Vector3;
@@ -20,8 +21,13 @@ interface zoomZone {
     userData: userData;
 }
 
+interface subTriggerZone {
+    position: THREE.Vector3;
+    userData: userData;
+}
+
 interface userData {
-    [key: string]: number | Scenes;
+    [key: string]: number | Scenes | boolean | Subtitle;
 }
 
 export default class BaseScene {
@@ -34,6 +40,7 @@ export default class BaseScene {
     private particleSystem: ParticleSystem | null;
     public spawnArray: THREE.PolarGridHelper[] = [];
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
+    public subTriggerZones: THREE.PolarGridHelper[] = [];
     protected backgroundMaps: string[] = [];
 
     constructor(scene_id: Scenes) {
@@ -98,6 +105,7 @@ export default class BaseScene {
     private onPositionChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
         this.sceneChange(position);
         this.zoomChange(position, lastPosition);
+        this.checkForTriggeringSubtitles(position, lastPosition);
     }
 
     private sceneChange(position: THREE.Vector3) {
@@ -110,7 +118,10 @@ export default class BaseScene {
                     this.scene_id,
                     this.character?.speed,
                 ]);
-                eventEmitterInstance.trigger("scene-change-ui", [spawn.userData.to]);
+                eventEmitterInstance.trigger("scene-change-ui", [
+                    spawn.userData.to,
+                    spawn.userData.subtitle,
+                ]);
                 eventEmitterInstance.trigger(`toggleFreeze`, [true]);
             }
         });
@@ -128,6 +139,23 @@ export default class BaseScene {
                         position.distanceTo(zoomZone.position) < zoomZone.userData.size,
                         zoomZone.userData.zoom,
                     ]);
+                }
+            }
+        });
+    }
+    private checkForTriggeringSubtitles(position: THREE.Vector3, lastPosition: THREE.Vector3) {
+        this.subTriggerZones?.forEach((triggerZone) => {
+            if (triggerZone.userData.size !== undefined && !triggerZone.userData.isDone) {
+                const isInZoneNow =
+                    position.distanceTo(triggerZone.position) < triggerZone.userData.size;
+                const wasInZoneBefore =
+                    lastPosition.distanceTo(triggerZone.position) < triggerZone.userData.size;
+
+                // Only trigger when entering the zone
+                if (isInZoneNow && !wasInZoneBefore) {
+                    console.log("triggering subtitle", triggerZone.userData.subtitle);
+                    eventEmitterInstance.trigger("triggerSubs", [[triggerZone.userData.subtitle]]);
+                    triggerZone.userData.isDone = true;
                 }
             }
         });
@@ -156,6 +184,21 @@ export default class BaseScene {
             this.instance.add(spawn);
             this.zoomZoneArray.push(spawn);
             // console.log("add zoom zones", this.spawnArray);
+        });
+    }
+
+    protected generateSubtitlesTriggerZones(subTriggerZones: subTriggerZone[]) {
+        subTriggerZones.forEach((subTriggerZone) => {
+            console.log("generateSubtitlesTriggerZones", subTriggerZone);
+            const size = subTriggerZone.userData.size ?? 1;
+            const color = new THREE.Color(0xffa500);
+            console.log("size", size);
+            const spawn = new THREE.PolarGridHelper(Number(size), 0, 2, 32, color, color);
+            spawn.position.copy(subTriggerZone.position);
+            this.instance.add(spawn);
+            spawn.userData = subTriggerZone.userData;
+            this.subTriggerZones.push(spawn);
+            console.log("add zoom zones", this.subTriggerZones);
         });
     }
 

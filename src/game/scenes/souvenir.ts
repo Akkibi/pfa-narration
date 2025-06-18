@@ -66,6 +66,32 @@ export class Souvenir extends BaseScene {
             new THREE.Vector3(-50, 20, 0),
         );
 
+        this.generateSubtitlesTriggerZones([
+            {
+                position: new THREE.Vector3(5, 0, -5),
+                userData: {
+                    size: 5,
+                    subtitle: {
+                        name: "[CHARLIE]",
+                        text: "Pas d'toit, pas d'taf, pas d'plan... Allez mec, faut qu'tu bouges. Pas question d'dormir dehors. Pas encore. Y a forcément quelqu'un qui pourra t'aider.",
+                        audio: "dream_3_01",
+                        duration: 9,
+                    },
+                },
+            },
+            {
+                position: new THREE.Vector3(-12, 0, -3),
+                userData: {
+                    size: 3,
+                    subtitle: {
+                        name: "[CHARLIE]",
+                        text: "J'perds mon temps, c'est chacun pour sa pomme ici. Va falloir que j'me débrouille autrement.",
+                        audio: "dream_3_02",
+                        duration: 6,
+                    },
+                },
+            },
+        ]);
         const chevaleret = new InteractiveObject(InteractiveObjects.chevaletEnfer, this);
         this.instance.add(chevaleret.instance);
         const bottle = new InteractiveObject(InteractiveObjects.bottleGlass, this);

@@ -37,7 +37,9 @@ export const Hub0Subs: Subtitle[] = [
     {
         name: "[CHARLIE]",
         text: "Allez Charlie... faut comprendre pourquoi t'as lâché l'affaire au point t'te retrouver en tôle. Un peintre qui crée rien, c'est juste un raté qui s'prend pour quelqu'un.",
-        audio: "hub_01",
+        audio: "hub_0_00",
         duration: 9,
     },
 ];
+
+export const Dream3Subs: Subtitle[] = [];

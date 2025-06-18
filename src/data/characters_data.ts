@@ -18,8 +18,13 @@ export const charactersData: CharactersDataType = {
         targetPosition: new THREE.Vector3(-1, 0, -1),
     },
     talua: {
-        sceneId: "hub_1",
-        position: new THREE.Vector3(5, 0, -1),
-        targetPosition: new THREE.Vector3(-1, 0, 1),
+        sceneId: "dream_3",
+        position: new THREE.Vector3(4, 1.5, 2),
+        targetPosition: new THREE.Vector3(-1, 0, -2),
+    },
+    tahani: {
+        sceneId: "dream_3",
+        position: new THREE.Vector3(-4, 1.5, -5),
+        targetPosition: new THREE.Vector3(-1, 0, -2),
     },
 };

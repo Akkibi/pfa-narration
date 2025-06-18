@@ -18,14 +18,16 @@ export default function Player({ src, onEnd, subs, sounds, soundTrack = false }:
         if (videoRef.current && videoRef.current.onended === null) {
             videoRef.current.onended = () => {
                 onEnd();
-                eventEmitterInstance.trigger("toggleSoundtrack");
             };
         }
 
         sounds.forEach((sound) => {
             eventEmitterInstance.trigger("playSound", [sound]);
         });
-        if (!soundTrack) eventEmitterInstance.trigger("toggleSoundtrack");
+        if (!soundTrack)
+            eventEmitterInstance.trigger("stopHowlers", [
+                ["hub", "souvenir", "monde_noir", "outro"],
+            ]);
         eventEmitterInstance.trigger("triggerSubs", [subs]);
     }, [videoRef]);
 
