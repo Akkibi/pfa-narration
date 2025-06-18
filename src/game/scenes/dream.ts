@@ -18,7 +18,7 @@ export class Dream extends BaseScene {
                 },
             },
             {
-                position: new THREE.Vector3(-64.7, -5, -29.5),
+                position: new THREE.Vector3(-80, 8, -3),
                 userData: {
                     from: "test",
                 },

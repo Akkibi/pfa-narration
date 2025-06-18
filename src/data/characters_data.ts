@@ -27,9 +27,9 @@ export const charactersData: CharactersDataType = {
         position: new THREE.Vector3(-1.5, 0, -10),
         targetPosition: new THREE.Vector3(-1, 0, -2),
     },
-    manahia: {
+    manaia: {
         sceneId: "dream",
-        position: new THREE.Vector3(-80, 7, -3),
+        position: new THREE.Vector3(-80, 7.4, -3),
         targetPosition: new THREE.Vector3(-1, 0, -2),
     },
 };

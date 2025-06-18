@@ -44,8 +44,8 @@ const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
     const fadeRef = useRef<HTMLDivElement>(null);
-    const [displayedPage, setDisplayedPage] = useState<Scenes>("dream");
-    const [page, setPage] = useState<Scenes>("dream");
+    const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
+    const [page, setPage] = useState<Scenes>("home");
     const [subtitle, setSubtitle] = useState<Subtitle | null>(null);
 
     useGSAP(() => {
@@ -86,6 +86,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             ease: "power1.inOut",
             onStart: () => {
                 eventEmitterInstance.trigger(`toggleFreeze`, [false]);
+                eventEmitterInstance.trigger("stopHowlers", [["sail_boat"]]);
             },
         });
 
