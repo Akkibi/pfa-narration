@@ -171,7 +171,8 @@ export default class BaseScene {
             const color = spawnData.userData.from
                 ? new THREE.Color(0x0000ff)
                 : new THREE.Color(0x00ff00);
-            const spawn = new THREE.PolarGridHelper(0.25, 0, 2, 32, color, color);
+            const spawn = new THREE.PolarGridHelper(0.25, 0, 0, 32, color, color);
+            // const spawn = new THREE.PolarGridHelper(0.25, 0, 2, 32, color, color);
             spawn.position.copy(spawnData.position);
             spawn.userData = spawnData.userData;
             this.instance.add(spawn);
@@ -183,7 +184,7 @@ export default class BaseScene {
         zoomZones.forEach((zoomZone) => {
             const size = zoomZone.userData.size ?? 1;
             const color = new THREE.Color(0xff0000);
-            const spawn = new THREE.PolarGridHelper(Number(size), 0, 2, 32, color, color);
+            const spawn = new THREE.PolarGridHelper(Number(size), 0, 0, 32, color, color);
             spawn.position.copy(zoomZone.position);
             spawn.userData = zoomZone.userData;
             this.instance.add(spawn);
@@ -196,7 +197,7 @@ export default class BaseScene {
         subTriggerZones.forEach((subTriggerZone) => {
             const size = subTriggerZone.userData.size ?? 1;
             const color = new THREE.Color(0xffa500);
-            const spawn = new THREE.PolarGridHelper(Number(size), 0, 2, 32, color, color);
+            const spawn = new THREE.PolarGridHelper(Number(size), 0, 0, 32, color, color);
             spawn.position.copy(subTriggerZone.position);
             this.instance.add(spawn);
             spawn.userData = subTriggerZone.userData;
