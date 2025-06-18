@@ -36,6 +36,10 @@ class Animation {
         this.speed = speed;
     };
 
+    public setFrame = (frame: number) => {
+        this.currentIndex = frame;
+    };
+
     public set = async (animData: AnimationType) => {
         const loop = [];
 

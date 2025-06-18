@@ -7,8 +7,9 @@ import { Souvenir } from "../game/scenes/souvenir";
 import { Hub } from "../game/scenes/hub";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { Subtitle } from "../data/subsData";
+import { HubEnd } from "../game/scenes/hubEnd";
 
-export type GameScenes = Hub | Test | Souvenir | Hub2;
+export type GameScenes = Hub | Test | Souvenir | Hub2 | HubEnd;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
