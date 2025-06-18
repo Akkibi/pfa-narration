@@ -43,7 +43,6 @@ export function AudioControls() {
             toggleSound(name, volume),
         );
         eventEmitterInstance.on("stopHowlers", (soundNames: string[]) => stopHowlers(soundNames));
-        eventEmitterInstance.on("toggleSoundtrack", () => toggleSoundtrack());
     }, []);
 
     const toggleSound = (soundName: string, volume?: number) => {
@@ -53,8 +52,12 @@ export function AudioControls() {
             return;
         }
 
-        // Prevent duplicate playbacks
-        if (activePlayersRef.current.find((p) => p.name === soundName)) return;
+        const existingPlayer = activePlayersRef.current.find((p) => p.name === soundName);
+
+        if (existingPlayer) {
+            if (existingPlayer.player.mute()) existingPlayer.player.mute(false);
+            return;
+        }
 
         console.log("toggleSound", soundName, sound);
 
@@ -84,26 +87,23 @@ export function AudioControls() {
     };
 
     const stopHowlers = (soundNames: string[]) => {
+        console.log("Stopping sounds:", soundNames);
         soundNames.forEach((name) => {
-            const player = activePlayersRef.current.find((p) => p.name === name);
+            const player = activePlayersRef.current.find((p) => p.name.includes(name));
             if (player) {
-                player.player.stop();
-                activePlayersRef.current = activePlayersRef.current.filter((p) => p.name !== name);
-                console.log(`Stopped sound: ${name}`);
+                const currentVolume = player.player.volume();
+                player.player.fade(currentVolume, 0, 1000); // Fade out over 1 second
+
+                // Remove from active players after fade completes
+                setTimeout(() => {
+                    player.player.stop();
+                    activePlayersRef.current = activePlayersRef.current.filter(
+                        (p) => p.name !== name,
+                    );
+                    console.log(`Stopped sound after fade: ${name}`);
+                }, 1000);
             }
         });
-    };
-
-    const toggleSoundtrack = () => {
-        console.log("Toggling soundtrack");
-        const soundTrack = activePlayersRef.current.find((p) => p.name.includes("soundtrack"));
-        if (!soundTrack) return;
-
-        const currentVolume = soundTrack.player.volume();
-        const targetVolume = currentVolume > 0.05 ? 0 : 1;
-
-        soundTrack.player.fade(currentVolume, targetVolume, 1000);
-        console.log(`Soundtrack ${targetVolume === 0 ? "faded out" : "faded in"}`);
     };
 
     const toggleMuteAudio = () => {

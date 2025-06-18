@@ -12,16 +12,23 @@ export type GameScenes = Hub | Test | Souvenir | Hub2;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
-    subs: Subtitle[];
+    soundTrack: "hub" | "souvenir" | "monde_noir" | "outro";
+    subs?: Subtitle[];
 };
 
-export default function SceneManager({ currentSceneIndex, scene, subs }: SceneManagerProps) {
+export default function SceneManager({
+    currentSceneIndex,
+    scene,
+    soundTrack,
+    subs = [],
+}: SceneManagerProps) {
     const mountRef = useRef<HTMLDivElement>(null);
     const game = Game.getInstance(currentSceneIndex, scene);
 
     useEffect(() => {
         if (!mountRef.current) return;
         game.start(mountRef.current);
+        eventEmitterInstance.trigger("playSound", [soundTrack]);
         eventEmitterInstance.trigger("triggerSubs", [subs]);
         return () => {
             game.cleanup();

@@ -7,7 +7,8 @@ export default function SubtitlesControls() {
     const [currentLine, setCurrentLine] = useState<Subtitle | null>(null);
     const timeoutRef = useRef<number | null>(null);
     const [animationDelay, setAnimationDelay] = useState<number>(500);
-    const [subs, setSubs] = useState<Subtitle[]>([]);
+    const [centered, setCentered] = useState<boolean>(false);
+    // const [subs, setSubs] = useState<Subtitle[]>([]);
 
     // utility to clear any pending timeouts and hide subtitle
     const clearSubs = () => {
@@ -42,10 +43,10 @@ export default function SubtitlesControls() {
     };
 
     useEffect(() => {
-        const handler = (subs: Subtitle[]) => {
+        const handler = (subs: Subtitle[], centered?: boolean) => {
             clearSubs();
             runSubs(subs, 0);
-            setSubs(subs);
+            setCentered(centered ?? false);
         };
         eventEmitterInstance.on("triggerSubs", handler);
         return () => {
@@ -55,24 +56,24 @@ export default function SubtitlesControls() {
     }, []);
 
     return (
-        currentLine && (
-            <div className="subtitles-container">
-                <p className="subtitles-line-text">
-                    {currentLine?.name}{" "}
-                    {currentLine?.text.split("").map((letter, i) => {
-                        const delay = 500 + i * animationDelay;
-                        return (
-                            <span
-                                key={i}
-                                className="letter"
-                                style={{ animationDelay: `${delay}ms` }}
-                            >
-                                {letter}
-                            </span>
-                        );
-                    })}
-                </p>
-            </div>
-        )
+        // currentLine && (
+        <div className={"subtitles-container " + (centered && "centered")}>
+            <p className="subtitles-line-text">
+                {currentLine?.name}{" "}
+                {currentLine?.text.split("").map((letter, i) => {
+                    const delay = 500 + i * animationDelay;
+                    return (
+                        <span
+                            key={i + letter + Math.random()}
+                            className="letter"
+                            style={{ animationDelay: `${delay}ms` }}
+                        >
+                            {letter}
+                        </span>
+                    );
+                })}
+            </p>
+        </div>
+        // )
     );
 }

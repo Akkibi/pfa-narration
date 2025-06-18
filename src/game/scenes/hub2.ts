@@ -3,6 +3,7 @@ import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import Animation from "../../utils/animationManager";
+import { sub } from "three/tsl";
 
 interface FloatingElement {
     object: THREE.Object3D;
@@ -27,6 +28,12 @@ export class Hub2 extends BaseScene {
                 position: new THREE.Vector3(-68.5, 0, 5),
                 userData: {
                     to: "dream_3",
+                    subtitle: {
+                        name: "[CHARLIE]",
+                        text: "J'suis monté dans ce cargo sans savoir où il allait. J'étais pas capable de me situer sur une carte, et c'était mieux comme ça. Ça voulait dire que personne viendrait me chercher. Le capitaine a jamais posé de questions. Il savait que c'était pas la peine. Que je lui répondrais pas. Il était plus lucide que moi, c'est clair. J'ai bossé sur le pont pendant des mois, j'ai serré les dents, et j'me souviens avoir pensé la même chose tout du long : « cette fois, pas d'came, pas d'alcool. Faut pas qu'tu déconnes. C'est ta seule chance. »",
+                        audio: "dream_3_00",
+                        duration: 26,
+                    },
                 },
             },
             {
@@ -70,6 +77,28 @@ export class Hub2 extends BaseScene {
                     zoom: 0.25,
                 },
             },
+        ]);
+
+        this.generateSubtitlesTriggerZones([
+            {
+                position: new THREE.Vector3(-65, 0, 0),
+                userData: {
+                    size: 5,
+                    subtitle: {
+                        name: "[CHARLIE]",
+                        text: "Ça m'revient pas. J'dois creuser plus profond si j'veux comprendre.",
+                        audio: "hub_1_00",
+                        duration: 5,
+                    },
+                },
+            },
+            // {
+            //     position: new THREE.Vector3(-92, 12, 5),
+            //     userData: {
+            //         size: 5,
+            //         zoom: 0.3,
+            //     },
+            // },
         ]);
 
         this.generateBackgroundMaps(

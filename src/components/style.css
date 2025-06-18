@@ -66,20 +66,23 @@
 
 .subtitles-container {
     position: fixed;
-    /* width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center; */
     bottom: 40px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
+    transform: translateX(-50%);
+    z-index: 1000;
 
     animation-name: appearOpacity;
     animation-duration: 500ms;
     animation-fill-mode: forwards;
     opacity: 0;
     font-size: 1.4rem;
+}
+
+.subtitles-container.centered {
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    /* Changed from -50% to 50% for the Y-axis to properly center vertically */
 }
 
 @keyframes appearOpacity {
@@ -99,12 +102,20 @@
 
     height: fit-content;
     padding: 0.25rem 0rem;
-    opacity: 0.6;
     line-height: 2rem;
     font-size: 2rem;
     font-weight: 600;
+}
+
+.subtitles-container>.subtitles-line-text {
     -webkit-text-fill-color: white;
     -webkit-text-stroke: 1px black;
+}
+
+.subtitles-container.centered>.subtitles-line-text {
+    -webkit-text-fill-color: black;
+    color: black;
+    ;
 }
 
 .letter {

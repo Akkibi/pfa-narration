@@ -12,7 +12,7 @@ import SceneManager from "../components/SceneManager";
 import { Test } from "../game/scenes/test";
 import { Souvenir } from "../game/scenes/souvenir";
 import { Hub2 } from "../game/scenes/hub2";
-import { Hub0Subs, IntroPrisonSubs } from "../data/subsData";
+import { Dream3Subs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
 import { Hub } from "../game/scenes/hub";
 
 interface SceneListType {
@@ -21,7 +21,7 @@ interface SceneListType {
 
 export default function Pages() {
     const [scenes, setScenes] = useState<SceneListType>();
-    const { setPage, displayedPage } = useTransitionContext();
+    const { setPage, displayedPage, setPageWithSubtitle } = useTransitionContext();
     const displayedPageRef = useRef(useTransitionContext().displayedPage);
 
     useEffect(() => {
@@ -52,19 +52,18 @@ export default function Pages() {
                 if (currentIndex !== -1 && currentIndex < ScenesSequence.length - 1) {
                     console.log(ScenesSequence[currentIndex + 1], ScenesSequence[currentIndex]);
                     setPage(ScenesSequence[currentIndex + 1]);
-                    eventEmitterInstance.trigger(`zoom-${ScenesSequence[currentIndex + 1]}`, [
-                        true,
-                        4,
-                    ]);
-                    eventEmitterInstance.trigger("scene-change-game", [
-                        ScenesSequence[currentIndex + 1],
-                        ScenesSequence[currentIndex],
+                    eventEmitterInstance.trigger("stopHowlers", [
+                        ["ambient_prison", "closing_door"],
                     ]);
                 }
             }
         };
-        const sceneChangeHandler = (to: Scenes) => {
-            setPage(to);
+        const sceneChangeHandler = (to: Scenes, subtitle?: Subtitle) => {
+            if (subtitle) {
+                setPageWithSubtitle(to, subtitle);
+            } else {
+                setPage(to);
+            }
             console.log("changeSceneIndex", to);
         };
 
@@ -79,6 +78,10 @@ export default function Pages() {
     const changePageToGame = (to: Scenes, from: Scenes) => {
         eventEmitterInstance.trigger("scene-change-game", [to, from]);
         eventEmitterInstance.trigger(`zoom-${to}`, [true, 4]);
+        setPage(to);
+    };
+
+    const changeScene = (to: Scenes) => {
         setPage(to);
     };
 
@@ -102,19 +105,27 @@ export default function Pages() {
                     <SceneManager
                         currentSceneIndex="hub_0"
                         scene={scenes["hub_0"]}
+                        soundTrack="hub"
                         subs={Hub0Subs}
                     />
                 );
-            case "hub_1":
+            // case "hub_1":
+            //     return (
+            //         <SceneManager
+            //             currentSceneIndex="hub_1"
+            //             scene={scenes["hub_1"]}
+            //             subs={Hub0Subs}
+            //         />
+            //     );
+            case "dream_3":
                 return (
                     <SceneManager
-                        currentSceneIndex="hub_1"
-                        scene={scenes["hub_1"]}
-                        subs={Hub0Subs}
+                        currentSceneIndex="dream_3"
+                        scene={scenes["dream_3"]}
+                        subs={Dream3Subs}
+                        soundTrack="souvenir"
                     />
                 );
-            case "dream_3":
-                return <SceneManager currentSceneIndex="dream_3" scene={scenes["dream_3"]} />;
             case "hub_2":
                 return <SceneManager currentSceneIndex="hub_2" scene={scenes["hub_2"]} />;
             case "falling":
