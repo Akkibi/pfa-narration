@@ -42,10 +42,22 @@ const Dialogues: PlayerType[] = [
     { name: "talua_03_B", src: "/sounds/dialogues/talua/talua_03_B.mp3" },
     { name: "tehani_00", src: "/sounds/dialogues/tehani/tehani_00.mp3" },
     { name: "tehani_01", src: "/sounds/dialogues/tehani/tehani_01.mp3" },
-    { name: "tehani_02_A", src: "/sounds/dialogues/tehani/tehani_02.mp3" },
+    { name: "tehani_02_A", src: "/sounds/dialogues/tehani/tehani_02_A.mp3" },
     { name: "tehani_02_B", src: "/sounds/dialogues/tehani/tehani_02_B.mp3" },
     { name: "tehani_03_A", src: "/sounds/dialogues/tehani/tehani_03_A.mp3" },
     { name: "tehani_03_B", src: "/sounds/dialogues/tehani/tehani_03_B.mp3" },
+    { name: "manaia_00", src: "/sounds/dialogues/manaia/manaia_00.mp3" },
+    { name: "manaia_01", src: "/sounds/dialogues/manaia/manaia_01.mp3" },
+    { name: "manaia_02_A", src: "/sounds/dialogues/manaia/manaia_02_A.mp3" },
+    { name: "manaia_02_B", src: "/sounds/dialogues/manaia/manaia_02_B.mp3" },
+    { name: "manaia_03_A", src: "/sounds/dialogues/manaia/manaia_03_A.mp3" },
+    { name: "manaia_03_B", src: "/sounds/dialogues/manaia/manaia_03_B.mp3" },
+    { name: "manaia_04_A", src: "/sounds/dialogues/manaia/manaia_04_A.mp3" },
+    { name: "manaia_04_B", src: "/sounds/dialogues/manaia/manaia_04_B.mp3" },
+    { name: "manaia_05", src: "/sounds/dialogues/manaia/manaia_05.mp3" },
+    { name: "manaia_06_A", src: "/sounds/dialogues/manaia/manaia_06_A.mp3" },
+    { name: "manaia_06_B", src: "/sounds/dialogues/manaia/manaia_06_B.mp3" },
+    { name: "manaia_07", src: "/sounds/dialogues/manaia/manaia_07.mp3" },
 ];
 
 const VoiceOff: PlayerType[] = [

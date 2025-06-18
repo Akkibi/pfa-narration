@@ -86,6 +86,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             ease: "power1.inOut",
             onStart: () => {
                 eventEmitterInstance.trigger(`toggleFreeze`, [false]);
+                eventEmitterInstance.trigger("stopHowlers", [["sail_boat"]]);
             },
         });
 

@@ -28,9 +28,9 @@ export default function SceneManager({
     const game = Game.getInstance(currentSceneIndex, scene);
 
     useEffect(() => {
+        console.log("SCENE MANAGER MOUNTED", currentSceneIndex, scene);
         if (!mountRef.current) return;
         game.start(mountRef.current);
-        eventEmitterInstance.trigger("playSound", [soundTrack]);
         eventEmitterInstance.trigger("triggerSubs", [subs]);
         return () => {
             game.cleanup();
@@ -40,6 +40,7 @@ export default function SceneManager({
     useEffect(() => {
         if (!mountRef.current) return;
         console.log("GAME SET SCENE", currentSceneIndex);
+        eventEmitterInstance.trigger("playSound", [soundTrack]);
         game.setScene(scene, currentSceneIndex);
 
         // return () => {

@@ -182,4 +182,129 @@ export const dialogData: DialogsDataType = {
             },
         },
     },
+    manaia: {
+        name: "Manaia",
+        done: false,
+        fallback: "On se retrouve au sommet de la colline.",
+        dialogs: {
+            start: {
+                isCharlie: true,
+                text: "Salut mec, t'as pas un ptit billet à me dépanner. Ça fait des semaines que j'suis à sec, j'crève la dalle.",
+                audio: "manaia_00",
+                next: "bonjour",
+                duration: 8,
+            },
+            // Initial greeting by Manaia in response to Charlie's "Salut mec…"
+            bonjour: {
+                isCharlie: false,
+                text: "J'te reconnais ! T'es le gars qui peint au village. Qu'est-ce que t'es venu foutre dans un trou pareil ?",
+                audio: "manaia_01",
+                duration: 6,
+                options: [
+                    { text: "J'crois pas qu'ça te regarde.", to: "bloc0A" },
+                    { text: "J'cherche un avenir meilleur, mec.", to: "bloc0B" },
+                ],
+            },
+
+            bloc0A: {
+                isCharlie: true,
+                text: " J'crois pas qu'ça te regarde. Et qu'est-ce que t'en as à faire de toutes façons ?",
+                audio: "manaia_02_A",
+                duration: 4,
+                next: "bloc1A",
+            },
+
+            bloc0B: {
+                isCharlie: true,
+                text: "J'cherche un avenir meilleur, mec. J'pensais trouver ça ici.",
+                audio: "manaia_02_B",
+                duration: 4,
+                next: "bloc1B",
+            },
+
+            // MANAIA's reply if Charlie chose Bloc 1 A
+            bloc1A: {
+                isCharlie: false,
+                text: "Doucement mon gars, on est pas ennemis. On a plus de points communs que ce que tu crois.",
+                audio: "manaia_03_A",
+                duration: 5,
+                options: [
+                    {
+                        text: "Qu'est-ce que j'peux avoir en commun avec un gars comme toi ?",
+                        to: "bloc2A",
+                    },
+                    { text: "J'peux savoir c'qui te fais penser ça ?", to: "bloc2B" },
+                ],
+            },
+
+            // MANAIA's reply if Charlie chose Bloc 1 B
+            bloc1B: {
+                isCharlie: false,
+                text: "Comme tout le monde y paraît. On a plus de points communs que ce que tu crois.",
+                audio: "manaia_03_B",
+                duration: 4,
+                options: [
+                    {
+                        text: "Qu'est-ce que j'peux avoir en commun avec un gars comme toi ?",
+                        to: "bloc2A",
+                    },
+                    { text: "J'peux savoir c'qui te fais penser ça ?", to: "bloc2B" },
+                ],
+            },
+
+            // MANAIA's reply if Charlie in Bloc 3 chose OPT.A
+            bloc2A: {
+                isCharlie: true,
+                text: "Qu'est-ce que j'peux avoir en commun avec un gars comme toi ? Sérieux, tu t'es vu ?",
+                audio: "manaia_04_A",
+                duration: 4,
+                next: "bloc3",
+                // no further options here, Charlie's next line would be the end of the scene
+            },
+
+            // MANAIA's reply if Charlie in Bloc 3 chose OPT.B
+            bloc2B: {
+                isCharlie: true,
+                text: "Ah ouai? J'peux savoir c'qui te fais penser ça ? Perso, les faux sourires et les chapeaux à fleurs c'est pas mon truc.",
+                audio: "manaia_04_B",
+                duration: 8,
+                next: "bloc3",
+            },
+
+            // Invitation to visit the atelier (shared for both Bloc1 branches)
+            bloc3: {
+                isCharlie: false,
+                text: "Tu le sait peut être pas? Mais toi et moi on a choisi la vie d'artiste. J'ai un atelier un peu plus haut sur la colline, ça te dit de visiter ?",
+                audio: "manaia_05",
+                duration: 7,
+                options: [
+                    { text: "Et pourquoi je f'rai ça ?", to: "bloc4A" },
+                    { text: "Ouais, ça s'tente.", to: "bloc4B" },
+                ],
+            },
+
+            bloc4A: {
+                isCharlie: true,
+                text: "Et pourquoi je f'rai ça ? J'te connais même pas, sérieux...",
+                audio: "manaia_06_A",
+                duration: 3,
+                next: "bloc5",
+                // no further options here, Charlie's next line would be the end of the scene
+            },
+
+            bloc4B: {
+                isCharlie: true,
+                text: "Ouais, ça s'tente. J'ai rien d'mieux à faire de toutes façons.",
+                audio: "manaia_06_B",
+                duration: 4,
+                next: "bloc5",
+            },
+            bloc5: {
+                isCharlie: false,
+                text: "Allez. Ça sera l'occasion de faire connaissance. Tu me suis ?",
+                audio: "manaia_07",
+                duration: 3,
+            },
+        },
+    },
 };

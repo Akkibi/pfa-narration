@@ -12,10 +12,6 @@ interface DialogProps {
     showDialog: boolean;
 }
 
-const dialogData = {
-    textSpeed: 30,
-};
-
 interface line {
     name: string;
     text: string;
@@ -28,6 +24,7 @@ interface line {
 }
 
 const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
+    
     const [currentLine, setCurrentLine] = useState<line | null>(null);
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [dialogName, setDialogName] = useState<string>("start");
@@ -125,6 +122,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
 
     useEffect(() => {
         if (showDialog) {
+            console.log("Dialog opened:", currentDialogData);
             const dialog = currentDialogData?.dialogs[dialogName];
             if (!dialog) return;
             const line = {
@@ -206,7 +204,10 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                   }
                         }
                     >
-                        {currentDialogData && currentDialogData.dialogs[dialogName].options ? (
+                        {currentDialogData &&
+                        currentDialogData.dialogs &&
+                        currentDialogData.dialogs[dialogName] &&
+                        currentDialogData.dialogs[dialogName].options ? (
                             currentDialogData.dialogs[dialogName].options.length > 0 &&
                             currentDialogData.dialogs[dialogName].options?.map((option, index) => {
                                 return (
@@ -229,9 +230,12 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     </button>
                                 );
                             })
-                        ) : currentDialogData && currentDialogData.dialogs[dialogName].next ? (
+                        ) : currentDialogData &&
+                          currentDialogData.dialogs &&
+                          currentDialogData.dialogs[dialogName] &&
+                          currentDialogData.dialogs[dialogName].next ? (
                             <button
-                                className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
+                                className={`dialog-button active-button`}
                                 onClick={() => {
                                     reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
                                 }}
@@ -241,7 +245,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                             </button>
                         ) : (
                             <button
-                                className={`dialog-button ${activeButton === 0 ? "active-button" : ""}`}
+                                className={`dialog-button active-button`}
                                 onClick={() => {
                                     eventEmitterInstance.trigger("closeDialog");
                                     if (currentDialogData) currentDialogData.done = true;
