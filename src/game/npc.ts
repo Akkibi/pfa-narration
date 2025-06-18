@@ -19,6 +19,7 @@ class Npc {
     private characterPositionTarget: THREE.Vector3;
     private interactionDistance: number;
     private isDialogOpened: boolean;
+    private icon: InteractionIcon;
 
     constructor(name: string, scene: BaseScene) {
         this.isDialogOpened = false;
@@ -39,8 +40,8 @@ class Npc {
         this.instance.lookAt(this.characterPositionTransition);
 
         // create icon
-        const icon = new InteractionIcon(this.position, this.scene.scene_id);
-        this.scene.instance.add(icon.instance);
+        this.icon = new InteractionIcon(this.position, this.scene.scene_id);
+        if (this.icon.instance) this.scene.instance.add(this.icon.instance);
 
         this.gltfLoader();
         this.instance.scale.setScalar(0.15);
@@ -129,6 +130,7 @@ class Npc {
 
     private interract = () => {
         if (this.isActive) {
+            this.icon.instance.visible = false;
             if (this.isDialogOpened) {
                 this.isDialogOpened = false;
                 eventEmitterInstance.trigger("closeDialog", []);

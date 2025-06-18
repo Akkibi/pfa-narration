@@ -3,10 +3,11 @@ import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObject } from "../InteractiveObject";
 import { InteractiveObjects } from "../../data/objectsData";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
 
 export class Dream extends BaseScene {
     private gltfModel: THREE.Group | null = null;
-    private eye: THREE.Mesh;
+    private eye: THREE.Mesh | null = null;
     constructor() {
         super("dream");
 
@@ -98,16 +99,26 @@ export class Dream extends BaseScene {
         const bowl = new InteractiveObject(InteractiveObjects.bowl, this);
         this.instance.add(bowl.instance);
 
-        this.loadGLTFModel();
+        // this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
+
+        eventEmitterInstance.on(
+            `characterPositionChanged-${this.scene_id}`,
+            this.update.bind(this),
+        );
     }
 
+    private update(position: THREE.Vector3): void {
+        if (this.eye) {
+            this.eye.lookAt(position);
+        }
+    }
     private loadGLTFModel(): void {
         const loader = new GLTFLoader();
 
         // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
         loader.load(
-            "./souvenir/scene.glb",
+            "./souvenir/scene2.glb",
             (gltf: { scene: THREE.Group }) => {
                 this.gltfModel = gltf.scene; // Store the loaded model
                 this.instance.add(this.gltfModel); // Add the model to the scene
@@ -116,6 +127,12 @@ export class Dream extends BaseScene {
                     this.gltfModel.position.set(5, 0, -3);
                     this.gltfModel.scale.set(1, 1, 1);
                     this.gltfModel.rotation.set(0, Math.PI, 0);
+
+                    this.gltfModel.traverse((child) => {
+                        if (child.name === "Sphere_007") {
+                            this.eye = child as THREE.Mesh;
+                        }
+                    });
                 }
             },
             undefined,

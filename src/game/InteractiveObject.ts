@@ -6,7 +6,6 @@ import BaseScene from "./scenes/BaseScene";
 import Controls from "./Controls";
 import checkDistance from "../utils/utils";
 import { lerp } from "../utils/lerp";
-import Animation from "../utils/animationManager";
 import { InteractionIcon } from "./inrecationIcon";
 
 export class InteractiveObject {
@@ -23,11 +22,13 @@ export class InteractiveObject {
     private material: THREE.MeshBasicMaterial;
     private scene: BaseScene;
     private lerpFromTo: LerpFromTo | null;
-    private interactionIcon: THREE.Mesh;
+    private icon: InteractionIcon;
+    private is_object_hidden: boolean;
 
     constructor(object: InteractiveObjectType, scene: BaseScene) {
         this.id = object.id;
         this.loaded = false;
+        this.is_object_hidden = object.isVisible;
         this.baseObject = object;
         this.instance = new THREE.Mesh();
         this.activeInstance = null;
@@ -41,8 +42,8 @@ export class InteractiveObject {
         this.lerpFromTo = null;
 
         // create icon
-        const icon = new InteractionIcon(this.position, this.scene.scene_id);
-        this.scene.instance.add(icon.instance);
+        this.icon = new InteractionIcon(this.position, this.scene.scene_id);
+        this.scene.instance.add(this.icon.instance);
 
         this.loadObject(this.baseObject.gltf_src);
 
@@ -58,6 +59,7 @@ export class InteractiveObject {
                     this.hideObject();
                 } else {
                     this.showObject();
+                    this.icon.instance.visible = false;
                 }
             }
         });
@@ -68,11 +70,12 @@ export class InteractiveObject {
             const mesh = await this.loadGLTFModel(gltf_src);
 
             this.instance = mesh;
-            this.instance.position.copy(this.position);
-            this.instance.rotation.copy(this.rotation);
-            this.instance.scale.copy(this.scale);
-            this.scene.instance.add(this.instance);
-
+            if (this.is_object_hidden) {
+                this.instance.position.copy(this.position);
+                this.instance.rotation.copy(this.rotation);
+                this.instance.scale.copy(this.scale);
+                this.scene.instance.add(this.instance);
+            }
             this.activeInstance = mesh.clone();
             this.activeInstance.position.set(0, 0, 0);
             this.scene.instance.add(this.activeInstance);

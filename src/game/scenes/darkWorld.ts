@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { eventEmitterInstance } from "../../utils/eventEmitter";
+import { InteractiveObject } from "../InteractiveObject";
+import { InteractiveObjects } from "../../data/objectsData";
 
 export class DarkWorld extends BaseScene {
     private gltfModel: THREE.Group | null = null;
@@ -9,44 +12,25 @@ export class DarkWorld extends BaseScene {
         super("dark_world");
         this.generateSpawns([
             {
-                position: new THREE.Vector3(-4, 0, -0.5),
+                position: new THREE.Vector3(-10, 5, -105),
                 userData: {
-                    to: "hub",
-                },
-            },
-            {
-                position: new THREE.Vector3(-3.5, 0, -0.5),
-                userData: {
-                    from: "hub",
-                },
-            },
-            {
-                position: new THREE.Vector3(0, 1, 0),
-                userData: {
-                    from: "intro_prison",
+                    from: "test",
                 },
             },
             {
                 position: new THREE.Vector3(-10, 5, -105),
                 userData: {
-                    from: "test",
+                    from: "falling",
                 },
             },
         ]);
 
         this.generateZoomZones([
             {
-                position: new THREE.Vector3(0, 1, 0),
+                position: new THREE.Vector3(0, 5, -85),
                 userData: {
-                    size: 0.5,
-                    zoom: 3,
-                },
-            },
-            {
-                position: new THREE.Vector3(0, 0, -5.5),
-                userData: {
-                    size: 5,
-                    zoom: 0.5,
+                    size: 10,
+                    zoom: 0.4,
                 },
             },
         ]);
@@ -61,8 +45,14 @@ export class DarkWorld extends BaseScene {
             new THREE.Vector3(0, 50, -100),
         );
 
-        // this.loadGLTFModel();
+        this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
+        eventEmitterInstance.on(`characterPositionChanged-${this.scene_id}`, (pos: THREE.Vector3) =>
+            console.log(pos),
+        );
+
+        const chevaleret = new InteractiveObject(InteractiveObjects.chevaletDarkWorld, this);
+        this.instance.add(chevaleret.instance);
     }
 
     private loadGLTFModel(): void {
