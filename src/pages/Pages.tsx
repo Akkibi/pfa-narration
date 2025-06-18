@@ -14,9 +14,10 @@ import { Souvenir } from "../game/scenes/souvenir";
 import { Hub2 } from "../game/scenes/hub2";
 import { Dream3Subs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
 import { Hub } from "../game/scenes/hub";
+import { HubEnd } from "../game/scenes/hubEnd";
 
 interface SceneListType {
-    [key: string]: Hub | Test | Souvenir | Hub2;
+    [key: string]: Hub | Test | Souvenir | Hub2 | HubEnd;
 }
 
 export default function Pages() {
@@ -30,6 +31,7 @@ export default function Pages() {
             dream_3: new Souvenir(),
             hub_2: new Hub2(),
             hub_0: new Hub(),
+            hub_1: new HubEnd(),
             // dark_world: new Scene1(),
         };
 
