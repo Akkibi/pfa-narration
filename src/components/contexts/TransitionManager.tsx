@@ -44,8 +44,8 @@ const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
     const fadeRef = useRef<HTMLDivElement>(null);
-    const [displayedPage, setDisplayedPage] = useState<Scenes>("stairs");
-    const [page, setPage] = useState<Scenes>("stairs");
+    const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
+    const [page, setPage] = useState<Scenes>("home");
     const [subtitle, setSubtitle] = useState<Subtitle | null>(null);
 
     useGSAP(() => {
