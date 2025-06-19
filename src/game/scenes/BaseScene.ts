@@ -36,7 +36,6 @@ export default class BaseScene {
     public camera: Camera | null;
     public floor: Floor | null;
     protected character: Character | null;
-    protected axesHelper: THREE.AxesHelper;
     private particleSystem: ParticleSystem | null;
     public spawnArray: THREE.PolarGridHelper[] = [];
     public zoomZoneArray: THREE.PolarGridHelper[] = [];
@@ -52,11 +51,6 @@ export default class BaseScene {
         this.floor = null;
         this.character = null;
         this.camera = null;
-
-        // Add AxesHelper
-        const axesHelper = new THREE.AxesHelper(5);
-        this.axesHelper = axesHelper;
-        this.instance.add(axesHelper);
 
         // generate npcs
         this.generateNpcs();
@@ -76,7 +70,6 @@ export default class BaseScene {
         this.instance.add(this.camera.instance);
         this.instance.add(this.character.getInstance());
         this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
-        this.character.addAxesHelper(this.axesHelper);
     }
 
     private updateSceneChange(sceneTo: Scenes, sceneFrom: Scenes, speed?: THREE.Vector2) {
@@ -126,7 +119,7 @@ export default class BaseScene {
                 ]);
                 eventEmitterInstance.trigger("scene-change-ui", [
                     spawn.userData.to,
-                    spawn.userData.subtitle,
+                    spawn.userData.subtitle ?? null,
                 ]);
                 eventEmitterInstance.trigger(`toggleFreeze`, [true]);
             }

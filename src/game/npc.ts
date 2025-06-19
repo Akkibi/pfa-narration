@@ -68,7 +68,6 @@ class Npc {
                         if (child.name.startsWith("shader") && camera) {
                             const npcMaterial = new NpcMaterial(this.scene.scene_id);
                             (child as THREE.Mesh).material = npcMaterial.getMaterial();
-                            console.log("npcMaterial", npcMaterial);
                         }
                     });
 

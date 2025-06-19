@@ -45,6 +45,21 @@ export class DarkWorld extends BaseScene {
             new THREE.Vector3(0, 50, -100),
         );
 
+        this.generateSubtitlesTriggerZones([
+            {
+                position: new THREE.Vector3(-4, 3, -96),
+                userData: {
+                    size: 5,
+                    subtitle: {
+                        name: "[CHARLIE]",
+                        text: "Toutes ces images tournent en boucle. Et pourtant, j'comprends toujours rien. Merde... Pourquoi je tremble ?",
+                        audio: "dark_world_00",
+                        duration: 6,
+                    },
+                },
+            },
+        ]);
+
         this.loadGLTFModel();
         this.instance.background = new THREE.Color(0x000000);
 

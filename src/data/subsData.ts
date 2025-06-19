@@ -42,4 +42,56 @@ export const Hub0Subs: Subtitle[] = [
     },
 ];
 
-export const Dream3Subs: Subtitle[] = [];
+export const DarkWorldSubs: Subtitle[] = [
+    {
+        name: "[CHARLIE]",
+        text: "J'me prenais pour un artiste. Mais tout c'que j'sais faire, c'est mentir. Aux autres. A moi-même. J'ai jamais rien créé qui vienne de moi. Et j'ai jamais cherché à savoir pourquoi. Mais maintenant, j'crois que j'comprends. Tu vaux mieux qu'ça, Charlie.",
+        audio: "dark_world_01",
+        duration: 20,
+    },
+];
+
+export const EndPrisonSubs: Subtitle[] = [
+    {
+        name: "[POLICIÈRE]",
+        text: "Ta femme portera pas plainte, mon gars. On a aucune raison t'de garder ici. Rentre chez toi et tiens toi, à carreau, c'est compris ?",
+        audio: "end_prison_00",
+        duration: 8,
+    },
+    {
+        name: "[CHARLIE]",
+        text: "Merci m'dame.",
+        audio: "end_prison_01",
+        duration: 1,
+    },
+    {
+        name: "[CHARLIE]",
+        text: "Dites, vous croyez qu'vous pouvez m'aider ?",
+        audio: "end_prison_02",
+        duration: 2,
+    },
+    {
+        name: "[POLICIÈRE]",
+        text: "Dis toujours ?",
+        audio: "end_prison_03",
+        duration: 1,
+    },
+    {
+        name: "[CHARLIE]",
+        text: "J'cherche le magasin d'art le plus proche, vous sauriez m'trouver ça ?",
+        audio: "end_prison_04",
+        duration: 4,
+    },
+    {
+        name: "[POLICIÈRE]",
+        text: "T'empeste, gamin. Vas te doucher. C'est pas l'moment d'faire des emplettes.",
+        audio: "end_prison_05",
+        duration: 4,
+    },
+    {
+        name: "[CHARLIE]",
+        text: "Au contraire, m'dame. Y'a jamais eu d'meilleur moment.",
+        audio: "end_prison_06",
+        duration: 4,
+    },
+];

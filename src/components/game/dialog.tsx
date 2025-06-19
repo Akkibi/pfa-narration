@@ -24,7 +24,6 @@ interface line {
 }
 
 const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
-    
     const [currentLine, setCurrentLine] = useState<line | null>(null);
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [dialogName, setDialogName] = useState<string>("start");

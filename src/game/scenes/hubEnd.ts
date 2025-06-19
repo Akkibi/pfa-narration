@@ -22,9 +22,15 @@ export class HubEnd extends BaseScene {
 
         this.generateSpawns([
             {
-                position: new THREE.Vector3(-68.5, 0, 5),
+                position: new THREE.Vector3(-65, 0, 1),
                 userData: {
                     from: "dream",
+                },
+            },
+            {
+                position: new THREE.Vector3(-65, 0, 1),
+                userData: {
+                    from: "falling",
                 },
             },
             {

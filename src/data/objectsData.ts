@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { Subtitle } from "./subsData";
+import { DarkWorldSubs, Subtitle } from "./subsData";
+import { eventEmitterInstance } from "../utils/eventEmitter";
 
 type InteractiveObjectsType = {
     [key: string]: InteractiveObjectType;
@@ -18,6 +19,7 @@ export interface InteractiveObjectType {
     activeRotation: THREE.Euler;
     activeScale?: THREE.Vector3; // Optional, used for some objects
     subtitle: Subtitle;
+    onInteractionEnd?: () => void; // Optional callback for interaction end
 }
 
 export const InteractiveObjects: InteractiveObjectsType = {
@@ -91,10 +93,17 @@ export const InteractiveObjects: InteractiveObjectsType = {
         activeRotation: new THREE.Euler(0, Math.PI, 0),
         activeScale: new THREE.Vector3(0.3, 0.3, 0.3),
         subtitle: {
-            name: "object_01",
-            text: "Peindre, c'est tout c'que j'sais faire pour gagner ma vie.",
-            audio: "object_01",
-            duration: 6,
+            name: "object_03",
+            text: "J'sais même plus si cette toile est  la mienne ou celle de Manaïa. Ce mec m'a aidé et pour le remercier, j'ai volé ses oeuvres. Je les aies vendues, comme si c'étaient les miennes et pendant des années j'ai joué au génie en recopiant tout de mémoire. Mais en fait, j'suis qu'un imposteur.",
+            audio: "object_03",
+            duration: 18,
+        },
+        onInteractionEnd: () => {
+            eventEmitterInstance.trigger("showInteractiveObjectControls", [false]);
+            eventEmitterInstance.trigger("triggerSubs", [DarkWorldSubs]);
+            setTimeout(() => {
+                eventEmitterInstance.trigger("scene-change-ui", ["stairs"]);
+            }, 21000);
         },
     },
 };

@@ -14,8 +14,8 @@ export const ScenesSequence: Scenes[] = [
     "falling",
     "dark_world",
     "stairs",
-    "dark_world_2",
     "end",
+    "credits",
     "test",
 ];
 
@@ -29,8 +29,8 @@ export type Scenes =
     | "falling"
     | "dark_world"
     | "stairs"
-    | "dark_world_2"
     | "end"
+    | "credits"
     | "test";
 
 type TransitionContextProps = {
@@ -44,8 +44,8 @@ const TransitionContext = createContext<TransitionContextProps | null>(null);
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
     const fadeRef = useRef<HTMLDivElement>(null);
-    const [displayedPage, setDisplayedPage] = useState<Scenes>("test");
-    const [page, setPage] = useState<Scenes>("test");
+    const [displayedPage, setDisplayedPage] = useState<Scenes>("stairs");
+    const [page, setPage] = useState<Scenes>("stairs");
     const [subtitle, setSubtitle] = useState<Subtitle | null>(null);
 
     useGSAP(() => {
@@ -60,20 +60,21 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             backgroundColor: "white",
             ease: "power1.inOut",
             onComplete: () => {
-                if (subtitle) {
+                console.log("page", subtitle, page);
+                if (subtitle !== null && subtitle.text && page === "dream") {
                     eventEmitterInstance.trigger(`triggerSubs`, [[subtitle], true]);
                     eventEmitterInstance.trigger("playSound", ["sail_boat"]);
                     eventEmitterInstance.trigger("stopHowlers", [
                         ["hub", "souvenir", "monde_noir", "outro"],
                     ]);
                     setDisplayedPage(page);
-                } else if (!subtitle) {
+                } else {
                     setDisplayedPage(page);
                 }
             },
         });
 
-        if (subtitle && subtitle.duration) {
+        if (subtitle && subtitle.duration && page === "dream") {
             tl.to(fadeRef.current, {
                 duration: subtitle.duration + 2,
             });

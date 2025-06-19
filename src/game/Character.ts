@@ -36,7 +36,7 @@ export class Character {
     public vars = CharacterVars;
     private floor: Floor;
     private isOnGround: boolean = true;
-    private axesHelper: THREE.AxesHelper | null = null;
+    // private axesHelper: THREE.AxesHelper | null = null;
     private maxGapSize: number;
     private bones: THREE.Object3D<THREE.Object3DEventMap>[] = [];
 
@@ -79,9 +79,10 @@ export class Character {
         );
         this.instance.position.copy(this.currentPosition);
     }
-    public addAxesHelper(axesHelper: THREE.AxesHelper) {
-        this.axesHelper = axesHelper;
-    }
+    // public addAxesHelper(axesHelper: THREE.AxesHelper) {
+    //     this.axesHelper = axesHelper;
+    // }
+    // e;
 
     private async loadObject(gltf_src: string) {
         try {
@@ -168,10 +169,10 @@ export class Character {
         this.updatePosition();
         this.updateCharacterModelSmooth();
         // this.instance.position.set(this.position.x, this.height, this.position.y);
-        if (this.axesHelper) {
-            this.axesHelper.position.set(this.position.x, this.height + 1.2, this.position.y);
-            this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y);
-        }
+        // if (this.axesHelper) {
+        //     this.axesHelper.position.set(this.position.x, this.height + 1.2, this.position.y);
+        //     this.axesHelper.scale.set(this.speed.x, this.heightSpeed, this.speed.y);
+        // }
     }
 
     private updateSpeed() {
@@ -323,6 +324,7 @@ export class Character {
 
         const newPos = new THREE.Vector3(position.x, this.height, position.y);
         this.instance.position.copy(newPos);
+        // console.log(newPos);
 
         if (rotation) {
             this.rotation.copy(rotation);

@@ -99,7 +99,7 @@ export class Dream extends BaseScene {
         const bowl = new InteractiveObject(InteractiveObjects.bowl, this);
         this.instance.add(bowl.instance);
 
-        // this.loadGLTFModel();
+        this.loadGLTFModel();
         this.instance.background = new THREE.Color(0xd3c9f2);
 
         eventEmitterInstance.on(

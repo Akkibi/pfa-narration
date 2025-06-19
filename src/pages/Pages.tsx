@@ -10,7 +10,7 @@ import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import SceneManager, { GameScenes } from "../components/SceneManager";
 import { Test } from "../game/scenes/test";
-import { Dream3Subs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
+import { EndPrisonSubs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
 import { Dream } from "../game/scenes/dream";
 import { HubEnd } from "../game/scenes/hubEnd";
 import { Hub } from "../game/scenes/hub";
@@ -81,11 +81,8 @@ export default function Pages() {
 
     const changePageToGame = (to: Scenes, from: Scenes) => {
         eventEmitterInstance.trigger("scene-change-game", [to, from]);
-        eventEmitterInstance.trigger(`zoom-${to}`, [true, 4]);
-        setPage(to);
-    };
-
-    const changeScene = (to: Scenes) => {
+        if (to === "hub_pano") eventEmitterInstance.trigger(`zoom-${to}`, [true, 4]);
+        console.log(`Changing page from ${from} to ${to}`);
         setPage(to);
     };
 
@@ -97,7 +94,7 @@ export default function Pages() {
                         currentSceneIndex="test"
                         scene={scenes["test"]}
                         subs={[]}
-                        sounds={[]}
+                        soundTrack="hub"
                     />
                 );
             case "home":
@@ -134,7 +131,6 @@ export default function Pages() {
                     <SceneManager
                         currentSceneIndex="dream"
                         scene={scenes["dream"]}
-                        subs={Dream3Subs}
                         soundTrack="souvenir"
                     />
                 );
@@ -149,31 +145,47 @@ export default function Pages() {
             case "falling":
                 return (
                     <Player
-                        src="/videos/intro_prison.mp4"
-                        onEnd={() => setPage("falling")}
-                        subs={IntroPrisonSubs}
-                        sounds={[]}
+                        src="/videos/reaparition.webm"
+                        onEnd={(nextScene?: Scenes) =>
+                            changePageToGame(nextScene || "dark_world", "falling")
+                        }
+                        choice={true}
                     />
                 );
             case "dark_world":
-                return <SceneManager currentSceneIndex="dark_world" scene={scenes["darkWorld"]} />;
-            // case "stairs":
-            //     return (
-            //         <Player
-            //             src="/videos/intro_prison.mp4"
-            //             onEnd={() => setPage("falling")}
-            //             subs={IntroPrisonSubs}
-            //             sounds={[]}
-            //         />
-            //     );
-            // case "dark_world_2":
-            //     return <SceneManager currentSceneIndex="dark_world_2" scene={scenes["dark_world_2"]} />;
+                return (
+                    <SceneManager
+                        currentSceneIndex="dark_world"
+                        scene={scenes["darkWorld"]}
+                        soundTrack="monde_noir"
+                    />
+                );
+            case "stairs":
+                return (
+                    <Player
+                        key={"stairs"}
+                        src="/videos/escalier.webm"
+                        onEnd={() => setPage("end")}
+                    />
+                );
             case "end":
                 return (
                     <Player
-                        src="/videos/intro_prison.mp4"
-                        onEnd={() => setPage("hub_pano")}
-                        subs={IntroPrisonSubs}
+                        key={"end_prison"}
+                        src="/videos/end_prison.webm"
+                        subs={EndPrisonSubs}
+                        sounds={["ambient_prison"]}
+                        onEnd={() => setPage("credits")}
+                    />
+                );
+            case "credits":
+                return (
+                    <Player
+                        key={"credits"}
+                        src="/videos/credits.webm"
+                        onEnd={() => setPage("home")}
+                        sounds={undefined}
+                        subs={undefined}
                     />
                 );
             default:

@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Subtitle } from "../data/subsData";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import "./style.css";
+import { useTransitionContext } from "./contexts/TransitionManager";
 
 export default function SubtitlesControls() {
+    const { displayedPage } = useTransitionContext();
     const [currentLine, setCurrentLine] = useState<Subtitle | null>(null);
     const timeoutRef = useRef<number | null>(null);
     const [animationDelay, setAnimationDelay] = useState<number>(500);
@@ -23,7 +25,7 @@ export default function SubtitlesControls() {
     const runSubs = (subs: Subtitle[], idx: number) => {
         if (idx >= subs.length) {
             // done
-            setCurrentLine(null);
+            clearSubs();
             return;
         }
         const sub = subs[idx];

@@ -13,6 +13,7 @@ const SoundTracks: PlayerType[] = [
     { name: "souvenir", src: "/sounds/soundtrack/souvenir.mp3", volume: 0.4 },
     { name: "monde_noir", src: "/sounds/soundtrack/monde_noir.mp3", volume: 0.4 },
     { name: "outro", src: "/sounds/soundtrack/outro.mp3", volume: 0.4 },
+    { name: "hub_end", src: "/sounds/soundtrack/hub_end.mp3", volume: 0.4 },
 ];
 
 const SoundEffects: PlayerType[] = [
@@ -72,9 +73,19 @@ const VoiceOff: PlayerType[] = [
     { name: "dream_3_00", src: "/sounds/voice_off/dream_3/dream_00.mp3" },
     { name: "dream_3_01", src: "/sounds/voice_off/dream_3/dream_01.mp3" },
     { name: "dream_3_02", src: "/sounds/voice_off/dream_3/dream_02.mp3" },
+    { name: "dark_world_00", src: "/sounds/voice_off/dark_world/dark_world_00.mp3" },
+    { name: "dark_world_01", src: "/sounds/voice_off/dark_world/dark_world_01.mp3" },
     { name: "object_00", src: "/sounds/voice_off/objects/object_00.mp3" },
     { name: "object_01", src: "/sounds/voice_off/objects/object_01.mp3" },
     { name: "object_02", src: "/sounds/voice_off/objects/object_02.mp3" },
+    { name: "object_03", src: "/sounds/voice_off/objects/object_03.mp3" },
+    { name: "end_prison_00", src: "/sounds/voice_off/end_prison/end_prison_00.mp3" },
+    { name: "end_prison_01", src: "/sounds/voice_off/end_prison/end_prison_01.mp3" },
+    { name: "end_prison_02", src: "/sounds/voice_off/end_prison/end_prison_02.mp3" },
+    { name: "end_prison_03", src: "/sounds/voice_off/end_prison/end_prison_03.mp3" },
+    { name: "end_prison_04", src: "/sounds/voice_off/end_prison/end_prison_04.mp3" },
+    { name: "end_prison_05", src: "/sounds/voice_off/end_prison/end_prison_05.mp3" },
+    { name: "end_prison_06", src: "/sounds/voice_off/end_prison/end_prison_06.mp3" },
 ];
 
 export const AudioData: PlayerType[] = [...SoundEffects, ...SoundTracks, ...Dialogues, ...VoiceOff];

@@ -148,7 +148,11 @@ export class InteractiveObject {
             });
         }
         eventEmitterInstance.trigger(`toggleInteractiveObjectPanel`, [undefined]);
-        eventEmitterInstance.trigger(`toggleFreeze`, [false]);
+        if (this.baseObject.onInteractionEnd) {
+            this.baseObject.onInteractionEnd();
+        } else {
+            eventEmitterInstance.trigger(`toggleFreeze`, [false]);
+        }
     }
 
     private showObject() {

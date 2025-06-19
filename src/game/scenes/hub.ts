@@ -27,7 +27,7 @@ export class Hub extends BaseScene {
                 userData: {
                     to: "dream",
                     subtitle: {
-                        name: "[CHARLIE]",
+                        name: "",
                         text: "J'suis monté dans ce cargo sans savoir où il allait. J'étais pas capable de me situer sur une carte, et c'était mieux comme ça. Ça voulait dire que personne viendrait me chercher. Le capitaine a jamais posé de questions. Il savait que c'était pas la peine. Que je lui répondrais pas. Il était plus lucide que moi, c'est clair. J'ai bossé sur le pont pendant des mois, j'ai serré les dents, et j'me souviens avoir pensé la même chose tout du long : « cette fois, pas d'came, pas d'alcool. Faut pas qu'tu déconnes. C'est ta seule chance. »",
                         audio: "dream_3_00",
                         duration: 26,
@@ -102,7 +102,7 @@ export class Hub extends BaseScene {
             ],
             new THREE.Vector3(-50, 0, 0),
         );
-        // this.loadGLTFModel();
+        this.loadGLTFModel();
 
         const imagePlane = new THREE.PlaneGeometry(9.5, 2.1);
         const imageMaterial = new THREE.MeshBasicMaterial({
@@ -214,7 +214,6 @@ export class Hub extends BaseScene {
                                 object: child as THREE.Mesh,
                                 number: Math.random() * 10,
                             });
-                            console.log("child.name, flame", child.name);
                         }
                     });
                     this.generateFlames();

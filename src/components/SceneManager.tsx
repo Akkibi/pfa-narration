@@ -14,7 +14,7 @@ export type GameScenes = HubPano | Test | Dream | Hub | HubEnd | DarkWorld;
 export type SceneManagerProps = {
     currentSceneIndex: Scenes;
     scene: GameScenes;
-    soundTrack: "hub" | "souvenir" | "monde_noir" | "outro";
+    soundTrack: "hub" | "souvenir" | "monde_noir" | "outro" | "hub_end";
     subs?: Subtitle[];
 };
 
@@ -40,6 +40,7 @@ export default function SceneManager({
     useEffect(() => {
         if (!mountRef.current) return;
         console.log("GAME SET SCENE", currentSceneIndex);
+        eventEmitterInstance.trigger("stopHowlers", [["hub", "souvenir", "monde_noir", "outro"]]);
         eventEmitterInstance.trigger("playSound", [soundTrack]);
         game.setScene(scene, currentSceneIndex);
 
