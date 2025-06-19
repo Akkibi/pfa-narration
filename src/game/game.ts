@@ -8,7 +8,7 @@ import { GameScenes } from "../components/SceneManager";
 export class Game {
     public static instance: Game;
     private renderer: THREE.WebGLRenderer | null = null;
-    private stats: Stats;
+    // private stats: Stats;
     private animRef: number | null = null;
     private mount: HTMLDivElement | null = null;
     private sceneIndex: Scenes;
@@ -22,9 +22,9 @@ export class Game {
         this.sceneIndex = sceneIndex;
         this.currentScene = scene;
 
-        this.stats = new Stats();
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
+        // this.stats = new Stats();
+        // this.stats.showPanel(0);
+        // document.body.appendChild(this.stats.dom);
 
         window.addEventListener("resize", this.handleResize);
     }
@@ -82,7 +82,7 @@ export class Game {
         const deltaTime = currentTime - this.lastTime;
 
         if (deltaTime >= this.interval) {
-            this.stats.begin();
+            // this.stats.begin();
             this.tick++;
             eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`, [
                 this.tick,
@@ -93,7 +93,7 @@ export class Game {
                 this.renderer.render(this.currentScene.instance, camera.camera);
             }
 
-            this.stats.end();
+            // this.stats.end();
             this.lastTime = currentTime;
         }
 
