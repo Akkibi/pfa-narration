@@ -40,7 +40,7 @@ export default function SceneManager({
     useEffect(() => {
         if (!mountRef.current) return;
         console.log("GAME SET SCENE", currentSceneIndex);
-        eventEmitterInstance.trigger("stopHowlers", [["hub", "souvenir", "monde_noir", "outro"]]);
+        // eventEmitterInstance.trigger("stopHowlers", [["hub", "souvenir", "monde_noir", "outro"]]);
         eventEmitterInstance.trigger("playSound", [soundTrack]);
         game.setScene(scene, currentSceneIndex);
 
