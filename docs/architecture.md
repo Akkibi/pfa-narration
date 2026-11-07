@@ -64,5 +64,8 @@ Both apply immediately. Space and the arrows also move the character, so control
 
 - Every `Player` video. It stops the page's sounds and subtitles, then runs the same path as the video ending, so `falling` still shows its choice.
 - The white screen with a centered subtitle in `TransitionManager`, which jumps to the fade from white.
+- Each [dialogue](dialogue.md) line while its voice plays.
 
-Game scenes and NPC dialogue have no skip: the player can move during scene subtitles, and dialogue lines wait for their voice.
+Game scenes have no skip, because the player can move during their subtitles.
+
+`Player` starts its sounds and subtitles once per mount. `Pages` passes new arrays on every render, including during the fade out, so these props must not be effect dependencies. Each `Player` page that follows another needs its own `key`.

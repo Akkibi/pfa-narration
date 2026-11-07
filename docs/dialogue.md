@@ -11,6 +11,8 @@ Timing of a line:
 3. Letters appear at `clip duration / text length`, falling back to `dialog.duration`, then to `READ_LETTER_MS` (40 ms) when there is no audio.
 4. The options fade in when the last letter appears. Input (clicks, arrows, Enter) is accepted only once they start appearing; held Enter (`repeat`) is ignored.
 
+Skip (the button or Enter) stops the voice and shows the whole line and its options at once, until the options have appeared.
+
 Choosing an option stops the current voice before the next line. Closing the dialog stops and unloads the conversation's voices.
 
 ## Voices

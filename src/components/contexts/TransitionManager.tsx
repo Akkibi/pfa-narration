@@ -52,7 +52,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
     useGSAP(() => {
-        if (!fadeRef.current || page === "home") return;
+        if (!fadeRef.current || page === displayedPage) return;
 
         const tl = gsap.timeline({ paused: true });
         timelineRef.current = tl;

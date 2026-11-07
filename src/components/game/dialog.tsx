@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { playVoice, preloadVoices, releaseVoices, stopVoice } from "../../utils/voice";
+import SkipButton from "../SkipButton";
 
 gsap.registerPlugin(useGSAP);
 
@@ -31,6 +32,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
     const [lineId, setLineId] = useState(0);
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [letterDelay, setLetterDelay] = useState<number | null>(null);
+    const [isLinePlaying, setIsLinePlaying] = useState<boolean>(false);
     const [activeButton, setActiveButton] = useState<number>(0);
     const dialogBoxRef = useRef<HTMLDivElement>(null);
     const clipRef = useRef<HTMLDivElement>(null);
@@ -58,6 +60,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             setCurrentLine(line);
             setLineId((id) => id + 1);
             setLetterDelay(null);
+            setIsLinePlaying(true);
             setActiveButton(0);
 
             const fallbackSeconds = !done && dialog.duration ? dialog.duration : 0;
@@ -72,6 +75,13 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         },
         [currentDialogData],
     );
+
+    const revealLine = () => {
+        stopVoice();
+        clearTimeout(startTimerRef.current);
+        setLetterDelay(0);
+        setIsLinePlaying(false);
+    };
 
     const close = contextSafe(() => {
         const tl = gsap.timeline({ defaults: { duration: 0.5 } });
@@ -135,6 +145,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         if (!showDialog) return;
         const buttonCount = currentLine?.options?.length || 1;
         const handleKeyPress = (e: KeyboardEvent) => {
+            if (isLinePlaying && e.key === "Enter" && !e.repeat) revealLine();
             if (!inputReadyRef.current) return;
             if (e.key === "ArrowUp" || e.key === "w" || e.key === "z") {
                 setActiveButton((activeButton + 1) % buttonCount);
@@ -165,6 +176,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         } else {
             close();
             setIsVisible(false);
+            setIsLinePlaying(false);
             inputReadyRef.current = false;
             clearTimeout(startTimerRef.current);
             releaseVoices();
@@ -181,6 +193,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
 
     return (
         <div id="dialog">
+            {showDialog && isLinePlaying && <SkipButton onSkip={revealLine} />}
             <section className={`dialog-container ${isVisible ? "" : "cliped"}`} ref={clipRef}>
                 <div className="profile-pic-container">
                     <div
@@ -225,7 +238,9 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                 : { animationName: "none" }
                         }
                         onAnimationStart={(e) => {
-                            if (e.target === e.currentTarget) inputReadyRef.current = true;
+                            if (e.target !== e.currentTarget) return;
+                            inputReadyRef.current = true;
+                            setIsLinePlaying(false);
                         }}
                     >
                         {currentLine?.options?.length ? (

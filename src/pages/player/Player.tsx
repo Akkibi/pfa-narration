@@ -55,7 +55,7 @@ export default function Player({
         finish();
     };
 
-    // Handle video end
+    // Once per page: Pages passes new prop arrays on every render, and it renders again as the page fades out.
     useEffect(() => {
         if (videoRef.current && videoRef.current.onended === null) {
             videoRef.current.onended = finish;
@@ -68,8 +68,8 @@ export default function Player({
             eventEmitterInstance.trigger("stopHowlers", [
                 ["hub", "souvenir", "monde_noir", "outro"],
             ]);
-        if (subs && subs.length > 0) eventEmitterInstance.trigger("triggerSubs", [subs]);
-    }, [sounds, subs]);
+        eventEmitterInstance.trigger("triggerSubs", [subs ?? []]);
+    }, []);
 
     // Reload and play video when src changes
     useEffect(() => {
