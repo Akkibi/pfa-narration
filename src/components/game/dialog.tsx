@@ -1,21 +1,24 @@
-import { useEffect, useRef, useState } from "react";
-import { DialogDataType } from "../../data/dialogData";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { DialogDataType } from "../../data/dialogData";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
+import { playVoice, preloadVoices, releaseVoices, stopVoice } from "../../utils/voice";
 
 gsap.registerPlugin(useGSAP);
+
+const BOX_OPEN_MS = 500;
+const READ_LETTER_MS = 40;
 
 interface DialogProps {
     currentDialogData: DialogDataType | null;
     showDialog: boolean;
 }
 
-interface line {
+interface Line {
     name: string;
     text: string;
-    audio?: string;
     next?: string;
     options?: Array<{
         text: string;
@@ -24,16 +27,51 @@ interface line {
 }
 
 const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
-    const [currentLine, setCurrentLine] = useState<line | null>(null);
+    const [currentLine, setCurrentLine] = useState<Line | null>(null);
+    const [lineId, setLineId] = useState(0);
     const [isVisible, setIsVisible] = useState<boolean>(false);
-    const [dialogName, setDialogName] = useState<string>("start");
+    const [letterDelay, setLetterDelay] = useState<number | null>(null);
+    const [activeButton, setActiveButton] = useState<number>(0);
     const dialogBoxRef = useRef<HTMLDivElement>(null);
     const clipRef = useRef<HTMLDivElement>(null);
     const lineRef = useRef<HTMLDivElement>(null);
+    const startTimerRef = useRef<number | undefined>(undefined);
+    const inputReadyRef = useRef(false);
     const { contextSafe } = useGSAP({ scope: clipRef });
-    const [activeButton, setActiveButton] = useState<number>(0);
-    const [letterAnimationDelay, setLetterAnimationDelay] = useState<number>(0);
-    const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+
+    const showLine = useCallback(
+        (name: string) => {
+            const dialog = currentDialogData?.dialogs[name];
+            if (!currentDialogData || !dialog) return;
+            const done = currentDialogData.done;
+            const line: Line = done
+                ? { name: currentDialogData.name, text: currentDialogData.fallback }
+                : {
+                      name: dialog.isCharlie ? "Charlie" : currentDialogData.name,
+                      text: dialog.text,
+                      next: dialog.next,
+                      options: dialog.options,
+                  };
+            stopVoice();
+            clearTimeout(startTimerRef.current);
+            inputReadyRef.current = false;
+            setCurrentLine(line);
+            setLineId((id) => id + 1);
+            setLetterDelay(null);
+            setActiveButton(0);
+
+            const fallbackSeconds = !done && dialog.duration ? dialog.duration : 0;
+            const startText = (seconds: number) => {
+                const duration = seconds || fallbackSeconds;
+                setLetterDelay(duration ? (duration * 1000) / line.text.length : READ_LETTER_MS);
+            };
+            startTimerRef.current = window.setTimeout(() => {
+                if (!done && dialog.audio) playVoice(dialog.audio, startText);
+                else startText(0);
+            }, BOX_OPEN_MS);
+        },
+        [currentDialogData],
+    );
 
     const close = contextSafe(() => {
         const tl = gsap.timeline({ defaults: { duration: 0.5 } });
@@ -44,36 +82,8 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         });
     });
 
-    useEffect(() => {
-        if (!showDialog) return;
-        const handleKeyPress = (e: KeyboardEvent) => {
-            let buttonCount = currentDialogData?.dialogs[dialogName].options?.length;
-            if (!buttonCount) buttonCount = 1;
-            if (e.key === "ArrowUp" || e.key === "w" || e.key === "z") {
-                setActiveButton((activeButton + 1) % buttonCount);
-            } else if (e.key === "ArrowDown" || e.key === "s") {
-                setActiveButton(Math.abs(activeButton - 1) % buttonCount);
-            } else if (e.key === "Enter") {
-                const button = currentDialogData?.dialogs[dialogName].options?.[activeButton];
-                if (button) {
-                    reOpen(button.to);
-                } else if (currentDialogData?.dialogs[dialogName].next) {
-                    reOpen(currentDialogData.dialogs[dialogName].next);
-                } else {
-                    eventEmitterInstance.trigger("closeDialog");
-                    if (currentDialogData) currentDialogData.done = true;
-                }
-            }
-        };
-
-        document.addEventListener("keydown", handleKeyPress);
-
-        return () => {
-            document.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [currentDialogData, dialogName, activeButton, showDialog]);
-
     const reOpen = contextSafe((dialog: string) => {
+        inputReadyRef.current = false;
         const tl = gsap.timeline({
             defaults: { duration: 0.5 },
             onStart: () => {
@@ -85,7 +95,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
             duration: 0.5,
             ease: "expo.out",
             onComplete: () => {
-                setDialogName(dialog);
+                showLine(dialog);
                 setIsVisible(true);
             },
         })
@@ -109,39 +119,65 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
         });
     });
 
+    const advance = (index: number) => {
+        if (!inputReadyRef.current || !currentLine) return;
+        const target = currentLine.options?.[index]?.to ?? currentLine.next;
+        if (target) {
+            reOpen(target);
+        } else {
+            inputReadyRef.current = false;
+            eventEmitterInstance.trigger("closeDialog");
+            if (currentDialogData) currentDialogData.done = true;
+        }
+    };
+
     useEffect(() => {
-        if (showDialog) {
+        if (!showDialog) return;
+        const buttonCount = currentLine?.options?.length || 1;
+        const handleKeyPress = (e: KeyboardEvent) => {
+            if (!inputReadyRef.current) return;
+            if (e.key === "ArrowUp" || e.key === "w" || e.key === "z") {
+                setActiveButton((activeButton + 1) % buttonCount);
+            } else if (e.key === "ArrowDown" || e.key === "s") {
+                setActiveButton(Math.abs(activeButton - 1) % buttonCount);
+            } else if (e.key === "Enter" && !e.repeat) {
+                advance(activeButton);
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress);
+        };
+    });
+
+    useEffect(() => {
+        if (showDialog && currentDialogData) {
+            if (!currentDialogData.done) {
+                preloadVoices(
+                    Object.values(currentDialogData.dialogs).flatMap((d) => d.audio ?? []),
+                );
+            }
             open();
             setIsVisible(true);
+            showLine("start");
         } else {
             close();
             setIsVisible(false);
+            inputReadyRef.current = false;
+            clearTimeout(startTimerRef.current);
+            releaseVoices();
         }
-    }, [showDialog]);
+    }, [showDialog, currentDialogData, showLine]);
 
-    useEffect(() => {
-        if (showDialog) {
-            const dialog = currentDialogData?.dialogs[dialogName];
-            if (!dialog) return;
-            const line = {
-                name: dialog.isCharlie ? "Charlie" : currentDialogData.name,
-                text: currentDialogData.done ? currentDialogData.fallback : dialog.text,
-                next: dialog.next,
-                options: dialog.options,
-            };
-            setCurrentLine(line);
-            const delay = dialog.duration ? (dialog.duration * 1000) / dialog.text.length : 500;
-            setLetterAnimationDelay(delay);
-            if (!currentDialogData.done) eventEmitterInstance.trigger("playSound", [dialog.audio]);
-        }
-    }, [showDialog, currentDialogData, dialogName]);
-
-    useGSAP(() => {
-        if (currentDialogData) {
-            setDialogName("start");
-            setCurrentLine(null);
-        }
-    }, [currentDialogData]);
+    useEffect(
+        () => () => {
+            clearTimeout(startTimerRef.current);
+            releaseVoices();
+        },
+        [],
+    );
 
     return (
         <div id="dialog">
@@ -162,95 +198,61 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                 <p className="line-name" ref={lineRef}>
                                     [{currentLine && currentLine.name}]
                                 </p>
-                                <p className="line-text">
+                                <p className="line-text" key={lineId}>
                                     {currentLine &&
-                                        currentLine.text.split("").map((letter, index) => {
-                                            return (
-                                                <span
-                                                    className="letter"
-                                                    key={index + letter + isVisible.toString()}
-                                                    style={{
-                                                        animationDelay:
-                                                            500 +
-                                                            index * letterAnimationDelay +
-                                                            "ms",
-                                                    }}
-                                                >
-                                                    {letter}
-                                                </span>
-                                            );
-                                        })}
+                                        letterDelay !== null &&
+                                        currentLine.text.split("").map((letter, index) => (
+                                            <span
+                                                className="letter"
+                                                key={index}
+                                                style={{
+                                                    animationDelay: index * letterDelay + "ms",
+                                                }}
+                                            >
+                                                {letter}
+                                            </span>
+                                        ))}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div
                         className="options-container"
-                        key={isVisible.toString()}
+                        key={`${lineId}-${letterDelay !== null}`}
                         style={
-                            isVisible
-                                ? {
-                                      animationDelay: currentLine
-                                          ? 500 +
-                                            currentLine.text.split("").length *
-                                                letterAnimationDelay +
-                                            "ms"
-                                          : "500ms",
-                                  }
-                                : {
-                                      opacity: 0,
-                                  }
+                            isVisible && currentLine && letterDelay !== null
+                                ? { animationDelay: currentLine.text.length * letterDelay + "ms" }
+                                : { animationName: "none" }
                         }
+                        onAnimationStart={(e) => {
+                            if (e.target === e.currentTarget) inputReadyRef.current = true;
+                        }}
                     >
-                        {currentDialogData &&
-                        currentDialogData.dialogs &&
-                        currentDialogData.dialogs[dialogName] &&
-                        currentDialogData.dialogs[dialogName].options ? (
-                            currentDialogData.dialogs[dialogName].options.length > 0 &&
-                            currentDialogData.dialogs[dialogName].options?.map((option, index) => {
-                                return (
-                                    <button
-                                        className={`dialog-button ${activeButton === index ? "active-button" : ""}`}
-                                        key={option.text[0]}
-                                        onClick={() => {
-                                            reOpen(option.to);
-                                        }}
-                                    >
-                                        {activeButton === index ? (
-                                            <img
-                                                src="/images/arrow.webp"
-                                                className="active-button-indicator"
-                                            />
-                                        ) : (
-                                            <div className="active-button-indicator" />
-                                        )}
-                                        <span>{option.text}</span>
-                                    </button>
-                                );
-                            })
-                        ) : currentDialogData &&
-                          currentDialogData.dialogs &&
-                          currentDialogData.dialogs[dialogName] &&
-                          currentDialogData.dialogs[dialogName].next ? (
-                            <button
-                                className={`dialog-button active-button`}
-                                onClick={() => {
-                                    reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
-                                }}
-                            >
-                                <img src="/images/arrow.webp" className="active-button-indicator" />
-                                <span>Next</span>
-                            </button>
+                        {currentLine?.options?.length ? (
+                            currentLine.options.map((option, index) => (
+                                <button
+                                    className={`dialog-button ${activeButton === index ? "active-button" : ""}`}
+                                    key={option.text}
+                                    onClick={() => advance(index)}
+                                >
+                                    {activeButton === index ? (
+                                        <img
+                                            src="/images/arrow.webp"
+                                            className="active-button-indicator"
+                                        />
+                                    ) : (
+                                        <div className="active-button-indicator" />
+                                    )}
+                                    <span>{option.text}</span>
+                                </button>
+                            ))
                         ) : (
                             <button
                                 className={`dialog-button active-button`}
-                                onClick={() => {
-                                    eventEmitterInstance.trigger("closeDialog");
-                                    if (currentDialogData) currentDialogData.done = true;
-                                }}
+                                onClick={() => advance(0)}
                             >
                                 <img src="/images/arrow.webp" className="active-button-indicator" />
-                                <span>Leave Dialog</span>
+                                <span>{currentLine?.next ? "Next" : "Leave Dialog"}</span>
                             </button>
                         )}
                     </div>

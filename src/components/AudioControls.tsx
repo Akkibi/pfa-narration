@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { AudioData } from "../data/audioData";
@@ -42,16 +42,12 @@ export function AudioControls() {
 
         const existingPlayer = activePlayersRef.current.find((p) => p.name === soundName);
 
-        if (existingPlayer) {
-            if (existingPlayer.player.mute()) existingPlayer.player.mute(false);
-            return;
-        }
+        if (existingPlayer) return;
 
         const howl = new Howl({
             src: [sound.src],
             loop: sound.loop ?? false,
             volume: volume ?? sound.volume ?? 1,
-            mute: isMuteRef.current,
             onend: () => {
                 if (sound.loop) return;
                 activePlayersRef.current = activePlayersRef.current.filter(
@@ -90,10 +86,8 @@ export function AudioControls() {
     };
 
     const toggleMuteAudio = () => {
-        // Update mute state for existing players
-        activePlayersRef.current.forEach(({ player }) => player.mute(!isMuteRef.current));
-        // Update global mute state so new players will be created with this mute state
         isMuteRef.current = !isMuteRef.current;
+        Howler.mute(isMuteRef.current);
         setIsMute(isMuteRef.current);
     };
 
