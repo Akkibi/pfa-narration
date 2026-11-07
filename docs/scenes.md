@@ -26,6 +26,14 @@ Every game scene extends `src/game/scenes/BaseScene.ts`.
 
 1. Create the class in `src/game/scenes/`.
 2. Add it to `factories` in `sceneRegistry.ts`, and to `neighbors` of the pages that lead to it.
-3. Add a `SceneManager` case in `Pages.tsx`.
+3. Add a `showScene({ currentSceneIndex, soundTrack, subs })` case in `Pages.tsx`.
+
+## Materials
+
+The renderer is `WebGPURenderer`, so custom materials are node materials built with TSL (`three/tsl`), not GLSL.
+
+- NPC bodies (meshes named `shader*` in `npccharacter.glb`) use `NpcMaterial` (`npcMaterial.ts`), one instance per NPC: transparent `MeshBasicNodeMaterial`, purple `#8033ff`, opacity `(1 - dot(normalView, viewDirection))^1.4`, so the body is see-through and the rim glows. No depth write.
+- Particles (`particles.ts`) are one instanced `Sprite` with `PointsNodeMaterial`; positions and colors are `InstancedBufferAttribute`s read with `instancedDynamicBufferAttribute`, and `sprite.count` is the number of live particles.
+- Node-material colors are linear: `color(0x8033ff)` converts the hex from sRGB.
 
 Shared helpers: `collectFloating` / `updateFloating` and the flame sprite sheets in `hub.ts` (reused by `hubEnd.ts`).

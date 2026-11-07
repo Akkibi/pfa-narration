@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { PointsNodeMaterial } from "three/webgpu";
+import { instancedDynamicBufferAttribute } from "three/tsl";
 import { Floor } from "./floor";
 
 const MAX_PARTICLES = 512;
@@ -10,9 +12,9 @@ const COLORS = [
 ];
 const tmp = new THREE.Vector2();
 
-// All particles share one Points object: a single draw call, no per-particle allocation.
+// All particles share one instanced sprite: a single draw call, no per-particle allocation.
 export class ParticleSystem {
-    public instance: THREE.Points;
+    public instance: THREE.Sprite;
     private floor: Floor;
     private count = 0;
     private positions: Float32Array;
@@ -21,32 +23,32 @@ export class ParticleSystem {
     private ages = new Float32Array(MAX_PARTICLES);
     private lifespans = new Float32Array(MAX_PARTICLES);
     private onFloor = new Uint8Array(MAX_PARTICLES);
-    private geometry: THREE.BufferGeometry;
-    private material: THREE.PointsMaterial;
+    private positionAttribute: THREE.InstancedBufferAttribute;
+    private colorAttribute: THREE.InstancedBufferAttribute;
+    private material: PointsNodeMaterial;
 
     constructor(scene: THREE.Scene, floor: Floor) {
         this.floor = floor;
         this.positions = new Float32Array(MAX_PARTICLES * 3);
         this.colors = new Float32Array(MAX_PARTICLES * 3);
-        this.geometry = new THREE.BufferGeometry();
-        this.geometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(this.positions, 3).setUsage(THREE.DynamicDrawUsage),
-        );
-        this.geometry.setAttribute(
-            "color",
-            new THREE.BufferAttribute(this.colors, 3).setUsage(THREE.DynamicDrawUsage),
-        );
-        this.geometry.setDrawRange(0, 0);
-        this.material = new THREE.PointsMaterial({
+        this.positionAttribute = new THREE.InstancedBufferAttribute(this.positions, 3);
+        this.positionAttribute.setUsage(THREE.DynamicDrawUsage);
+        this.colorAttribute = new THREE.InstancedBufferAttribute(this.colors, 3);
+        this.colorAttribute.setUsage(THREE.DynamicDrawUsage);
+        this.material = new PointsNodeMaterial({
             size: 0.04,
-            vertexColors: true,
             opacity: 0.5,
             transparent: true,
             depthWrite: false,
             fog: false,
         });
-        this.instance = new THREE.Points(this.geometry, this.material);
+        this.material.positionNode = instancedDynamicBufferAttribute(
+            this.positionAttribute,
+            "vec3",
+        );
+        this.material.colorNode = instancedDynamicBufferAttribute(this.colorAttribute, "vec3");
+        this.instance = new THREE.Sprite(this.material);
+        this.instance.count = 0;
         this.instance.frustumCulled = false;
         scene.add(this.instance);
     }
@@ -100,7 +102,7 @@ export class ParticleSystem {
     }
 
     update(dt: number) {
-        if (this.count === 0 && this.geometry.drawRange.count === 0) return;
+        if (this.count === 0 && this.instance.count === 0) return;
         const decay = Math.pow(0.9, dt);
         let i = 0;
         while (i < this.count) {
@@ -113,14 +115,13 @@ export class ParticleSystem {
             }
             i++;
         }
-        this.geometry.setDrawRange(0, this.count);
-        this.geometry.attributes.position.needsUpdate = true;
-        this.geometry.attributes.color.needsUpdate = true;
+        this.instance.count = this.count;
+        this.positionAttribute.needsUpdate = true;
+        this.colorAttribute.needsUpdate = true;
     }
 
     dispose() {
         this.instance.removeFromParent();
-        this.geometry.dispose();
         this.material.dispose();
         this.count = 0;
     }

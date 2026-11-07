@@ -3,7 +3,9 @@ import Credits from "./Credits";
 import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 
-export default function Home() {
+type HomeProps = { progress: number; ready: boolean };
+
+export default function Home({ progress, ready }: HomeProps) {
     const [isCredits, setIsCredits] = useState(false);
 
     useEffect(() => {
@@ -65,10 +67,24 @@ export default function Home() {
                                     ]);
                                 }}
                                 className="button"
+                                disabled={!ready}
                             >
                                 <img src="/images/arrow.webp" className="active-button-indicator" />
                                 enter
                             </button>
+                            <div
+                                className={"home-loader" + (ready ? " done" : "")}
+                                role="progressbar"
+                                aria-label="Loading the game"
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={Math.round(progress * 100)}
+                            >
+                                <div
+                                    className="home-loader-fill"
+                                    style={{ transform: `scaleX(${progress})` }}
+                                />
+                            </div>
                             <button
                                 onClick={(e) => {
                                     e.preventDefault();

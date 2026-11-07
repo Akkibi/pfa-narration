@@ -58,11 +58,36 @@
     align-items: center;
     justify-content: start;
     flex-direction: row;
-
+    transition: opacity 0.6s ease-out;
 }
 
 .button:hover {
     cursor: pointer;
+}
+
+.button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.home-loader {
+    width: 30%;
+    height: 2px;
+    margin-top: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+    transition: opacity 0.6s ease-out 0.4s;
+}
+
+.home-loader.done {
+    opacity: 0;
+}
+
+.home-loader-fill {
+    height: 100%;
+    background-color: white;
+    transform-origin: left;
+    transition: transform 0.3s ease-out;
 }
 
 .credits-button {

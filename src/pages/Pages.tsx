@@ -8,18 +8,19 @@ import Home from "./home/Home";
 import Player from "./player/Player";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
-import SceneManager from "../components/SceneManager";
 import { EndPrisonSubs, Hub0Subs, IntroPrisonSubs, Subtitle } from "../data/subsData";
-import { getScene, prepareScenes } from "../game/sceneRegistry";
+import { useGameLoader } from "../game/loader";
+import type { SceneManagerProps } from "../components/SceneManager";
 
 export default function Pages() {
     const { setPage, displayedPage, setPageWithSubtitle } = useTransitionContext();
     const displayedPageRef = useRef(displayedPage);
+    const { runtime, progress, ready } = useGameLoader();
 
     useEffect(() => {
         displayedPageRef.current = displayedPage;
-        prepareScenes(displayedPage);
-    }, [displayedPage]);
+        runtime?.prepareScenes(displayedPage);
+    }, [displayedPage, runtime]);
 
     useEffect(() => {
         const handleSkip = (key: KeyboardEvent) => {
@@ -60,24 +61,21 @@ export default function Pages() {
 
     const changePageToGame = (to: Scenes, from: Scenes) => {
         eventEmitterInstance.trigger("scene-change-game", [to, from]);
-        if (to === "hub_pano") getScene("hub_pano")?.setZoom(true, 4);
+        if (to === "hub_pano") runtime?.getScene("hub_pano")?.setZoom(true, 4);
         setPage(to);
     };
 
-    const gameScene = getScene(displayedPage)!;
+    const showScene = (props: Omit<SceneManagerProps, "scene">) => {
+        const scene = runtime?.getScene(props.currentSceneIndex);
+        if (!runtime || !scene) return null;
+        return <runtime.SceneManager scene={scene} {...props} />;
+    };
 
     switch (displayedPage) {
         case "test":
-            return (
-                <SceneManager
-                    currentSceneIndex="test"
-                    scene={gameScene}
-                    subs={[]}
-                    soundTrack="hub"
-                />
-            );
+            return showScene({ currentSceneIndex: "test", subs: [], soundTrack: "hub" });
         case "home":
-            return <Home />;
+            return <Home progress={progress} ready={ready} />;
         case "intro_prison":
             return (
                 <Player
@@ -88,31 +86,13 @@ export default function Pages() {
                 />
             );
         case "hub_pano":
-            return (
-                <SceneManager
-                    currentSceneIndex="hub_pano"
-                    scene={gameScene}
-                    soundTrack="hub"
-                    subs={Hub0Subs}
-                />
-            );
+            return showScene({ currentSceneIndex: "hub_pano", soundTrack: "hub", subs: Hub0Subs });
         case "hub":
-            return (
-                <SceneManager
-                    currentSceneIndex="hub"
-                    scene={gameScene}
-                    subs={Hub0Subs}
-                    soundTrack="hub"
-                />
-            );
+            return showScene({ currentSceneIndex: "hub", subs: Hub0Subs, soundTrack: "hub" });
         case "dream":
-            return (
-                <SceneManager currentSceneIndex="dream" scene={gameScene} soundTrack="souvenir" />
-            );
+            return showScene({ currentSceneIndex: "dream", soundTrack: "souvenir" });
         case "hub_end":
-            return (
-                <SceneManager currentSceneIndex="hub_end" scene={gameScene} soundTrack="hub_end" />
-            );
+            return showScene({ currentSceneIndex: "hub_end", soundTrack: "hub_end" });
         case "falling":
             return (
                 <Player
@@ -124,13 +104,7 @@ export default function Pages() {
                 />
             );
         case "dark_world":
-            return (
-                <SceneManager
-                    currentSceneIndex="dark_world"
-                    scene={gameScene}
-                    soundTrack="monde_noir"
-                />
-            );
+            return showScene({ currentSceneIndex: "dark_world", soundTrack: "monde_noir" });
         case "stairs":
             return (
                 <Player key={"stairs"} src="/videos/escalier.webm" onEnd={() => setPage("end")} />

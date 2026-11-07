@@ -244,9 +244,10 @@ export default class BaseScene {
             loadTexture(backgroundMap, this, THREE.SRGBColorSpace).then(
                 (texture) => {
                     if (this.disposed) return;
+                    const { width, height } = texture.image as HTMLImageElement;
                     const plane = new THREE.PlaneGeometry(
-                        (texture.image.width / 80) * 20,
-                        (texture.image.height / 80) * 20,
+                        (width / 80) * 20,
+                        (height / 80) * 20,
                         1,
                         1,
                     );

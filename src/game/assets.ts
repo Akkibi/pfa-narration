@@ -13,6 +13,49 @@ const owners = new Map<object, Set<string>>();
 
 let maxTextureSize = Infinity;
 
+type Load = { loaded: number; total: number; done: boolean };
+const loads = new Set<Load>();
+let tracking = true;
+let failedLoads = 0;
+const FALLBACK_BYTES = 256 * 1024;
+
+const track = <T>(start: (onProgress: (event: ProgressEvent) => void) => Promise<T>) => {
+    if (!tracking) return start(() => {});
+    const load: Load = { loaded: 0, total: 0, done: false };
+    loads.add(load);
+    const promise = start((event) => {
+        load.loaded = event.loaded;
+        load.total = event.total;
+    });
+    promise.then(
+        () => (load.done = true),
+        () => {
+            load.done = true;
+            failedLoads++;
+        },
+    );
+    return promise;
+};
+
+// Byte-weighted progress of every load since page start, read by the startup loader only.
+export const loadProgress = () => {
+    let pending = 0;
+    let weight = 0;
+    let loaded = 0;
+    for (const load of loads) {
+        const size = load.total || FALLBACK_BYTES;
+        weight += size;
+        loaded += load.done ? size : Math.min(load.loaded, size);
+        if (!load.done) pending++;
+    }
+    return { progress: weight ? loaded / weight : 0, pending, failed: failedLoads };
+};
+
+export const stopLoadTracking = () => {
+    tracking = false;
+    loads.clear();
+};
+
 const normalize = (url: string) => "/" + url.replace(/^\.?\//, "");
 
 export const setMaxTextureSize = (size: number) => {
@@ -68,7 +111,7 @@ export const loadModel = async (url: string, owner: object) => {
     retain(owner, key);
     let promise = models.get(key);
     if (!promise) {
-        promise = gltfLoader.loadAsync(key).then((gltf) => {
+        promise = track((onProgress) => gltfLoader.loadAsync(key, onProgress)).then((gltf) => {
             markShared(gltf.scene);
             return gltf;
         });
@@ -84,7 +127,7 @@ export const loadTexture = (url: string, owner: object, colorSpace: THREE.ColorS
     retain(owner, key);
     let promise = textures.get(key);
     if (!promise) {
-        promise = textureLoader.loadAsync(key).then((texture) => {
+        promise = track(() => textureLoader.loadAsync(key)).then((texture) => {
             texture.colorSpace = colorSpace;
             texture.userData.shared = true;
             return texture;

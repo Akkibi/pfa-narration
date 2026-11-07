@@ -20,6 +20,7 @@ const factories: Partial<Record<Scenes, () => BaseScene>> = {
 
 // Scenes kept alive (and preloaded) while a page is displayed, besides the page itself.
 const neighbors: Partial<Record<Scenes, Scenes[]>> = {
+    home: ["hub_pano"],
     intro_prison: ["hub_pano"],
     hub_pano: ["hub"],
     hub: ["hub_pano", "dream"],

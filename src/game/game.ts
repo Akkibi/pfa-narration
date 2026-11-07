@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { WebGPURenderer } from "three/webgpu";
 import { gameState } from "./gameState";
 import { Scenes } from "../components/contexts/TransitionManager";
 import type BaseScene from "./scenes/BaseScene";
@@ -12,9 +12,21 @@ const MAX_DT = 3;
 const SLOW_FRAME = 28;
 const SAMPLE_SIZE = 120;
 
+type BackendLimits = {
+    device?: { limits: { maxTextureDimension2D: number } } | null;
+    gl?: WebGL2RenderingContext;
+};
+
+const readMaxTextureSize = (backend: BackendLimits) => {
+    if (backend.device) return backend.device.limits.maxTextureDimension2D;
+    if (backend.gl) return backend.gl.getParameter(backend.gl.MAX_TEXTURE_SIZE) as number;
+    return 4096;
+};
+
 export class Game {
     private static instance: Game | null = null;
-    private renderer: THREE.WebGLRenderer;
+    private renderer: WebGPURenderer;
+    public readonly ready: Promise<void>;
     private animRef: number | null = null;
     private mount: HTMLDivElement | null = null;
     private currentScene: BaseScene | null = null;
@@ -24,11 +36,13 @@ export class Game {
     private slowFrames = 0;
 
     private constructor() {
-        this.renderer = new THREE.WebGLRenderer({
+        this.renderer = new WebGPURenderer({
             antialias: true,
             powerPreference: "high-performance",
         });
-        setMaxTextureSize(this.renderer.capabilities.maxTextureSize);
+        this.ready = this.renderer.init().then((renderer) => {
+            setMaxTextureSize(readMaxTextureSize(renderer.backend as BackendLimits));
+        });
         this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
@@ -85,7 +99,7 @@ export class Game {
     private animate = (now: number) => {
         this.animRef = requestAnimationFrame(this.animate);
         const scene = this.currentScene;
-        if (!scene) return;
+        if (!scene || !this.renderer.initialized) return;
         if (this.lastTime === null) {
             this.lastTime = now;
             return;

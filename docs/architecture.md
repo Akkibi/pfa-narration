@@ -6,9 +6,26 @@
 
 Page order lives in `ScenesSequence`: home → intro_prison → hub_pano → hub → dream → hub_end → falling → dark_world → stairs → end → credits.
 
+## Startup loading
+
+The main chunk holds only React, the home page, videos, audio and UI; it never imports three.js. Everything that does (`src/game/*`, `SceneManager`, `data/objectsData`, `data/characters_data`, `utils/utils`, `utils/lerp`, `utils/animationManager`) is reached through `src/game/runtime.ts`, loaded with a dynamic `import()`. UI components that need a type from those modules use `import type`.
+
+`useGameLoader()` (`src/game/loader.ts`, used by `Pages`) fetches that chunk when the app mounts, waits for `Game.get().ready`, and only then hands the runtime to `Pages`, which calls `prepareScenes`. From home that preloads `hub_pano`. Progress shown under the home "enter" button:
+
+| Share | Step |
+| --- | --- |
+| 0–20 % | game chunk downloaded |
+| 20–30 % | renderer initialized |
+| 30–100 % | asset bytes (`loadProgress()` in `assets.ts`) |
+
+"enter" is enabled once `hub_pano.isReady` and no load is pending (or once loads finish with a failure, so a missing file never locks the button). The loader then calls `stopLoadTracking()`; later loads are not tracked.
+
 ## Game singleton
 
-`src/game/game.ts` holds one `THREE.WebGLRenderer` for the whole session (`Game.get()`), so changing pages never recreates the WebGL context or re-uploads textures.
+`src/game/game.ts` holds one `WebGPURenderer` (from `three/webgpu`) for the whole session (`Game.get()`), so changing pages never recreates the GPU context or re-uploads textures. It uses WebGPU when available and falls back to WebGL 2 on its own.
+
+- `renderer.init()` is async: `Game.ready` resolves after it and sets the max texture size used by `preferLowRes()`. The loop skips frames until `renderer.initialized`.
+- Custom materials are node materials written in TSL (`three/tsl`); `ShaderMaterial` with GLSL does not run on this renderer.
 
 - `start(mount)` attaches the canvas and starts the loop; `cleanup()` detaches it and stops the loop, but keeps the renderer.
 - `setScene(scene, id)` switches the rendered scene.

@@ -42,6 +42,7 @@ ffmpeg -i %d.png -vf tile=5x3 -c:v libwebp -quality 90 sheet.webp
 - `loadModel(url, owner)` returns a clone. Geometries and materials are shared between clones and flagged `userData.shared`.
 - `loadTexture(url, owner, colorSpace)`: use `SRGBColorSpace` for color maps, `NoColorSpace` for alpha maps.
 - `release(owner)` disposes the GPU resources no other scene still uses. `BaseScene.dispose()` calls it.
+- `loadProgress()` returns `{ progress, pending, failed }` over the loads started since page start, weighted by bytes (a load counts as 256 KB until its size is known). Only the startup loader reads it, then calls `stopLoadTracking()`.
 
 ## Caching on Vercel
 
