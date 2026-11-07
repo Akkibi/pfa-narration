@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "./style.css";
 import { eventEmitterInstance } from "../utils/eventEmitter";
 import { DialogDataType } from "../data/dialogData";
-import { InteractiveObject } from "../game/InteractiveObject";
 import { ObjectPanel } from "./game/objectPanel";
 import Dialog from "./game/dialog";
 import { InteractiveObjectType } from "../data/objectsData";
@@ -14,23 +13,25 @@ const UiElements = () => {
     const [objectShown, setObjectShown] = useState<InteractiveObjectType | undefined>(undefined);
 
     useEffect(() => {
-        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
-            setIsObjectActive(status);
-        });
-
-        eventEmitterInstance.on("toggleInteractiveObjectPanel", (obj: InteractiveObjectType) => {
-            setObjectShown(obj);
-        });
-        eventEmitterInstance.on("showInteractiveObjectControls", (status: boolean) => {
-            setIsObjectActive(status);
-        });
-        eventEmitterInstance.on("openDialog", (data: DialogDataType) => {
+        const handleControls = (status: boolean) => setIsObjectActive(status);
+        const handlePanel = (obj: InteractiveObjectType) => setObjectShown(obj);
+        const handleOpen = (data: DialogDataType) => {
             setShowDialog(true);
             setDialogData(data);
-        });
-        eventEmitterInstance.on("closeDialog", () => {
-            setShowDialog(false);
-        });
+        };
+        const handleClose = () => setShowDialog(false);
+
+        eventEmitterInstance.on("showInteractiveObjectControls", handleControls);
+        eventEmitterInstance.on("toggleInteractiveObjectPanel", handlePanel);
+        eventEmitterInstance.on("openDialog", handleOpen);
+        eventEmitterInstance.on("closeDialog", handleClose);
+
+        return () => {
+            eventEmitterInstance.off("showInteractiveObjectControls", handleControls);
+            eventEmitterInstance.off("toggleInteractiveObjectPanel", handlePanel);
+            eventEmitterInstance.off("openDialog", handleOpen);
+            eventEmitterInstance.off("closeDialog", handleClose);
+        };
     }, []);
 
     return (
@@ -42,7 +43,7 @@ const UiElements = () => {
                         <ObjectPanel active={objectShown !== undefined} object={objectShown} />
                     )}
                     <div className="object-interact">
-                        Press <img src="/images/keys/E.png" alt="E" /> to{" "}
+                        Press <img src="/images/keys/E.webp" alt="E" /> to{" "}
                         {!objectShown ? "interact" : "close"}
                     </div>
                 </>

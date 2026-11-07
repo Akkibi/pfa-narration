@@ -1,13 +1,9 @@
 import * as THREE from "three";
-import { eventEmitterInstance } from "../utils/eventEmitter";
 
 export class NpcMaterial {
     private material: THREE.ShaderMaterial;
-    private scene_id: string;
 
-    constructor(scene_id: string) {
-        this.scene_id = scene_id;
-
+    constructor() {
         this.material = new THREE.ShaderMaterial({
             uniforms: {},
             vertexShader: `
@@ -50,15 +46,6 @@ export class NpcMaterial {
             side: THREE.FrontSide,
             transparent: true,
         });
-
-        eventEmitterInstance.on(
-            `characterPositionChanged-${this.scene_id}`,
-            this.updateUniform.bind(this),
-        );
-    }
-
-    private updateUniform() {
-        // this.material.uniforms.cameraPosition.value.copy(this.camera.position);
     }
 
     getMaterial() {

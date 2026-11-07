@@ -60,7 +60,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             backgroundColor: "white",
             ease: "power1.inOut",
             onComplete: () => {
-                console.log("page", subtitle, page);
                 if (subtitle !== null && subtitle.text && page === "dream") {
                     eventEmitterInstance.trigger(`triggerSubs`, [[subtitle], true]);
                     eventEmitterInstance.trigger("playSound", ["sail_boat"]);
@@ -95,7 +94,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     }, [page]);
 
     const setPageWithSubtitle = (newPage: Scenes, newSubtitle: Subtitle) => {
-        console.log("Setting page with subtitle:", newPage, newSubtitle);
         if (newSubtitle) {
             setSubtitle(newSubtitle);
         }

@@ -6,236 +6,282 @@ import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { charactersData } from "../../data/characters_data";
 import Npc from "../npc";
-import { loadImage } from "../../utils/loadImage";
 import { Scenes } from "../../components/contexts/TransitionManager";
 import { gameState } from "../gameState";
 import { Subtitle } from "../../data/subsData";
-
-interface spawnData {
-    position: THREE.Vector3;
-    userData: userData;
-}
-
-interface zoomZone {
-    position: THREE.Vector3;
-    userData: userData;
-}
-
-interface subTriggerZone {
-    position: THREE.Vector3;
-    userData: userData;
-}
+import { disposeObject, loadModel, loadTexture, release } from "../assets";
 
 interface userData {
     [key: string]: number | Scenes | boolean | Subtitle;
 }
 
+export interface Zone {
+    position: THREE.Vector3;
+    userData: userData;
+}
+
+export interface SceneChild {
+    update?(time: number, dt: number): void;
+    onCharacterMove?(position: THREE.Vector3, lastPosition: THREE.Vector3): void;
+    dispose(): void;
+}
+
+// Exit zones are 1.5x the original 0.5 radius, measured on the ground plane.
+const EXIT_RADIUS = 0.75;
+const EXIT_HEIGHT = 1.5;
+const SPAWN_HELPER_RADIUS = 0.25;
+const tmpPosition = new THREE.Vector2();
+
 export default class BaseScene {
     public scene_id: Scenes;
     public instance: THREE.Scene;
-    public camera: Camera | null;
-    public floor: Floor | null;
-    protected character: Character | null;
-    private particleSystem: ParticleSystem | null;
-    public spawnArray: THREE.PolarGridHelper[] = [];
-    public zoomZoneArray: THREE.PolarGridHelper[] = [];
-    public subTriggerZones: THREE.PolarGridHelper[] = [];
-    protected backgroundMaps: string[] = [];
+    public camera: Camera | null = null;
+    public floor: Floor | null = null;
+    protected character: Character | null = null;
+    private particleSystem: ParticleSystem | null = null;
+    private spawns: Zone[] = [];
+    private zoomZones: Zone[] = [];
+    private subTriggerZones: Zone[] = [];
+    private insideZones = new Set<Zone>();
+    private suppressExits = false;
+    private pendingSpawn: { from: Scenes; speed?: THREE.Vector2 } | null = null;
+    private pendingZoom: [boolean, number] | null = null;
+    protected children: SceneChild[] = [];
+    protected disposed = false;
 
     constructor(scene_id: Scenes) {
-        console.log("Initiating Scene:", scene_id);
         this.instance = new THREE.Scene();
         this.instance.background = new THREE.Color(0xffffff);
         this.scene_id = scene_id;
-        this.particleSystem = null;
-        this.floor = null;
-        this.character = null;
-        this.camera = null;
-
-        // generate npcs
         this.generateNpcs();
-
-        eventEmitterInstance.on(
-            `characterPositionChanged-${this.scene_id}`,
-            this.onPositionChange.bind(this),
-        );
-        eventEmitterInstance.on(`scene-change-game`, this.updateSceneChange.bind(this));
     }
 
     protected createFloor(floorModel: THREE.Mesh) {
+        if (this.disposed) return;
         this.floor = new Floor(floorModel);
-        this.character = new Character(this.scene_id, this.floor);
+        this.character = new Character(this.floor, this);
         this.camera = new Camera(this.character);
-        this.particleSystem = new ParticleSystem(this.instance, this.floor, this.scene_id);
+        this.particleSystem = new ParticleSystem(this.instance, this.floor);
         this.instance.add(this.camera.instance);
-        this.instance.add(this.character.getInstance());
-        this.character.getInstance().userData = { name: "character02", sceneIndex: 1 };
+        this.instance.add(this.character.instance);
+        this.character.instance.userData = { name: "character02", sceneIndex: 1 };
+        this.character.onMove = this.onPositionChange;
+        this.character.onParticle = this.particleSystem.spawnParticle.bind(this.particleSystem);
+
+        if (this.pendingSpawn) {
+            this.spawnFrom(this.pendingSpawn.from, this.pendingSpawn.speed);
+            this.pendingSpawn = null;
+        }
+        if (this.pendingZoom) {
+            this.camera.changeZoom(...this.pendingZoom);
+            this.pendingZoom = null;
+        }
     }
 
-    private updateSceneChange(sceneTo: Scenes, sceneFrom: Scenes, speed?: THREE.Vector2) {
-        console.log(
-            `scene-change-game: Changing scene from ${this.scene_id} to ${sceneTo} with speed`,
-            speed,
-            this.spawnArray,
-        );
-        if (sceneTo !== this.scene_id) return;
-        this.spawnArray?.forEach((spawn) => {
-            console.log(`Checking spawn:`, spawn.userData.from, spawn.userData.to);
-            if (
-                spawn.userData.from !== undefined &&
-                spawn.userData.from === sceneFrom &&
-                this.character !== null &&
-                this.camera !== null
-            ) {
-                console.log("spawn userData", this.scene_id, spawn.userData, spawn.position);
-                this.character.setPosition(new THREE.Vector2(spawn.position.x, spawn.position.z));
-                this.character.setFloor();
-                this.character.speed.copy(speed ?? new THREE.Vector2(0, 0));
-                this.character.heightSpeed = 0;
-                this.character.height = spawn.position.y;
-                this.character.currentPosition.copy(spawn.position);
-                this.camera.currentPosition.copy(spawn.position);
-                // console.log("character pos ", this.character.getPosition());
-                // console.log("character speed ", this.character.getSpeed());
-            }
-        });
+    public get isReady() {
+        return this.camera !== null;
     }
 
-    private onPositionChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
+    public spawnFrom(sceneFrom: Scenes, speed?: THREE.Vector2) {
+        const spawn = this.spawns.find((zone) => zone.userData.from === sceneFrom);
+        if (!spawn) return;
+        const character = this.character;
+        const camera = this.camera;
+        if (!character || !camera || !this.floor) {
+            this.pendingSpawn = { from: sceneFrom, speed };
+            return;
+        }
+        tmpPosition.set(spawn.position.x, spawn.position.z);
+        character.heightSpeed = 0;
+        character.height = spawn.position.y;
+        character.floorPosition = this.floor.raycastFrom(tmpPosition) ?? spawn.position.y;
+        this.insideZones.clear();
+        this.suppressExits = true;
+        character.setPosition(tmpPosition);
+        this.suppressExits = false;
+        if (speed) character.speed.copy(speed);
+        else character.speed.set(0, 0);
+        character.currentPosition.copy(spawn.position);
+        camera.currentPosition.copy(spawn.position);
+    }
+
+    public setZoom(isZoom: boolean, amount: number) {
+        if (this.camera) this.camera.changeZoom(isZoom, amount);
+        else this.pendingZoom = [isZoom, amount];
+    }
+
+    public update(time: number, dt: number) {
+        this.character?.update(dt);
+        this.camera?.update(dt);
+        this.particleSystem?.update(dt);
+        for (const child of this.children) child.update?.(time, dt);
+        this.onUpdate(time, dt);
+    }
+
+    protected onUpdate(_time: number, _dt: number) {}
+
+    protected onCharacterMove(_position: THREE.Vector3) {}
+
+    protected async loadSceneModel(url: string) {
+        try {
+            const model = await loadModel(url, this);
+            return this.disposed ? null : model;
+        } catch (error) {
+            console.error(`Failed to load ${url}:`, error);
+            return null;
+        }
+    }
+
+    private onPositionChange = (position: THREE.Vector3, lastPosition: THREE.Vector3) => {
         this.sceneChange(position);
         this.zoomChange(position, lastPosition);
         this.checkForTriggeringSubtitles(position, lastPosition);
+        for (const child of this.children) child.onCharacterMove?.(position, lastPosition);
+        this.onCharacterMove(position);
+    };
+
+    private isInExit(position: THREE.Vector3, zone: Zone) {
+        const dx = position.x - zone.position.x;
+        const dz = position.z - zone.position.z;
+        return (
+            dx * dx + dz * dz < EXIT_RADIUS * EXIT_RADIUS &&
+            Math.abs(position.y - zone.position.y) < EXIT_HEIGHT
+        );
     }
 
+    // Exits fire on entry only, so arriving inside a nearby exit does not bounce the player back.
     private sceneChange(position: THREE.Vector3) {
-        if (gameState.freezed === true) return;
-        this.spawnArray?.forEach((spawn) => {
-            if (position.distanceTo(spawn.position) < 0.5 && spawn.userData.to !== undefined) {
-                console.log(spawn.userData.to);
-                eventEmitterInstance.trigger(`scene-change-game`, [
-                    spawn.userData.to,
-                    this.scene_id,
-                    spawn.userData.speed ?? new THREE.Vector2(0, 0),
-                ]);
-                eventEmitterInstance.trigger("scene-change-ui", [
-                    spawn.userData.to,
-                    spawn.userData.subtitle ?? null,
-                ]);
-                eventEmitterInstance.trigger(`toggleFreeze`, [true]);
+        if (gameState.freezed && !this.suppressExits) return;
+        for (const zone of this.spawns) {
+            if (zone.userData.to === undefined) continue;
+            if (!this.isInExit(position, zone)) {
+                this.insideZones.delete(zone);
+                continue;
             }
-        });
+            if (this.insideZones.has(zone)) continue;
+            this.insideZones.add(zone);
+            if (this.suppressExits) continue;
+            eventEmitterInstance.trigger(`scene-change-game`, [zone.userData.to, this.scene_id]);
+            eventEmitterInstance.trigger("scene-change-ui", [
+                zone.userData.to,
+                zone.userData.subtitle ?? null,
+            ]);
+            eventEmitterInstance.trigger(`toggleFreeze`, [true]);
+            break;
+        }
     }
 
     private zoomChange(position: THREE.Vector3, lastPosition: THREE.Vector3) {
-        this.zoomZoneArray?.forEach((zoomZone) => {
-            if (zoomZone.userData.zoom !== undefined && zoomZone.userData.size !== undefined) {
-                if (
-                    position.distanceTo(zoomZone.position) < zoomZone.userData.size !==
-                    lastPosition.distanceTo(zoomZone.position) < zoomZone.userData.size
-                ) {
-                    eventEmitterInstance.trigger(`zoom-${this.scene_id}`, [
-                        position.distanceTo(zoomZone.position) < zoomZone.userData.size,
-                        zoomZone.userData.zoom,
-                    ]);
-                }
+        for (const zone of this.zoomZones) {
+            const { zoom, size } = zone.userData;
+            if (typeof zoom !== "number" || typeof size !== "number") continue;
+            const isInside = position.distanceTo(zone.position) < size;
+            if (isInside !== lastPosition.distanceTo(zone.position) < size) {
+                this.setZoom(isInside, zoom);
             }
-        });
+        }
     }
+
     private checkForTriggeringSubtitles(position: THREE.Vector3, lastPosition: THREE.Vector3) {
-        this.subTriggerZones?.forEach((triggerZone) => {
-            if (triggerZone.userData.size !== undefined && !triggerZone.userData.isDone) {
-                const isInZoneNow =
-                    position.distanceTo(triggerZone.position) < triggerZone.userData.size;
-                const wasInZoneBefore =
-                    lastPosition.distanceTo(triggerZone.position) < triggerZone.userData.size;
-
-                // Only trigger when entering the zone
-                if (isInZoneNow && !wasInZoneBefore) {
-                    console.log("triggering subtitle", triggerZone.userData.subtitle);
-                    eventEmitterInstance.trigger("triggerSubs", [[triggerZone.userData.subtitle]]);
-                    triggerZone.userData.isDone = true;
-                }
+        for (const zone of this.subTriggerZones) {
+            const size = zone.userData.size;
+            if (typeof size !== "number" || zone.userData.isDone) continue;
+            const isInZoneNow = position.distanceTo(zone.position) < size;
+            const wasInZoneBefore = lastPosition.distanceTo(zone.position) < size;
+            if (isInZoneNow && !wasInZoneBefore) {
+                eventEmitterInstance.trigger("triggerSubs", [[zone.userData.subtitle]]);
+                zone.userData.isDone = true;
             }
-        });
+        }
     }
 
-    protected generateSpawns(spawns: spawnData[]) {
-        spawns.forEach((spawnData) => {
-            const color = spawnData.userData.from
-                ? new THREE.Color(0x0000ff)
-                : new THREE.Color(0x00ff00);
-            const spawn = new THREE.PolarGridHelper(0.25, 0, 0, 32, color, color);
-            // const spawn = new THREE.PolarGridHelper(0.25, 0, 2, 32, color, color);
-            spawn.position.copy(spawnData.position);
-            spawn.userData = spawnData.userData;
-            this.instance.add(spawn);
-            this.spawnArray.push(spawn);
-        });
+    private addHelper(zone: Zone, radius: number, color: number) {
+        if (!import.meta.env.DEV) return;
+        const helper = new THREE.PolarGridHelper(radius, 0, 0, 32, color, color);
+        helper.position.copy(zone.position);
+        this.instance.add(helper);
     }
 
-    protected generateZoomZones(zoomZones: zoomZone[]) {
-        zoomZones.forEach((zoomZone) => {
-            const size = zoomZone.userData.size ?? 1;
-            const color = new THREE.Color(0xff0000);
-            const spawn = new THREE.PolarGridHelper(Number(size), 0, 0, 32, color, color);
-            spawn.position.copy(zoomZone.position);
-            spawn.userData = zoomZone.userData;
-            this.instance.add(spawn);
-            this.zoomZoneArray.push(spawn);
-            // console.log("add zoom zones", this.spawnArray);
-        });
+    protected generateSpawns(spawns: Zone[]) {
+        for (const spawn of spawns) {
+            this.spawns.push(spawn);
+            const isExit = spawn.userData.to !== undefined;
+            this.addHelper(
+                spawn,
+                isExit ? EXIT_RADIUS : SPAWN_HELPER_RADIUS,
+                spawn.userData.from ? 0x0000ff : 0x00ff00,
+            );
+        }
     }
 
-    protected generateSubtitlesTriggerZones(subTriggerZones: subTriggerZone[]) {
-        subTriggerZones.forEach((subTriggerZone) => {
-            const size = subTriggerZone.userData.size ?? 1;
-            const color = new THREE.Color(0xffa500);
-            const spawn = new THREE.PolarGridHelper(Number(size), 0, 0, 32, color, color);
-            spawn.position.copy(subTriggerZone.position);
-            this.instance.add(spawn);
-            spawn.userData = subTriggerZone.userData;
-            this.subTriggerZones.push(spawn);
-        });
+    protected generateZoomZones(zoomZones: Zone[]) {
+        for (const zone of zoomZones) {
+            this.zoomZones.push(zone);
+            this.addHelper(zone, Number(zone.userData.size ?? 1), 0xff0000);
+        }
+    }
+
+    protected generateSubtitlesTriggerZones(subTriggerZones: Zone[]) {
+        for (const zone of subTriggerZones) {
+            this.subTriggerZones.push(zone);
+            this.addHelper(zone, Number(zone.userData.size ?? 1), 0xffa500);
+        }
     }
 
     protected generateNpcs() {
         for (const [key, value] of Object.entries(charactersData)) {
             if (value.sceneId === this.scene_id) {
-                console.log(`generate character ${key} in ${value.sceneId}`);
                 const npc = new Npc(key, this);
                 this.instance.add(npc.instance);
+                this.children.push(npc);
             }
         }
     }
 
     protected generateBackgroundMaps(backgroundMaps: string[], position?: THREE.Vector3) {
         const group = new THREE.Group();
-        backgroundMaps.map((backgroundMap, index) => {
-            loadImage(backgroundMap, (texture) => {
-                const plane = new THREE.PlaneGeometry(
-                    (texture.image.width / 80) * 20,
-                    (texture.image.height / 80) * 20,
-                    1,
-                    1,
-                );
-                texture.colorSpace = THREE.SRGBColorSpace;
-                const material = new THREE.MeshBasicMaterial({
-                    transparent: true,
-                    map: texture,
-                });
-
-                // const material = new THREE.MeshBasicMaterial({ color: "red" });
-                const mesh = new THREE.Mesh(plane, material);
-                mesh.rotateY(Math.PI);
-                mesh.position.set(0, -190 + index * 48, 900 - index * 240);
-                const scale = 3.5 - index / 1.1;
-                mesh.scale.set(scale, scale, scale);
-                mesh.lookAt(new THREE.Vector3(0, 1, -5).add(mesh.position));
-                // console.log("backgrounds position", mesh.position);
-                group.add(mesh);
-            });
+        backgroundMaps.forEach((backgroundMap, index) => {
+            loadTexture(backgroundMap, this, THREE.SRGBColorSpace).then(
+                (texture) => {
+                    if (this.disposed) return;
+                    const plane = new THREE.PlaneGeometry(
+                        (texture.image.width / 80) * 20,
+                        (texture.image.height / 80) * 20,
+                        1,
+                        1,
+                    );
+                    const material = new THREE.MeshBasicMaterial({
+                        transparent: true,
+                        map: texture,
+                    });
+                    const mesh = new THREE.Mesh(plane, material);
+                    mesh.rotateY(Math.PI);
+                    mesh.position.set(0, -190 + index * 48, 900 - index * 240);
+                    const scale = 3.5 - index / 1.1;
+                    mesh.scale.set(scale, scale, scale);
+                    mesh.lookAt(new THREE.Vector3(0, 1, -5).add(mesh.position));
+                    group.add(mesh);
+                },
+                (error) => console.error("Failed to load background:", error),
+            );
         });
-        group.position.copy(position ?? new THREE.Vector3(0, 0, 0));
+        if (position) group.position.copy(position);
         this.instance.add(group);
+    }
+
+    public dispose() {
+        if (this.disposed) return;
+        this.disposed = true;
+        for (const child of this.children) child.dispose();
+        this.children = [];
+        this.character?.dispose();
+        this.particleSystem?.dispose();
+        disposeObject(this.instance);
+        this.instance.clear();
+        release(this);
+        this.character = null;
+        this.camera = null;
+        this.floor = null;
+        this.particleSystem = null;
     }
 }

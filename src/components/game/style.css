@@ -79,8 +79,8 @@
         /* clip-path: ellipse(100% 200% at 20% 50%);
     opacity: 1; */
         mask-mode: luminance;
-        -webkit-mask-image: url("/dialog-transition-mask.png");
-        mask-image: url("/dialog-transition-mask.png");
+        -webkit-mask-image: url("/dialog-transition-mask.webp");
+        mask-image: url("/dialog-transition-mask.webp");
         /* -webkit-mask-position: 0% 20%;
     mask-position: 0% 20%; */
         -webkit-mask-size: 100% 3100%;
@@ -92,7 +92,6 @@
         font-family: Cadiz;
         /* background-color: red; */
     }
-
 
     .cliped {
         -webkit-animation: mask-reverse 0.5s steps(30) forwards;
@@ -115,7 +114,7 @@
         align-items: center;
         position: relative;
         z-index: 2;
-        background: url("/object-background.png");
+        background: url("/object-background.webp");
         background-size: 100% 100%;
     }
 
@@ -155,8 +154,8 @@
         /* clip-path: ellipse(100% 200% at 20% 50%);
     opacity: 1; */
         mask-mode: luminance;
-        -webkit-mask-image: url("/dialog-transition-mask.png");
-        mask-image: url("/dialog-transition-mask.png");
+        -webkit-mask-image: url("/dialog-transition-mask.webp");
+        mask-image: url("/dialog-transition-mask.webp");
         /* -webkit-mask-position: 0% 20%;
     mask-position: 0% 20%; */
         -webkit-mask-size: 100% 3100%;
@@ -168,7 +167,6 @@
         font-family: Cadiz;
         /* background-color: red; */
     }
-
 
     .cliped {
         -webkit-animation: mask-reverse 0.5s steps(30) forwards;
@@ -189,8 +187,6 @@
         height: 10vh;
     }
 
-
-
     .dialog-text-container {
         height: 100%;
         display: flex;
@@ -201,7 +197,7 @@
         align-items: start;
         position: relative;
         z-index: 2;
-        background: url("/characters/background.png");
+        background: url("/characters/background.webp");
         background-size: 100% 100%;
     }
 
@@ -236,7 +232,7 @@
     .dialog-button span {
         position: relative;
 
-        font-family: 'Cadiz';
+        font-family: "Cadiz";
         font-weight: normal;
         font-style: normal;
         transform-origin: center left;
@@ -244,7 +240,7 @@
 
     .active-button span,
     .dialog-button:hover span {
-        font-family: 'Cadiz';
+        font-family: "Cadiz";
         font-weight: bold;
         font-style: normal;
         /* scale: 0.93; */
@@ -302,7 +298,6 @@
         animation-name: appearOpacity;
         animation-duration: 500ms;
         animation-fill-mode: forwards;
-
     }
 
     .appear-height {
@@ -347,7 +342,7 @@
 }
 
 .line-text {
-    font-family: 'Cadiz';
+    font-family: "Cadiz";
     font-weight: normal;
     font-style: normal;
 

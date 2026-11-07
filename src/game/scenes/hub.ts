@@ -1,23 +1,46 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { eventEmitterInstance } from "../../utils/eventEmitter";
 import Animation from "../../utils/animationManager";
+import { loadTexture } from "../assets";
 
-interface FloatingElement {
+export interface FloatingElement {
     object: THREE.Object3D;
     number: number;
     startPosition: THREE.Vector3;
 }
-interface FlamesElement {
-    object: THREE.Mesh;
-    number: number;
-}
+
+const FLAME_SHEETS = ["flamegreen", "flamered", "flamepurple", "flameyellow"];
+
+export const collectFloating = (root: THREE.Object3D) => {
+    const floating: FloatingElement[] = [];
+    const flames: THREE.Mesh[] = [];
+    root.traverse((child) => {
+        if (child.name.startsWith("floating")) {
+            floating.push({
+                object: child,
+                number: Math.random() * 10,
+                startPosition: child.position.clone(),
+            });
+        }
+        if (child.name.startsWith("flame")) flames.push(child as THREE.Mesh);
+    });
+    return { floating, flames };
+};
+
+export const updateFloating = (elements: FloatingElement[], phase: number) => {
+    for (const { object, number, startPosition } of elements) {
+        object.position.set(
+            startPosition.x + Math.sin(phase + number) * 0.5,
+            startPosition.y + Math.cos(phase + number + 173) * 0.5,
+            startPosition.z,
+        );
+    }
+};
 
 export class Hub extends BaseScene {
-    private gltfModel: THREE.Group | null = null;
     private floatingElements: FloatingElement[] = [];
-    private flames: FlamesElement[] = [];
+    private flames: Animation[] = [];
+
     constructor() {
         super("hub");
 
@@ -84,165 +107,101 @@ export class Hub extends BaseScene {
                     },
                 },
             },
-            // {
-            //     position: new THREE.Vector3(-92, 12, 5),
-            //     userData: {
-            //         size: 5,
-            //         zoom: 0.3,
-            //     },
-            // },
         ]);
 
         this.generateBackgroundMaps(
             [
-                "./full-hub/backgrounds/4.png",
-                "./full-hub/backgrounds/3.png",
-                "./full-hub/backgrounds/2.png",
-                "./full-hub/backgrounds/1.png",
+                "./full-hub/backgrounds/4.webp",
+                "./full-hub/backgrounds/3.webp",
+                "./full-hub/backgrounds/2.webp",
+                "./full-hub/backgrounds/1.webp",
             ],
             new THREE.Vector3(-50, 0, 0),
         );
-        this.loadGLTFModel();
+        this.loadModels();
 
         const imagePlane = new THREE.PlaneGeometry(9.5, 2.1);
         const imageMaterial = new THREE.MeshBasicMaterial({
             color: 0x000000,
             side: THREE.DoubleSide,
             transparent: true,
-            alphaMap: new THREE.TextureLoader().load("./logo.jpg"),
+            visible: false,
         });
+        loadTexture("./logo.webp", this, THREE.NoColorSpace).then(
+            (texture) => {
+                if (this.disposed) return;
+                imageMaterial.alphaMap = texture;
+                imageMaterial.visible = true;
+                imageMaterial.needsUpdate = true;
+            },
+            () => {},
+        );
         const imageMesh = new THREE.Mesh(imagePlane, imageMaterial);
         imageMesh.position.set(-30, 5, 5);
         imageMesh.rotation.set(0, Math.PI, 0);
         this.instance.add(imageMesh);
 
         this.instance.background = new THREE.Color(0xeeeeaa);
-
-        eventEmitterInstance.on(`updateScene-${this.scene_id}`, this.update.bind(this));
     }
 
-    private update(tick: number) {
-        if (this.floatingElements.length > 0) {
-            this.floatingElements.forEach((element) => {
-                const { object, number, startPosition } = element;
-                // const startPositionClone = startPosition.clone();
-                object.position.copy(
-                    startPosition
-                        .clone()
-                        .add(
-                            new THREE.Vector3(
-                                Math.sin(tick / 125 + number) * 0.5,
-                                Math.cos(tick / 125 + number + 173) * 0.5,
-                                0,
-                            ),
-                        ),
-                );
-            });
-        }
+    protected onUpdate(time: number, dt: number) {
+        updateFloating(this.floatingElements, time * 0.48);
+        for (const flame of this.flames) flame.update(time, dt);
     }
 
-    private generateFlames() {
-        this.flames.forEach((element: FlamesElement, index: number): void => {
-            const material = new THREE.MeshBasicMaterial({
-                transparent: true,
-                opacity: 1,
-            });
-            if (index > 1) {
-                element.object.scale.z = 1;
-            } else {
-                element.object.scale.z = -1;
-            }
-            element.object.scale.multiplyScalar(0.75);
-            element.object.position.y -= 0.25;
-            element.object.material = material;
-            const anim = new Animation(material, this.scene_id);
-            const name =
-                index === 0
-                    ? "flamegreen"
-                    : index === 1
-                      ? "flamered"
-                      : index === 2
-                        ? "flamepurple"
-                        : "flameyellow";
-            anim.set([
-                `./full-hub/flames/${name}/1.png`,
-                `./full-hub/flames/${name}/2.png`,
-                `./full-hub/flames/${name}/3.png`,
-                `./full-hub/flames/${name}/4.png`,
-                `./full-hub/flames/${name}/5.png`,
-                `./full-hub/flames/${name}/6.png`,
-                `./full-hub/flames/${name}/7.png`,
-                `./full-hub/flames/${name}/8.png`,
-                `./full-hub/flames/${name}/9.png`,
-                `./full-hub/flames/${name}/10.png`,
-                `./full-hub/flames/${name}/11.png`,
-                `./full-hub/flames/${name}/12.png`,
-                `./full-hub/flames/${name}/13.png`,
-                `./full-hub/flames/${name}/14.png`,
-                `./full-hub/flames/${name}/15.png`,
-            ]);
-            anim.setFrame(element.number);
+    private generateFlames(meshes: THREE.Mesh[]) {
+        meshes.forEach((mesh, index) => {
+            const material = new THREE.MeshBasicMaterial({ transparent: true });
+            mesh.scale.z = index > 1 ? 1 : -1;
+            mesh.scale.multiplyScalar(0.75);
+            mesh.position.y -= 0.25;
+            mesh.material = material;
+            const sheet = FLAME_SHEETS[Math.min(index, FLAME_SHEETS.length - 1)];
+            const animation = new Animation(
+                material,
+                this,
+                `./full-hub/flames/${sheet}.webp`,
+                5,
+                3,
+                15,
+                100,
+            );
+            animation.setFrame(Math.random() * 10);
+            this.flames.push(animation);
         });
     }
 
-    private loadGLTFModel(): void {
-        const loader = new GLTFLoader();
+    private async loadModels() {
+        const [model, floorModel] = await Promise.all([
+            this.loadSceneModel("./full-hub/scene.glb"),
+            this.loadSceneModel("./full-hub/floor.glb"),
+        ]);
 
-        // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
-        loader.load(
-            "./full-hub/scene.glb",
-            (gltf: { scene: THREE.Group }) => {
-                this.gltfModel = gltf.scene; // Store the loaded model
-                this.instance.add(this.gltfModel); // Add the model to the scene
-                // Optionally, adjust the model's position, rotation, or scale
-                if (this.gltfModel) {
-                    this.gltfModel.position.set(0, 0, 1);
-                    this.gltfModel.scale.set(1, 1, 1);
-                    this.gltfModel.rotation.set(0, Math.PI / 2, 0);
+        if (model) {
+            const scene = model.scene;
+            scene.position.set(0, 0, 1);
+            scene.rotation.set(0, Math.PI / 2, 0);
+            const { floating, flames } = collectFloating(scene);
+            this.floatingElements = floating;
+            this.generateFlames(flames);
+            this.instance.add(scene);
+        }
 
-                    // traverse gltf objects and push element if name start with floating
-                    this.gltfModel.traverse((child) => {
-                        if (child.name.startsWith("floating")) {
-                            this.floatingElements.push({
-                                object: child,
-                                number: Math.random() * 10,
-                                startPosition: child.position.clone(),
-                            });
-                        }
-                        if (child.name.startsWith("flame")) {
-                            this.flames.push({
-                                object: child as THREE.Mesh,
-                                number: Math.random() * 10,
-                            });
-                        }
-                    });
-                    this.generateFlames();
-                }
-            },
-            undefined,
-            (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
-            },
-        );
-        loader.load(
-            "./full-hub/floor.glb",
-            (gltf: { scene: THREE.Group }) => {
-                // this.instance.add(this.floor); // Add the model to the scene
-                const floor = gltf.scene.children[0] as THREE.Mesh;
-                floor.visible = false;
-                this.instance.add(floor);
-                // Optionally, adjust the model's position, rotation, or scale
-                if (floor) {
-                    floor.position.set(0, 0, 1);
-                    floor.scale.set(1, 1, 1);
-                    floor.rotation.set(0, Math.PI / 2, 0);
-                }
-                this.createFloor(floor);
-            },
-            undefined,
-            (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
-            },
-        );
+        if (floorModel) {
+            const floor = floorModel.scene.children[0] as THREE.Mesh;
+            floor.visible = false;
+            floor.position.set(0, 0, 1);
+            floor.scale.set(1, 1, 1);
+            floor.rotation.set(0, Math.PI / 2, 0);
+            this.instance.add(floor);
+            this.createFloor(floor);
+        }
+    }
+
+    public dispose() {
+        for (const flame of this.flames) flame.dispose();
+        this.flames = [];
+        this.floatingElements = [];
+        super.dispose();
     }
 }

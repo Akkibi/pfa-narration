@@ -27,7 +27,6 @@ export default function Player({
 
     // Handle video end
     useEffect(() => {
-        console.log("subs", subs, "sounds", sounds);
         if (videoRef.current && videoRef.current.onended === null) {
             videoRef.current.onended = () => {
                 if (choice) {
@@ -85,7 +84,7 @@ export default function Player({
                 // muted
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
             >
-                <source src={src} type="video/mp4" />
+                <source src={src} type={src.endsWith(".webm") ? "video/webm" : "video/mp4"} />
                 Your browser does not support the video tag.
             </video>
         </div>

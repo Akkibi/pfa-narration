@@ -61,7 +61,7 @@ export default function Credits({ setIsCredits }: CreditsProps) {
                 height: "100%",
             }}
         >
-            <img src="/images/logo.png" alt="logo" className="logo" />
+            <img src="/images/logo.webp" alt="logo" className="logo" />
             <h1>Credits</h1>
 
             <section

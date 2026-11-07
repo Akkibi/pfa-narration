@@ -13,36 +13,24 @@ export function AudioControls() {
     const isMuteRef = useRef<boolean>(false);
     const [isHowlerReady, setIsHowlerReady] = useState(false);
     const activePlayersRef = useRef<ActivePlayer[]>([]);
-    const mouseRef = useRef<HTMLDivElement>(null);
     const [isMute, setIsMute] = useState(false);
 
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-            if (mouseRef.current) {
-                mouseRef.current.animate(
-                    {
-                        left: `${clientX}px`,
-                        top: `${clientY}px`,
-                    },
-                    { duration: 1000, fill: "forwards" },
-                );
-            }
-        };
+        const handleClick = () => setIsHowlerReady(true);
+        const handlePlay = (name: string, volume?: number) => toggleSound(name, volume);
+        const handleStop = (soundNames: string[]) => stopHowlers(soundNames);
 
-        const handleClick = () => {
-            setIsHowlerReady(true);
-            console.log("Howler ready");
-            document.removeEventListener("mousemove", handleMouseMove);
-        };
-
-        document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("click", handleClick, { once: true });
+        eventEmitterInstance.on("playSound", handlePlay);
+        eventEmitterInstance.on("stopHowlers", handleStop);
 
-        eventEmitterInstance.on("playSound", (name: string, volume?: number) =>
-            toggleSound(name, volume),
-        );
-        eventEmitterInstance.on("stopHowlers", (soundNames: string[]) => stopHowlers(soundNames));
+        return () => {
+            document.removeEventListener("click", handleClick);
+            eventEmitterInstance.off("playSound", handlePlay);
+            eventEmitterInstance.off("stopHowlers", handleStop);
+            activePlayersRef.current.forEach(({ player }) => player.unload());
+            activePlayersRef.current = [];
+        };
     }, []);
 
     const toggleSound = (soundName: string, volume?: number) => {
@@ -65,14 +53,15 @@ export function AudioControls() {
             volume: volume ?? sound.volume ?? 1,
             mute: isMuteRef.current,
             onend: () => {
+                if (sound.loop) return;
                 activePlayersRef.current = activePlayersRef.current.filter(
-                    (p) => p.name !== soundName,
+                    (p) => p.player !== howl,
                 );
+                howl.unload();
             },
         });
 
         const startPlayback = () => {
-            console.log("Playing sound:", soundName);
             howl.play();
             activePlayersRef.current.push({ name: soundName, player: howl });
         };
@@ -85,7 +74,6 @@ export function AudioControls() {
     };
 
     const stopHowlers = (soundNames: string[]) => {
-        console.log("Stopping sounds:", soundNames);
         soundNames.forEach((name) => {
             const player = activePlayersRef.current.find((p) => p.name.includes(name));
             if (player) {
@@ -94,11 +82,8 @@ export function AudioControls() {
 
                 // Remove from active players after fade completes
                 setTimeout(() => {
-                    player.player.stop();
-                    activePlayersRef.current = activePlayersRef.current.filter(
-                        (p) => p.name !== name,
-                    );
-                    console.log(`Stopped sound after fade: ${name}`);
+                    player.player.unload();
+                    activePlayersRef.current = activePlayersRef.current.filter((p) => p !== player);
                 }, 1000);
             }
         });
@@ -118,7 +103,7 @@ export function AudioControls() {
                 <button className="audio-wave-button" tabIndex={-1} onClick={toggleMuteAudio}>
                     {!isMute ? (
                         <img
-                            src="/images/audio_wave.gif"
+                            src="/images/audio_wave.webp"
                             className="audio-wave-playing"
                             alt="audio_wave"
                         />

@@ -1,102 +1,104 @@
 import * as THREE from "three";
-import Stats from "three/examples/jsm/libs/stats.module.js";
-import { eventEmitterInstance } from "../utils/eventEmitter";
 import { gameState } from "./gameState";
 import { Scenes } from "../components/contexts/TransitionManager";
-import { GameScenes } from "../components/SceneManager";
+import type BaseScene from "./scenes/BaseScene";
+import { setMaxTextureSize } from "./assets";
+
+const MAX_PIXEL_RATIO = 1.5;
+const FRAME_INTERVAL = 1000 / 70;
+const FRAME_TOLERANCE = 2;
+const FRAME_60 = 1000 / 60;
+const MAX_DT = 3;
+const SLOW_FRAME = 28;
+const SAMPLE_SIZE = 120;
 
 export class Game {
-    public static instance: Game;
-    private renderer: THREE.WebGLRenderer | null = null;
-    // private stats: Stats;
+    private static instance: Game | null = null;
+    private renderer: THREE.WebGLRenderer;
     private animRef: number | null = null;
     private mount: HTMLDivElement | null = null;
-    private sceneIndex: Scenes;
-    private lastTime: number = Date.now();
-    private fps = 70;
-    private interval = 1000 / this.fps;
-    private currentScene: GameScenes;
-    private tick = 0;
+    private currentScene: BaseScene | null = null;
+    private lastTime: number | null = null;
+    private pixelRatio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+    private sampledFrames = 0;
+    private slowFrames = 0;
 
-    private constructor(sceneIndex: Scenes, scene: GameScenes) {
-        this.sceneIndex = sceneIndex;
-        this.currentScene = scene;
-
-        // this.stats = new Stats();
-        // this.stats.showPanel(0);
-        // document.body.appendChild(this.stats.dom);
-
-        window.addEventListener("resize", this.handleResize);
+    private constructor() {
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            powerPreference: "high-performance",
+        });
+        setMaxTextureSize(this.renderer.capabilities.maxTextureSize);
+        this.renderer.setPixelRatio(this.pixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    public static getInstance(sceneIndex: Scenes, scene: GameScenes): Game {
-        if (!Game.instance) {
-            Game.instance = new Game(sceneIndex, scene);
-        }
-        return Game.instance;
+    public static get(): Game {
+        return (Game.instance ??= new Game());
     }
 
     public start(mount: HTMLDivElement) {
         this.mount = mount;
-        // Renderer setup
-        this.renderer = new THREE.WebGLRenderer({
-            antialias: true,
-            preserveDrawingBuffer: true,
-        });
-        this.renderer.setPixelRatio(1);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.mount.appendChild(this.renderer.domElement);
-
-        // Resize handler
-
-        this.animate();
-
-        // Store cleanup
+        mount.appendChild(this.renderer.domElement);
+        window.addEventListener("resize", this.handleResize);
+        this.handleResize();
+        this.lastTime = null;
+        if (this.animRef === null) this.animRef = requestAnimationFrame(this.animate);
     }
 
     private handleResize = () => {
-        if (!this.renderer) return;
+        this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.pixelRatio = window.devicePixelRatio;
-        this.currentScene.camera?.handleResize();
+        this.currentScene?.camera?.handleResize();
     };
-    public setScene = (scene: GameScenes, sceneIndex: Scenes) => {
+
+    public setScene = (scene: BaseScene, sceneIndex: Scenes) => {
         this.currentScene = scene;
-        this.sceneIndex = sceneIndex;
         gameState.currentScene = sceneIndex;
+        scene.camera?.handleResize();
     };
 
     public cleanup = () => {
-        if (!this.mount || !this.renderer) return;
         window.removeEventListener("resize", this.handleResize);
-        this.renderer.dispose();
-        if (this.animRef) cancelAnimationFrame(this.animRef);
-        if (this.mount.contains(this.renderer.domElement)) {
-            this.mount.removeChild(this.renderer.domElement);
-        }
+        if (this.animRef !== null) cancelAnimationFrame(this.animRef);
+        this.animRef = null;
+        this.currentScene = null;
+        const canvas = this.renderer.domElement;
+        if (this.mount?.contains(canvas)) this.mount.removeChild(canvas);
+        this.mount = null;
     };
 
-    private animate = () => {
-        if (!this.renderer) return;
-        const currentTime = Date.now();
-        const deltaTime = currentTime - this.lastTime;
-
-        if (deltaTime >= this.interval) {
-            // this.stats.begin();
-            this.tick++;
-            eventEmitterInstance.trigger(`updateScene-${gameState.currentScene}`, [
-                this.tick,
-                deltaTime,
-            ]);
-            const camera = this.currentScene.camera;
-            if (camera !== null) {
-                this.renderer.render(this.currentScene.instance, camera.camera);
-            }
-
-            // this.stats.end();
-            this.lastTime = currentTime;
+    // Drops to 1x when most recent frames miss ~35fps at the capped pixel ratio.
+    private monitorPerformance(elapsed: number) {
+        if (this.pixelRatio <= 1 || elapsed > 100) return;
+        this.sampledFrames++;
+        if (elapsed > SLOW_FRAME) this.slowFrames++;
+        if (this.sampledFrames < SAMPLE_SIZE) return;
+        if (this.slowFrames > SAMPLE_SIZE * 0.6) {
+            this.pixelRatio = 1;
+            this.handleResize();
         }
+        this.sampledFrames = 0;
+        this.slowFrames = 0;
+    }
 
+    private animate = (now: number) => {
         this.animRef = requestAnimationFrame(this.animate);
+        const scene = this.currentScene;
+        if (!scene) return;
+        if (this.lastTime === null) {
+            this.lastTime = now;
+            return;
+        }
+        const elapsed = now - this.lastTime;
+        if (elapsed < FRAME_INTERVAL - FRAME_TOLERANCE) return;
+        this.lastTime = now;
+
+        scene.update(now / 1000, Math.min(elapsed / FRAME_60, MAX_DT));
+        const camera = scene.camera;
+        if (camera) {
+            this.renderer.render(scene.instance, camera.camera);
+            this.monitorPerformance(elapsed);
+        }
     };
 }

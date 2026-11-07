@@ -62,7 +62,7 @@ export default function Choice({ onChoice }: ChoiceProps) {
                     }}
                 >
                     <img
-                        src="/images/arrow.png"
+                        src="/images/arrow.webp"
                         style={{ marginRight: "8px", opacity: selected === "yes" ? 1 : 0 }}
                         className="active-button-indicator"
                     />
@@ -86,7 +86,7 @@ export default function Choice({ onChoice }: ChoiceProps) {
                     }}
                 >
                     <img
-                        src="/images/arrow.png"
+                        src="/images/arrow.webp"
                         style={{
                             marginRight: "8px",
                             opacity: selected === "no" ? 1 : 0,

@@ -1,0 +1,31 @@
+# Scenes
+
+Every game scene extends `src/game/scenes/BaseScene.ts`.
+
+## BaseScene API
+
+| Member | Use |
+| --- | --- |
+| `loadSceneModel(url)` | Loads a GLB through the [asset cache](assets.md). Returns `null` if the scene was disposed meanwhile. |
+| `createFloor(mesh)` | Builds the walkable floor, the character and the camera. Applies any spawn or zoom requested before it existed. |
+| `generateSpawns(zones)` | `{ to }` zones are exits, `{ from }` zones are entry points. |
+| `generateZoomZones(zones)` | `{ size, zoom }`: camera zoom while inside. |
+| `generateSubtitlesTriggerZones(zones)` | Plays subtitles once on entry. |
+| `generateBackgroundMaps(urls)` | Painted parallax layers (sRGB textures). |
+| `onUpdate(time, dt)` | Per-frame hook. |
+| `onCharacterMove(position)` | Called when the character moves. |
+| `children` | `SceneChild` objects (NPCs, interactive objects) updated and disposed with the scene. |
+| `dispose()` | Releases models, textures, children, particles. Override to clean up extra state, then call `super.dispose()`. |
+
+## Zones
+
+- Exits trigger on entry only (edge-triggered), with a radius of 0.75. A character spawned inside an exit doesn't teleport back.
+- Interactions (NPCs, objects) only react while their scene is the current one (`gameState.currentScene`).
+
+## Adding a scene
+
+1. Create the class in `src/game/scenes/`.
+2. Add it to `factories` in `sceneRegistry.ts`, and to `neighbors` of the pages that lead to it.
+3. Add a `SceneManager` case in `Pages.tsx`.
+
+Shared helpers: `collectFloating` / `updateFloating` and the flame sprite sheets in `hub.ts` (reused by `hubEnd.ts`).

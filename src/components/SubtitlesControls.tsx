@@ -52,7 +52,7 @@ export default function SubtitlesControls() {
         };
         eventEmitterInstance.on("triggerSubs", handler);
         return () => {
-            eventEmitterInstance.off("triggerSubs");
+            eventEmitterInstance.off("triggerSubs", handler);
             clearSubs();
         };
     }, []);
@@ -66,7 +66,7 @@ export default function SubtitlesControls() {
                     const delay = 500 + i * animationDelay;
                     return (
                         <span
-                            key={i + letter + Math.random()}
+                            key={`${currentLine.text}-${i}`}
                             className="letter"
                             style={{ animationDelay: `${delay}ms` }}
                         >

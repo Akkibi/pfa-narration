@@ -121,7 +121,6 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
 
     useEffect(() => {
         if (showDialog) {
-            console.log("Dialog opened:", currentDialogData);
             const dialog = currentDialogData?.dialogs[dialogName];
             if (!dialog) return;
             const line = {
@@ -151,7 +150,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                     <div
                         className="profile-pic"
                         style={{
-                            background: `center / contain no-repeat url(/characters/images_dialogues/${currentLine && currentLine.name.toLowerCase()}.png)`,
+                            background: `center / contain no-repeat url(/characters/images_dialogues/${currentLine && currentLine.name.toLowerCase()}.webp)`,
                         }}
                     ></div>
                 </div>
@@ -219,7 +218,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     >
                                         {activeButton === index ? (
                                             <img
-                                                src="/images/arrow.png"
+                                                src="/images/arrow.webp"
                                                 className="active-button-indicator"
                                             />
                                         ) : (
@@ -239,7 +238,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     reOpen(currentDialogData.dialogs[dialogName].next ?? "start");
                                 }}
                             >
-                                <img src="/images/arrow.png" className="active-button-indicator" />
+                                <img src="/images/arrow.webp" className="active-button-indicator" />
                                 <span>Next</span>
                             </button>
                         ) : (
@@ -250,7 +249,7 @@ const Dialog = ({ currentDialogData, showDialog }: DialogProps) => {
                                     if (currentDialogData) currentDialogData.done = true;
                                 }}
                             >
-                                <img src="/images/arrow.png" className="active-button-indicator" />
+                                <img src="/images/arrow.webp" className="active-button-indicator" />
                                 <span>Leave Dialog</span>
                             </button>
                         )}

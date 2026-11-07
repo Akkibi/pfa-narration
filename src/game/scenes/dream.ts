@@ -1,13 +1,12 @@
 import * as THREE from "three";
 import BaseScene from "./BaseScene";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { InteractiveObject } from "../InteractiveObject";
 import { InteractiveObjects } from "../../data/objectsData";
-import { eventEmitterInstance } from "../../utils/eventEmitter";
+import { preferLowRes } from "../assets";
 
 export class Dream extends BaseScene {
-    private gltfModel: THREE.Group | null = null;
-    private eye: THREE.Mesh | null = null;
+    private eye: THREE.Object3D | null = null;
+
     constructor() {
         super("dream");
 
@@ -58,10 +57,10 @@ export class Dream extends BaseScene {
 
         this.generateBackgroundMaps(
             [
-                "./souvenir/backgrounds/1.png",
-                "./souvenir/backgrounds/2.png",
-                "./souvenir/backgrounds/3.png",
-                "./souvenir/backgrounds/4.png",
+                "./souvenir/backgrounds/1.webp",
+                "./souvenir/backgrounds/2.webp",
+                "./souvenir/backgrounds/3.webp",
+                "./souvenir/backgrounds/4.webp",
             ],
             new THREE.Vector3(-50, 20, 0),
         );
@@ -92,74 +91,50 @@ export class Dream extends BaseScene {
                 },
             },
         ]);
-        const chevaleret = new InteractiveObject(InteractiveObjects.chevaletEnfer, this);
-        this.instance.add(chevaleret.instance);
-        const bottle = new InteractiveObject(InteractiveObjects.bottleGlass, this);
-        this.instance.add(bottle.instance);
-        const bowl = new InteractiveObject(InteractiveObjects.bowl, this);
-        this.instance.add(bowl.instance);
 
-        this.loadGLTFModel();
-        this.instance.background = new THREE.Color(0xd3c9f2);
-
-        eventEmitterInstance.on(
-            `characterPositionChanged-${this.scene_id}`,
-            this.update.bind(this),
+        this.children.push(
+            new InteractiveObject(InteractiveObjects.chevaletEnfer, this),
+            new InteractiveObject(InteractiveObjects.bottleGlass, this),
+            new InteractiveObject(InteractiveObjects.bowl, this),
         );
+
+        this.loadModels();
+        this.instance.background = new THREE.Color(0xd3c9f2);
     }
 
-    private update(position: THREE.Vector3): void {
-        if (this.eye) {
-            this.eye.lookAt(position);
+    protected onCharacterMove(position: THREE.Vector3) {
+        this.eye?.lookAt(position);
+    }
+
+    private async loadModels() {
+        const sceneUrl = preferLowRes() ? "./souvenir/scene2.mobile.glb" : "./souvenir/scene2.glb";
+        const [model, floorModel] = await Promise.all([
+            this.loadSceneModel(sceneUrl),
+            this.loadSceneModel("./souvenir/floor.glb"),
+        ]);
+
+        if (model) {
+            const scene = model.scene;
+            scene.position.set(5, 0, -3);
+            scene.rotation.set(0, Math.PI, 0);
+            this.eye = scene.getObjectByName("Sphere_007") ?? null;
+            this.instance.add(scene);
+        }
+
+        if (floorModel) {
+            const floor = floorModel.scene.children[0] as THREE.Mesh;
+            floor.name = "floor";
+            floor.visible = false;
+            floor.position.set(5, 0, -3);
+            floor.scale.set(1, 1, 1);
+            floor.rotation.set(0, Math.PI, 0);
+            this.instance.add(floor);
+            this.createFloor(floor);
         }
     }
-    private loadGLTFModel(): void {
-        const loader = new GLTFLoader();
 
-        // Replace 'path/to/your/model.gltf' with the actual path to your GLTF file
-        loader.load(
-            "./souvenir/scene2.glb",
-            (gltf: { scene: THREE.Group }) => {
-                this.gltfModel = gltf.scene; // Store the loaded model
-                this.instance.add(this.gltfModel); // Add the model to the scene
-                // Optionally, adjust the model's position, rotation, or scale
-                if (this.gltfModel) {
-                    this.gltfModel.position.set(5, 0, -3);
-                    this.gltfModel.scale.set(1, 1, 1);
-                    this.gltfModel.rotation.set(0, Math.PI, 0);
-
-                    this.gltfModel.traverse((child) => {
-                        if (child.name === "Sphere_007") {
-                            this.eye = child as THREE.Mesh;
-                        }
-                    });
-                }
-            },
-            undefined,
-            (error) => {
-                console.error("An error occuerred while loading the GLTF model:", error);
-            },
-        );
-        loader.load(
-            "./souvenir/floor.glb",
-            (gltf: { scene: THREE.Group }) => {
-                // this.instance.add(this.floor); // Add the model to the scene
-                const floor = gltf.scene.children[0] as THREE.Mesh;
-                floor.name = "floor";
-                floor.visible = false;
-                this.instance.add(floor);
-                // Optionally, adjust the model's position, rotation, or scale
-                if (floor) {
-                    floor.position.set(5, 0, -3);
-                    floor.scale.set(1, 1, 1);
-                    floor.rotation.set(0, Math.PI, 0);
-                }
-                this.createFloor(floor);
-            },
-            undefined,
-            (error) => {
-                console.error("An error occurred while loading the GLTF model:", error);
-            },
-        );
+    public dispose() {
+        this.eye = null;
+        super.dispose();
     }
 }

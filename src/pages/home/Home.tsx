@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Credits from "./Credits";
 import "./style.css";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
-import { Scenes } from "../../components/contexts/TransitionManager";
 
 export default function Home() {
     const [isCredits, setIsCredits] = useState(false);
@@ -26,6 +25,7 @@ export default function Home() {
                         loop
                         playsInline
                         preload="none"
+                        poster="/images/home-poster.webp"
                         muted
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     >
@@ -55,7 +55,7 @@ export default function Home() {
                         }}
                     >
                         <div className={"home-content " + (isCredits && "active")}>
-                            <img src="/images/logo.png" alt="logo" className="logo" />
+                            <img src="/images/logo.webp" alt="logo" className="logo" />
                             <button
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -66,7 +66,7 @@ export default function Home() {
                                 }}
                                 className="button"
                             >
-                                <img src="/images/arrow.png" className="active-button-indicator" />
+                                <img src="/images/arrow.webp" className="active-button-indicator" />
                                 enter
                             </button>
                             <button

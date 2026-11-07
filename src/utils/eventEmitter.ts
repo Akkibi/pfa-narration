@@ -47,7 +47,7 @@ export class EventEmitter {
         return this;
     }
 
-    off(_names: string) {
+    off(_names: string, callback?: Function) {
         // Errors
         if (typeof _names === "undefined" || _names === "") {
             console.warn("wrong name");
@@ -56,6 +56,21 @@ export class EventEmitter {
 
         // Resolve names
         const names = this.resolveNames(_names);
+
+        if (callback) {
+            names.forEach((_name) => {
+                const name = this.resolveName(_name);
+                for (const namespace in this.callbacks) {
+                    if (name.namespace !== "base" && namespace !== name.namespace) continue;
+                    const list = this.callbacks[namespace]?.[name.value];
+                    if (!(list instanceof Array)) continue;
+                    const index = list.indexOf(callback);
+                    if (index !== -1) list.splice(index, 1);
+                    if (list.length === 0) delete this.callbacks[namespace][name.value];
+                }
+            });
+            return this;
+        }
 
         // Each name
         names.forEach((_name) => {
@@ -130,7 +145,7 @@ export class EventEmitter {
                     this.callbacks[namespace] instanceof Object &&
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
-                    this.callbacks[namespace][name.value].forEach((callback: Function) => {
+                    this.callbacks[namespace][name.value].slice().forEach((callback: Function) => {
                         result = callback.apply(this, args);
 
                         if (typeof finalResult === "undefined") {
@@ -148,7 +163,7 @@ export class EventEmitter {
                 return this;
             }
 
-            this.callbacks[name.namespace][name.value].forEach((callback: Function) => {
+            this.callbacks[name.namespace][name.value]?.slice().forEach((callback: Function) => {
                 result = callback.apply(this, args);
 
                 if (typeof finalResult === "undefined") finalResult = result;
