@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { loadTexture } from "../game/assets";
+import { loadTexture, trackTexture, untrackTexture } from "../game/assets";
 
 // Plays a spritesheet (frames left to right, top to bottom) by moving the texture offset.
 class Animation {
@@ -34,6 +34,7 @@ class Animation {
                 if (this.disposed) return;
                 const texture = base.clone();
                 texture.userData = {};
+                trackTexture(texture);
                 texture.repeat.set(1 / cols, 1 / rows);
                 this.texture = texture;
                 this.applyFrame();
@@ -71,6 +72,7 @@ class Animation {
 
     public dispose() {
         this.disposed = true;
+        if (this.texture) untrackTexture(this.texture);
         this.texture?.dispose();
         this.texture = null;
     }

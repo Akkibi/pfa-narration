@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { getSettings, type TextureQuality } from "../utils/settings";
+import { eventEmitterInstance } from "../utils/eventEmitter";
 
 const dracoLoader = new DRACOLoader().setDecoderPath("/draco/");
 const gltfLoader = new GLTFLoader().setDRACOLoader(dracoLoader);
@@ -63,7 +65,76 @@ export const setMaxTextureSize = (size: number) => {
 };
 
 export const preferLowRes = () =>
-    maxTextureSize < 8192 || window.matchMedia("(pointer: coarse)").matches;
+    maxTextureSize < 8192 ||
+    window.matchMedia("(pointer: coarse)").matches ||
+    getSettings().textureQuality !== "high";
+
+const QUALITY_SCALE: Record<TextureQuality, number> = { high: 1, mid: 0.5, low: 0.25 };
+const MIN_SCALED_SIZE = 256;
+
+type TextureImage = HTMLImageElement | ImageBitmap | HTMLCanvasElement;
+
+const originals = new WeakMap<THREE.Texture["source"], TextureImage>();
+const liveTextures = new Set<THREE.Texture>();
+
+const scaleImage = (image: TextureImage, scale: number) => {
+    if (scale === 1 || Math.max(image.width, image.height) <= MIN_SCALED_SIZE) return image;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas;
+};
+
+const currentScale = () => QUALITY_SCALE[getSettings().textureQuality];
+
+// Clones share a Source but each owns a GPU texture, so they are tracked one by one.
+export const trackTexture = (texture: THREE.Texture) => {
+    liveTextures.add(texture);
+    const source = texture.source;
+    const image = source.data as TextureImage | null;
+    if (!image?.width || originals.has(source)) return;
+    originals.set(source, image);
+    const scaled = scaleImage(image, currentScale());
+    if (scaled === image) return;
+    source.data = scaled;
+    texture.needsUpdate = true;
+};
+
+export const untrackTexture = (texture: THREE.Texture) => {
+    liveTextures.delete(texture);
+};
+
+// The size of the file, whatever the quality setting currently uploads.
+export const textureSize = (texture: THREE.Texture) => {
+    const image = originals.get(texture.source) ?? (texture.source.data as TextureImage);
+    return { width: image.width, height: image.height };
+};
+
+const applyTextureQuality = () => {
+    const scale = currentScale();
+    const scaledSources = new Set<THREE.Texture["source"]>();
+    for (const texture of liveTextures) {
+        const source = texture.source;
+        const image = originals.get(source);
+        if (!image) continue;
+        if (!scaledSources.has(source)) {
+            scaledSources.add(source);
+            source.data = scaleImage(image, scale);
+        }
+        // A new size needs a new GPU texture.
+        texture.dispose();
+        texture.needsUpdate = true;
+    }
+};
+
+let appliedQuality = getSettings().textureQuality;
+eventEmitterInstance.on("settingsChanged", () => {
+    const { textureQuality } = getSettings();
+    if (textureQuality === appliedQuality) return;
+    appliedQuality = textureQuality;
+    applyTextureQuality();
+});
 
 const retain = (owner: object, url: string) => {
     let urls = owners.get(owner);
@@ -82,7 +153,10 @@ const markShared = (root: THREE.Object3D) => {
         if (mesh.geometry) mesh.geometry.userData.shared = true;
         forEachMaterial(mesh, (material) => {
             material.userData.shared = true;
-            forEachTexture(material, (texture) => (texture.userData.shared = true));
+            forEachTexture(material, (texture) => {
+                texture.userData.shared = true;
+                trackTexture(texture);
+            });
         });
     });
 };
@@ -130,6 +204,7 @@ export const loadTexture = (url: string, owner: object, colorSpace: THREE.ColorS
         promise = track(() => textureLoader.loadAsync(key)).then((texture) => {
             texture.colorSpace = colorSpace;
             texture.userData.shared = true;
+            trackTexture(texture);
             return texture;
         });
         textures.set(key, promise);
@@ -167,7 +242,10 @@ export const release = (owner: object) => {
                         const mesh = object as THREE.Mesh;
                         mesh.geometry?.dispose();
                         forEachMaterial(mesh, (material) => {
-                            forEachTexture(material, (texture) => texture.dispose());
+                            forEachTexture(material, (texture) => {
+                                untrackTexture(texture);
+                                texture.dispose();
+                            });
                             material.dispose();
                         });
                     });
@@ -179,7 +257,10 @@ export const release = (owner: object) => {
         if (texture) {
             textures.delete(key);
             texture.then(
-                (t) => t.dispose(),
+                (t) => {
+                    untrackTexture(t);
+                    t.dispose();
+                },
                 () => {},
             );
         }

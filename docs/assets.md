@@ -44,6 +44,16 @@ ffmpeg -i %d.png -vf tile=5x3 -c:v libwebp -quality 90 sheet.webp
 - `release(owner)` disposes the GPU resources no other scene still uses. `BaseScene.dispose()` calls it.
 - `loadProgress()` returns `{ progress, pending, failed }` over the loads started since page start, weighted by bytes (a load counts as 256 KB until its size is known). Only the startup loader reads it, then calls `stopLoadTracking()`.
 
+## Texture quality
+
+`trackTexture` registers every texture the cache loads, plus the clones made by `utils/animationManager.ts`. Any other clone must call `trackTexture` and `untrackTexture` too, or it keeps its old size.
+
+- High uploads the original, Mid half its width and height, Low a quarter. Images of 256 px or less are never scaled.
+- Scaling happens in the browser, so it saves GPU memory but not download size. The original stays in memory so quality can change without a reload.
+- A change replaces `source.data` and disposes each GPU texture, because a new size needs a new one.
+- Read sizes with `textureSize(texture)`, never `texture.image`, when they drive geometry.
+- `preferLowRes()` is also true at Mid and Low. It is read when a scene loads.
+
 ## Caching on Vercel
 
 `vercel.json`: hashed `/assets/*` are immutable for a year; files in `public/` are cached for a week, then revalidated in the background. Renaming a file busts its cache.

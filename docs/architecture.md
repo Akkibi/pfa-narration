@@ -29,7 +29,7 @@ The main chunk holds only React, the home page, videos, audio and UI; it never i
 
 - `start(mount)` attaches the canvas and starts the loop; `cleanup()` detaches it and stops the loop, but keeps the renderer.
 - `setScene(scene, id)` switches the rendered scene.
-- Pixel ratio is `min(devicePixelRatio, 1.5)`. If most frames over ~2 s take more than 28 ms, it drops to 1.
+- Pixel ratio is `min(devicePixelRatio, 1.5)`. If most frames over ~2 s take more than 28 ms, it drops to 1. Choosing a resolution in the [settings](#settings) replaces this with `devicePixelRatio × multiplier`, with no automatic drop.
 
 ## Render loop
 
@@ -48,3 +48,21 @@ The main chunk holds only React, the home page, videos, audio and UI; it never i
 - `scene-change-game` places the character at the spawn matching the previous scene.
 
 Scenes load their GLBs asynchronously; see [scenes.md](scenes.md) and [assets.md](assets.md).
+
+## Settings
+
+`src/components/SettingsMenu.tsx` is a popover opened from the top left of every page. `src/utils/settings.ts` holds the values, stores them in `localStorage` and fires `settingsChanged`.
+
+- Resolution: multiplier of `devicePixelRatio`, 0.25 to 1. Until moved, the slider shows the value matching the automatic ratio.
+- Textures: High, Mid or Low. See [assets.md](assets.md#texture-quality).
+
+Both apply immediately. Space and the arrows also move the character, so controls release focus after a mouse or touch press.
+
+## Skip
+
+`src/components/SkipButton.tsx` shows at the top right wherever the player can only wait:
+
+- Every `Player` video. It stops the page's sounds and subtitles, then runs the same path as the video ending, so `falling` still shows its choice.
+- The white screen with a centered subtitle in `TransitionManager`, which jumps to the fade from white.
+
+Game scenes and NPC dialogue have no skip: the player can move during scene subtitles, and dialogue lines wait for their voice.

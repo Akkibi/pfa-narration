@@ -14,3 +14,4 @@ Within the game, call methods directly (character → camera, scene → characte
 | `showInteractiveObjectControls`, `toggleInteractiveObjectPanel` | interactive object → UI |
 | `userInterractButtonPressed` | `Controls` (E key) → NPCs, objects |
 | `toggleFreeze` | UI → `gameState.freezed` (stops character input) |
+| `settingsChanged` | `utils/settings.ts` → `Game`, `assets.ts` |

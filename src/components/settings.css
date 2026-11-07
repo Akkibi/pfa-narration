@@ -1,0 +1,96 @@
+.settings-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+    margin: 2vh;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+
+    svg {
+        display: block;
+        fill: none;
+        stroke: white;
+        stroke-width: 2;
+        filter: drop-shadow(0 0 1px black);
+    }
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.settings-panel {
+    position: fixed;
+    inset: calc(4vh + 24px) auto auto 2vh;
+    margin: 0;
+    width: min(220px, calc(100vw - 4vh));
+    padding: 12px;
+    border: 0;
+    color: white;
+    background: rgba(0, 0, 0, 0.75);
+    font-family: "Cadiz";
+    font-size: 0.875rem;
+}
+
+.settings-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    span {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    & + & {
+        margin-top: 12px;
+    }
+
+    input {
+        width: 100%;
+        accent-color: white;
+    }
+}
+
+.settings-options {
+    display: flex;
+    gap: 4px;
+
+    button {
+        flex: 1;
+        padding: 4px 0;
+        color: white;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    button[aria-pressed="true"] {
+        color: black;
+        background: white;
+    }
+}
+
+.skip-button {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1001;
+    margin: 2vh;
+    padding: 4px 12px;
+    color: white;
+    font-family: "Cadiz";
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.8;
+    text-shadow: 0 0 2px black;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 1;
+    }
+}

@@ -35,6 +35,20 @@ export class Camera {
         this.defaultZoomAmount = 1;
         this.targetZoomPosition = this.zoomDirection.clone();
         this.currentZoomPosition = this.zoomDirection.clone();
+        this.snapToCharacter();
+    }
+
+    private readTarget() {
+        return target.set(
+            this.character.position.x,
+            lerp(this.character.floorPosition, this.character.height, 0.5),
+            this.character.position.y,
+        );
+    }
+
+    public snapToCharacter() {
+        this.currentPosition.copy(this.readTarget());
+        this.instance.position.copy(this.currentPosition);
     }
 
     public changeZoom(isZoom: boolean, zoomAmount: number) {
@@ -48,11 +62,7 @@ export class Camera {
     }
 
     public update(dt: number) {
-        target.set(
-            this.character.position.x,
-            lerp(this.character.floorPosition, this.character.height, 0.5),
-            this.character.position.y,
-        );
+        this.readTarget();
         if (this.currentPosition.distanceTo(target) > 0.01) {
             this.currentPosition.lerp(target, damp(this.lerpAmount, dt));
             this.instance.position.copy(this.currentPosition);

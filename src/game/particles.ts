@@ -2,20 +2,19 @@ import * as THREE from "three";
 import { PointsNodeMaterial } from "three/webgpu";
 import { instancedDynamicBufferAttribute } from "three/tsl";
 import { Floor } from "./floor";
+import { SurfaceColor } from "./surfaceColor";
 
 const MAX_PARTICLES = 512;
-const COLORS = [
-    [1, 1, 1],
-    [1, 1, 0],
-    [0, 1, 1],
-    [1, 0, 1],
-];
+const LIGHTNESS_OFFSET = 0.15;
 const tmp = new THREE.Vector2();
+const tmpColor = new THREE.Color();
+const tmpHsl = { h: 0, s: 0, l: 0 };
 
 // All particles share one instanced sprite: a single draw call, no per-particle allocation.
 export class ParticleSystem {
     public instance: THREE.Sprite;
     private floor: Floor;
+    private surface: SurfaceColor;
     private count = 0;
     private positions: Float32Array;
     private colors: Float32Array;
@@ -27,8 +26,9 @@ export class ParticleSystem {
     private colorAttribute: THREE.InstancedBufferAttribute;
     private material: PointsNodeMaterial;
 
-    constructor(scene: THREE.Scene, floor: Floor) {
+    constructor(scene: THREE.Scene, floor: Floor, surface: SurfaceColor) {
         this.floor = floor;
+        this.surface = surface;
         this.positions = new Float32Array(MAX_PARTICLES * 3);
         this.colors = new Float32Array(MAX_PARTICLES * 3);
         this.positionAttribute = new THREE.InstancedBufferAttribute(this.positions, 3);
@@ -63,10 +63,16 @@ export class ParticleSystem {
         this.velocities[i3] = speed.x;
         this.velocities[i3 + 1] = speed.y;
         this.velocities[i3 + 2] = speed.z;
-        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-        this.colors[i3] = color[0];
-        this.colors[i3 + 1] = color[1];
-        this.colors[i3 + 2] = color[2];
+        this.surface.sample(position).getHSL(tmpHsl, THREE.SRGBColorSpace);
+        tmpColor.setHSL(
+            tmpHsl.h,
+            tmpHsl.s,
+            THREE.MathUtils.clamp(tmpHsl.l + (Math.random() * 2 - 1) * LIGHTNESS_OFFSET, 0, 1),
+            THREE.SRGBColorSpace,
+        );
+        this.colors[i3] = tmpColor.r;
+        this.colors[i3 + 1] = tmpColor.g;
+        this.colors[i3 + 2] = tmpColor.b;
         this.ages[i] = 0;
         this.lifespans[i] = 50 + Math.floor(Math.random() * 100);
         this.onFloor[i] = 0;

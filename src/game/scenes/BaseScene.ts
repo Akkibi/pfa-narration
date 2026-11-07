@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Character } from "../Character";
 import { Camera } from "../Camera";
 import { ParticleSystem } from "../particles";
+import { SurfaceColor } from "../surfaceColor";
 import { Floor } from "../floor";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { charactersData } from "../../data/characters_data";
@@ -9,7 +10,7 @@ import Npc from "../npc";
 import { Scenes } from "../../components/contexts/TransitionManager";
 import { gameState } from "../gameState";
 import { Subtitle } from "../../data/subsData";
-import { disposeObject, loadModel, loadTexture, release } from "../assets";
+import { disposeObject, loadModel, loadTexture, release, textureSize } from "../assets";
 
 interface userData {
     [key: string]: number | Scenes | boolean | Subtitle;
@@ -39,6 +40,7 @@ export default class BaseScene {
     public floor: Floor | null = null;
     protected character: Character | null = null;
     private particleSystem: ParticleSystem | null = null;
+    private sceneModels: THREE.Object3D[] = [];
     private spawns: Zone[] = [];
     private zoomZones: Zone[] = [];
     private subTriggerZones: Zone[] = [];
@@ -61,7 +63,12 @@ export default class BaseScene {
         this.floor = new Floor(floorModel);
         this.character = new Character(this.floor, this);
         this.camera = new Camera(this.character);
-        this.particleSystem = new ParticleSystem(this.instance, this.floor);
+        this.particleSystem = new ParticleSystem(
+            this.instance,
+            this.floor,
+            new SurfaceColor(this.sceneModels),
+        );
+        this.sceneModels = [];
         this.instance.add(this.camera.instance);
         this.instance.add(this.character.instance);
         this.character.instance.userData = { name: "character02", sceneIndex: 1 };
@@ -102,7 +109,7 @@ export default class BaseScene {
         if (speed) character.speed.copy(speed);
         else character.speed.set(0, 0);
         character.currentPosition.copy(spawn.position);
-        camera.currentPosition.copy(spawn.position);
+        camera.snapToCharacter();
     }
 
     public setZoom(isZoom: boolean, amount: number) {
@@ -125,7 +132,9 @@ export default class BaseScene {
     protected async loadSceneModel(url: string) {
         try {
             const model = await loadModel(url, this);
-            return this.disposed ? null : model;
+            if (this.disposed) return null;
+            this.sceneModels.push(model.scene);
+            return model;
         } catch (error) {
             console.error(`Failed to load ${url}:`, error);
             return null;
@@ -244,7 +253,7 @@ export default class BaseScene {
             loadTexture(backgroundMap, this, THREE.SRGBColorSpace).then(
                 (texture) => {
                     if (this.disposed) return;
-                    const { width, height } = texture.image as HTMLImageElement;
+                    const { width, height } = textureSize(texture);
                     const plane = new THREE.PlaneGeometry(
                         (width / 80) * 20,
                         (height / 80) * 20,

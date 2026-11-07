@@ -3,8 +3,10 @@ import { gameState } from "./gameState";
 import { Scenes } from "../components/contexts/TransitionManager";
 import type BaseScene from "./scenes/BaseScene";
 import { setMaxTextureSize } from "./assets";
+import { getSettings } from "../utils/settings";
+import { MAX_AUTO_PIXEL_RATIO } from "../utils/pixelRatio";
+import { eventEmitterInstance } from "../utils/eventEmitter";
 
-const MAX_PIXEL_RATIO = 1.5;
 const FRAME_INTERVAL = 1000 / 70;
 const FRAME_TOLERANCE = 2;
 const FRAME_60 = 1000 / 60;
@@ -31,7 +33,7 @@ export class Game {
     private mount: HTMLDivElement | null = null;
     private currentScene: BaseScene | null = null;
     private lastTime: number | null = null;
-    private pixelRatio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+    private autoPixelRatio = Math.min(window.devicePixelRatio || 1, MAX_AUTO_PIXEL_RATIO);
     private sampledFrames = 0;
     private slowFrames = 0;
 
@@ -45,6 +47,14 @@ export class Game {
         });
         this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        eventEmitterInstance.on("settingsChanged", this.handleResize);
+    }
+
+    private get pixelRatio() {
+        const { resolution } = getSettings();
+        return resolution === null
+            ? this.autoPixelRatio
+            : (window.devicePixelRatio || 1) * resolution;
     }
 
     public static get(): Game {
@@ -84,12 +94,12 @@ export class Game {
 
     // Drops to 1x when most recent frames miss ~35fps at the capped pixel ratio.
     private monitorPerformance(elapsed: number) {
-        if (this.pixelRatio <= 1 || elapsed > 100) return;
+        if (getSettings().resolution !== null || this.autoPixelRatio <= 1 || elapsed > 100) return;
         this.sampledFrames++;
         if (elapsed > SLOW_FRAME) this.slowFrames++;
         if (this.sampledFrames < SAMPLE_SIZE) return;
         if (this.slowFrames > SAMPLE_SIZE * 0.6) {
-            this.pixelRatio = 1;
+            this.autoPixelRatio = 1;
             this.handleResize();
         }
         this.sampledFrames = 0;

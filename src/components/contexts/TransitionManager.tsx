@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useRef, useState } from "react";
 import gsap from "gsap";
 import { eventEmitterInstance } from "../../utils/eventEmitter";
 import { Subtitle } from "../../data/subsData";
+import SkipButton from "../SkipButton";
 
 export const ScenesSequence: Scenes[] = [
     "home",
@@ -47,11 +48,14 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     const [displayedPage, setDisplayedPage] = useState<Scenes>("home");
     const [page, setPage] = useState<Scenes>("home");
     const [subtitle, setSubtitle] = useState<Subtitle | null>(null);
+    const [isHolding, setIsHolding] = useState(false);
+    const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
     useGSAP(() => {
         if (!fadeRef.current || page === "home") return;
 
         const tl = gsap.timeline({ paused: true });
+        timelineRef.current = tl;
 
         // Fade to white
         tl.to(fadeRef.current, {
@@ -67,6 +71,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
                         ["hub", "souvenir", "monde_noir", "outro"],
                     ]);
                     setDisplayedPage(page);
+                    setIsHolding(true);
                 } else {
                     setDisplayedPage(page);
                 }
@@ -80,11 +85,13 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         }
 
         // Fade from white
+        tl.addLabel("reveal");
         tl.to(fadeRef.current, {
             duration: 0.5,
             backgroundColor: "transparent",
             ease: "power1.inOut",
             onStart: () => {
+                setIsHolding(false);
                 eventEmitterInstance.trigger(`toggleFreeze`, [false]);
                 eventEmitterInstance.trigger("stopHowlers", [["sail_boat"]]);
             },
@@ -100,6 +107,13 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         setPage(newPage);
     };
 
+    const skipHold = () => {
+        setIsHolding(false);
+        if (subtitle) eventEmitterInstance.trigger("stopHowlers", [[subtitle.audio]]);
+        eventEmitterInstance.trigger("triggerSubs", [[]]);
+        timelineRef.current?.seek("reveal");
+    };
+
     return (
         <TransitionContext.Provider
             value={{
@@ -109,6 +123,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             }}
         >
             <div id="fade" ref={fadeRef}></div>
+            {isHolding && <SkipButton onSkip={skipHold} />}
             {children}
         </TransitionContext.Provider>
     );
