@@ -5,6 +5,7 @@ import { eventEmitterInstance } from "../../utils/eventEmitter";
 import Choice from "./Choice";
 import { Scenes } from "../../components/contexts/TransitionManager";
 import SkipButton from "../../components/SkipButton";
+import MenuButton from "../../components/MenuButton";
 
 type PlayerProps = {
     src: string;
@@ -13,6 +14,8 @@ type PlayerProps = {
     sounds?: string[];
     soundTrack?: boolean;
     choice?: boolean;
+    // Waits on the last frame for a press on "Back to menu" before calling onEnd.
+    endsWithMenuButton?: boolean;
 };
 
 export default function Player({
@@ -22,6 +25,7 @@ export default function Player({
     sounds = undefined,
     soundTrack = false,
     choice = false,
+    endsWithMenuButton = false,
 }: PlayerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [showChoice, setShowChoice] = useState<boolean>(false);
@@ -32,6 +36,7 @@ export default function Player({
         if (isFinishedRef.current) return;
         isFinishedRef.current = true;
         setIsFinished(true);
+        if (endsWithMenuButton) return;
         if (choice) {
             setShowChoice(true);
             eventEmitterInstance.trigger("toggleFreeze", [true]);
@@ -45,8 +50,11 @@ export default function Player({
         const video = videoRef.current;
         if (video) {
             video.pause();
-            // The choice shows over the last frame.
-            if (choice && Number.isFinite(video.duration)) video.currentTime = video.duration;
+            // The choice and the menu button show over the last frame.
+            const staysOnLastFrame = choice || endsWithMenuButton;
+            if (staysOnLastFrame && Number.isFinite(video.duration)) {
+                video.currentTime = video.duration;
+            }
         }
         eventEmitterInstance.trigger("stopHowlers", [
             [...(sounds ?? []), ...(subs ?? []).map((sub) => sub.audio)],
@@ -100,6 +108,7 @@ export default function Player({
         >
             {showChoice && <Choice onChoice={handleChoice} />}
             {!isFinished && <SkipButton onSkip={skip} />}
+            {isFinished && endsWithMenuButton && <MenuButton onClick={() => onEnd()} />}
             <video
                 ref={videoRef}
                 autoPlay

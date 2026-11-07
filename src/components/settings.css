@@ -94,3 +94,28 @@
         opacity: 1;
     }
 }
+
+.menu-button {
+    position: fixed;
+    bottom: 10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    padding: 8px 16px;
+    color: white;
+    font-family: "Cadiz";
+    font-size: 1.5rem;
+    cursor: pointer;
+    text-shadow: 0 0 2px black;
+    animation: appearOpacity 500ms forwards;
+}
+
+.settings-menu-link {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 4px 0;
+    color: white;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}

@@ -13,7 +13,7 @@ import { useGameLoader } from "../game/loader";
 import type { SceneManagerProps } from "../components/SceneManager";
 
 export default function Pages() {
-    const { setPage, displayedPage, setPageWithSubtitle } = useTransitionContext();
+    const { setPage, displayedPage, setPageWithSubtitle, goToMenu } = useTransitionContext();
     const displayedPageRef = useRef(displayedPage);
     const { runtime, progress, ready } = useGameLoader();
 
@@ -124,9 +124,10 @@ export default function Pages() {
                 <Player
                     key={"credits"}
                     src="/videos/credits.webm"
-                    onEnd={() => setPage("home")}
+                    onEnd={goToMenu}
                     sounds={undefined}
                     subs={undefined}
+                    endsWithMenuButton
                 />
             );
         default:

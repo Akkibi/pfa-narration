@@ -39,6 +39,7 @@ type TransitionContextProps = {
     setPageWithSubtitle: (page: Scenes, subtitle: Subtitle, duration?: number) => void;
     // changePage: (page: Scenes) => void;
     setPage: (page: Scenes) => void;
+    goToMenu: () => void;
 };
 
 const TransitionContext = createContext<TransitionContextProps | null>(null);
@@ -107,6 +108,19 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         setPage(newPage);
     };
 
+    const goToMenu = () => {
+        timelineRef.current?.kill();
+        setIsHolding(false);
+        eventEmitterInstance.trigger("returnToMenu");
+        eventEmitterInstance.trigger("triggerSubs", [[]]);
+        eventEmitterInstance.trigger("closeDialog");
+        eventEmitterInstance.trigger("showInteractiveObjectControls", [false]);
+        eventEmitterInstance.trigger("toggleInteractiveObjectPanel", [undefined]);
+        // Cleared again by the fade from white.
+        eventEmitterInstance.trigger("toggleFreeze", [true]);
+        setPage("home");
+    };
+
     const skipHold = () => {
         setIsHolding(false);
         if (subtitle) eventEmitterInstance.trigger("stopHowlers", [[subtitle.audio]]);
@@ -120,6 +134,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
                 displayedPage,
                 setPageWithSubtitle,
                 setPage,
+                goToMenu,
             }}
         >
             <div id="fade" ref={fadeRef}></div>

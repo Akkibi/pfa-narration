@@ -15,3 +15,4 @@ Within the game, call methods directly (character → camera, scene → characte
 | `userInterractButtonPressed` | `Controls` (E key) → NPCs, objects |
 | `toggleFreeze` | UI → `gameState.freezed` (stops character input) |
 | `settingsChanged` | `utils/settings.ts` → `Game`, `assets.ts` |
+| `returnToMenu` | `TransitionManager.goToMenu` → `AudioControls` (stops all sounds), `sceneRegistry` (resets dialogue progress) |

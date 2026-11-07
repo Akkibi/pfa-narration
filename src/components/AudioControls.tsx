@@ -23,11 +23,13 @@ export function AudioControls() {
         document.addEventListener("click", handleClick, { once: true });
         eventEmitterInstance.on("playSound", handlePlay);
         eventEmitterInstance.on("stopHowlers", handleStop);
+        eventEmitterInstance.on("returnToMenu", stopAllHowlers);
 
         return () => {
             document.removeEventListener("click", handleClick);
             eventEmitterInstance.off("playSound", handlePlay);
             eventEmitterInstance.off("stopHowlers", handleStop);
+            eventEmitterInstance.off("returnToMenu", stopAllHowlers);
             activePlayersRef.current.forEach(({ player }) => player.unload());
             activePlayersRef.current = [];
         };
@@ -82,6 +84,16 @@ export function AudioControls() {
                     activePlayersRef.current = activePlayersRef.current.filter((p) => p !== player);
                 }, 1000);
             }
+        });
+    };
+
+    // Forgotten at once, so the menu can start its music again during the fade out.
+    const stopAllHowlers = () => {
+        const players = activePlayersRef.current;
+        activePlayersRef.current = [];
+        players.forEach(({ player }) => {
+            player.fade(player.volume(), 0, 1000);
+            setTimeout(() => player.unload(), 1000);
         });
     };
 

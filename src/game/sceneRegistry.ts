@@ -1,6 +1,7 @@
 import type BaseScene from "./scenes/BaseScene";
 import { Scenes } from "../components/contexts/TransitionManager";
 import { eventEmitterInstance } from "../utils/eventEmitter";
+import { dialogData } from "../data/dialogData";
 import { Game } from "./game";
 import { HubPano } from "./scenes/hubPano";
 import { Hub } from "./scenes/hub";
@@ -55,4 +56,8 @@ export const prepareScenes = (page: Scenes) => {
 
 eventEmitterInstance.on("scene-change-game", (to: Scenes, from: Scenes) => {
     getScene(to)?.spawnFrom(from);
+});
+
+eventEmitterInstance.on("returnToMenu", () => {
+    for (const dialog of Object.values(dialogData)) dialog.done = false;
 });

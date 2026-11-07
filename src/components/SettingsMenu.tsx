@@ -1,6 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import { getSettings, updateSettings, type TextureQuality } from "../utils/settings";
 import { MAX_AUTO_PIXEL_RATIO } from "../utils/pixelRatio";
+import { useTransitionContext } from "./contexts/TransitionManager";
 import "./settings.css";
 
 const QUALITIES: { value: TextureQuality; label: string }[] = [
@@ -18,6 +19,7 @@ const releaseFocus = (event: MouseEvent<HTMLElement>) => {
 
 export default function SettingsMenu() {
     const [settings, setSettings] = useState(getSettings);
+    const { displayedPage, goToMenu } = useTransitionContext();
     const resolution = settings.resolution ?? autoResolution();
 
     const change = (next: Parameters<typeof updateSettings>[0]) => {
@@ -73,6 +75,20 @@ export default function SettingsMenu() {
                         ))}
                     </div>
                 </div>
+                {displayedPage !== "home" && (
+                    <button
+                        type="button"
+                        className="settings-menu-link"
+                        popoverTarget="settings-panel"
+                        popoverTargetAction="hide"
+                        onClick={(event) => {
+                            goToMenu();
+                            releaseFocus(event);
+                        }}
+                    >
+                        Back to menu
+                    </button>
+                )}
             </div>
         </>
     );

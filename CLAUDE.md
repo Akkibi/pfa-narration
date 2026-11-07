@@ -4,7 +4,7 @@ Narrative 3D browser game (Three.js WebGPU/TSL + React + TypeScript), deployed o
 
 ## Docs
 
-- [docs/architecture.md](docs/architecture.md): pages, startup loading (code split, progress bar), the Game singleton, the render loop, the scene lifecycle, settings and skip.
+- [docs/architecture.md](docs/architecture.md): pages, startup loading (code split, progress bar), the Game singleton, the render loop, the scene lifecycle, settings, skip and back to menu.
 - [docs/scenes.md](docs/scenes.md): BaseScene API, zones (spawn, zoom, subtitles), TSL materials, how to add a scene.
 - [docs/events.md](docs/events.md): the remaining React ↔ game events and what replaced the others.
 - [docs/assets.md](docs/assets.md): asset formats, compression commands, the loader cache and mobile variants.

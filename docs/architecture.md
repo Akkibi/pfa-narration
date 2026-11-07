@@ -55,6 +55,7 @@ Scenes load their GLBs asynchronously; see [scenes.md](scenes.md) and [assets.md
 
 - Resolution: multiplier of `devicePixelRatio`, 0.25 to 1. Until moved, the slider shows the value matching the automatic ratio.
 - Textures: High, Mid or Low. See [assets.md](assets.md#texture-quality).
+- [Back to menu](#back-to-menu), on every page but home.
 
 Both apply immediately. Space and the arrows also move the character, so controls release focus after a mouse or touch press.
 
@@ -69,3 +70,9 @@ Both apply immediately. Space and the arrows also move the character, so control
 Game scenes have no skip, because the player can move during their subtitles.
 
 `Player` starts its sounds and subtitles once per mount. `Pages` passes new arrays on every render, including during the fade out, so these props must not be effect dependencies. Each `Player` page that follows another needs its own `key`.
+
+## Back to menu
+
+`goToMenu` in `TransitionManager` cancels any running transition, stops sounds and subtitles, closes dialogue and object panels, resets dialogue progress and goes home. `prepareScenes("home")` then disposes every scene except `hub_pano`, which holds no progress, so the next run starts clean.
+
+The settings panel offers it on every page but home. The credits wait on their last frame with the same button instead of leaving on their own (`endsWithMenuButton` in `Player`).
